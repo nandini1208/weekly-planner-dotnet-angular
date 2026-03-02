@@ -1,0 +1,73 @@
+<div class="card">
+    <h2>👋 Welcome! Let's get to work.</h2>
+
+    <div *ngIf="!activeMemberId">
+        <h3>Who are you?</h3>
+        <p style="color: var(--text-secondary)">Click your name to get started.</p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+            <button *ngFor="let member of teamMembers" (click)="selectMember(member.id)"
+                style="background-color: var(--surface-color); color: var(--text-primary); border: 1px solid var(--primary-color);">
+                {{ member.name }}
+            </button>
+        </div>
+    </div>
+
+    <div *ngIf="activeMemberId">
+        <div class="action-row">
+            <h3>Hi, {{ activeMemberName }}!</h3>
+            <button (click)="activeMemberId = null"
+                style="background-color: transparent; color: var(--text-secondary); border: 1px solid var(--border-color)">Switch
+                User</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+            <!-- Planning Section -->
+            <div class="card" style="background-color: #242424;">
+                <h4>📝 Plan My Work</h4>
+                <p style="color: var(--text-secondary); font-size: 0.9em;">Pick backlog items and commit your 30 hours.
+                </p>
+                <button (click)="toggleClaimForm()">Claim a Task</button>
+
+                <div *ngIf="showClaimForm"
+                    style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                    <label>Select Backlog Item:</label>
+                    <select [(ngModel)]="claimItemId">
+                        <option *ngFor="let item of backlogItems" [value]="item.id">{{ item.title }} (Est: {{
+                            item.estimatedHours }}h)</option>
+                    </select>
+
+                    <label>Hours to commit this week:</label>
+                    <input type="number" [(ngModel)]="claimHours" min="1" max="30">
+
+                    <button (click)="claimTask()" style="width: 100%">Confirm Claim</button>
+                </div>
+            </div>
+
+            <!-- Updating Section -->
+            <div class="card" style="background-color: #242424;">
+                <h4>✏️ Update My Progress</h4>
+                <p style="color: var(--text-secondary); font-size: 0.9em;">Report hours and status on your active tasks.
+                </p>
+
+                <label>Assignment ID (Enter your task ID):</label>
+                <input type="number" [(ngModel)]="updateAssignmentId">
+
+                <label>Total Hours Completed:</label>
+                <input type="number" [(ngModel)]="updateDoneHours" min="0">
+
+                <label>Current Status:</label>
+                <select [(ngModel)]="updateStatus">
+                    <option value="To Do">To Do</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Blocked">Blocked</option>
+                    <option value="Done">Done</option>
+                </select>
+
+                <button (click)="submitProgress()"
+                    style="width: 100%; background-color: var(--secondary-color); color: black;">Save Progress</button>
+            </div>
+
+        </div>
+    </div>
+</div>

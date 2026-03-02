@@ -1,0 +1,46 @@
+<div class="card">
+    <h2>📋 Manage Backlog</h2>
+    <p>Add, edit, or browse work items.</p>
+
+    <div class="card" style="background-color: #242424;">
+        <h3>Add New Item</h3>
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; align-items: start;">
+            <input type="text" [(ngModel)]="newItemTitle" placeholder="Task description">
+            <select [(ngModel)]="newItemCategory">
+                <option value="Client">Client</option>
+                <option value="TechDebt">Tech Debt</option>
+                <option value="R&D">R&D</option>
+            </select>
+            <input type="number" [(ngModel)]="newItemEstimate" min="1" placeholder="Est. Hours">
+            <button (click)="addItem()" [disabled]="!newItemTitle || newItemEstimate <= 0">Add to Backlog</button>
+        </div>
+    </div>
+
+    <table *ngIf="backlogItems.length > 0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Est. Hours</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of backlogItems">
+                <td>#{{ item.id }}</td>
+                <td>{{ item.title }}</td>
+                <td>
+                    <span class="badge" [ngClass]="item.category.toLowerCase().replace('&','')">{{ item.category
+                        }}</span>
+                </td>
+                <td>{{ item.estimatedHours }}h</td>
+                <td>
+                    <span [style.color]="item.status === 'Done' ? 'var(--secondary-color)' : 'var(--text-secondary)'">{{
+                        item.status }}</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p *ngIf="backlogItems.length === 0" style="color: var(--text-secondary);">The backlog is empty.</p>
+</div>

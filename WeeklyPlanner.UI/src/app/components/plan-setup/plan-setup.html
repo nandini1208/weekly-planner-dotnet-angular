@@ -1,0 +1,56 @@
+<div class="card">
+    <h2>⚙️ Set Up This Week's Plan</h2>
+    <p>Pick members and set category percentages. Only the <strong>Lead</strong> should manage this.</p>
+
+    <div *ngIf="!currentPlan">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+            <div>
+                <label>Client (%)</label>
+                <input type="number" [(ngModel)]="clientPct" min="0" max="100">
+            </div>
+            <div>
+                <label>Tech Debt (%)</label>
+                <input type="number" [(ngModel)]="techDebtPct" min="0" max="100">
+            </div>
+            <div>
+                <label>R&D (%)</label>
+                <input type="number" [(ngModel)]="rndPct" min="0" max="100">
+            </div>
+        </div>
+
+        <div class="action-row">
+            <span>Total: <strong>{{ totalPct }}%</strong> <span *ngIf="totalPct===100"
+                    style="color: var(--secondary-color)">✓</span></span>
+            <span>Total Team Capacity: <strong>{{ totalCapacity }} hours</strong></span>
+        </div>
+
+        <button (click)="createPlan()" [disabled]="totalPct !== 100 || teamMembers.length === 0">Create Weekly
+            Plan</button>
+    </div>
+
+    <div *ngIf="currentPlan">
+        <div class="card" style="background-color: #242424; border-left: 4px solid var(--secondary-color);">
+            <h3>Plan is Active</h3>
+            <p>Total Capacity: {{ currentPlan.totalPlannedHours }} hours</p>
+            <div style="display: flex; gap: 20px; font-weight: bold; margin-top: 10px;">
+                <span style="color: #64b5f6">Client: {{ currentPlan.clientPercentage }}%</span>
+                <span style="color: #ffb74d">Tech Debt: {{ currentPlan.techDebtPercentage }}%</span>
+                <span style="color: #a1887f">R&D: {{ currentPlan.rnDPercentage }}%</span>
+            </div>
+
+            <div style="margin-top: 20px;" *ngIf="!currentPlan.isFrozen">
+                <hr style="border-color: var(--border-color)">
+                <h4>❄️ Review and Freeze</h4>
+                <p style="color: var(--text-secondary)">Once the team has claimed their hours, freeze the plan to
+                    prevent further additions.</p>
+                <button (click)="freezePlan()" style="background-color: var(--secondary-color)">Freeze Weekly
+                    Plan</button>
+            </div>
+
+            <div *ngIf="currentPlan.isFrozen"
+                style="margin-top: 20px; color: var(--secondary-color); font-weight: bold;">
+                ❄️ The plan is frozen. Team members can now only update progress.
+            </div>
+        </div>
+    </div>
+</div>
