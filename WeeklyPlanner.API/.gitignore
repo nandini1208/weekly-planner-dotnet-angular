@@ -1,0 +1,17 @@
+# Ignore build folders
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+*.user
+
+# Logs
+*.log
+
+# Angular (future)
+node_modules/
+dist/
+
+# Env files
+.env
