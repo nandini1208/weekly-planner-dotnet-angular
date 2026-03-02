@@ -1,0 +1,27 @@
+﻿  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WeeklyPlanner.API -> C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.API\bin\Debug\net8.0\WeeklyPlanner.API.dll
+  WeeklyPlanner.Tests -> C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.Tests\bin\Debug\net8.0\WeeklyPlanner.Tests.dll
+Test run for C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.Tests\bin\Debug\net8.0\WeeklyPlanner.Tests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  Failed WeeklyPlanner.Tests.WeeklyPlanServiceTests.UpdateProgressAsync_ValidUpdate_UpdatesBacklogStatus [12 ms]
+  Error Message:
+   Microsoft.EntityFrameworkCore.DbUpdateException : Required properties '{'Category', 'Title'}' are missing for the instance of entity type 'BacklogItem'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the entity key value.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.InMemory.Storage.Internal.InMemoryTable`1.ThrowNullabilityErrorException(IUpdateEntry entry, IList`1 nullabilityErrors)
+   at Microsoft.EntityFrameworkCore.InMemory.Storage.Internal.InMemoryTable`1.Create(IUpdateEntry entry, IDiagnosticsLogger`1 updateLogger)
+   at Microsoft.EntityFrameworkCore.InMemory.Storage.Internal.InMemoryStore.ExecuteTransaction(IList`1 entries, IDiagnosticsLogger`1 updateLogger)
+   at Microsoft.EntityFrameworkCore.InMemory.Storage.Internal.InMemoryDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at WeeklyPlanner.Tests.WeeklyPlanServiceTests.UpdateProgressAsync_ValidUpdate_UpdatesBacklogStatus() in C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.Tests\WeeklyPlanServiceTests.cs:line 118
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:     8, Skipped:     0, Total:     9, Duration: 347 ms - WeeklyPlanner.Tests.dll (net8.0)
+
+Workload updates are available. Run `dotnet workload list` for more information.

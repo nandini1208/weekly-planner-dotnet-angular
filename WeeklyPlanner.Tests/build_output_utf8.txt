@@ -1,0 +1,16 @@
+﻿  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WeeklyPlanner.API -> C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.API\bin\Debug\net8.0\WeeklyPlanner.API.dll
+C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.Tests\WeeklyPlanServiceTests.cs(19,18): error CS1061: 'DbContextOptionsBuilder<AppDbContext>' does not contain a definition for 'UseInMemoryDatabase' and no accessible extension method 'UseInMemoryDatabase' accepting a first argument of type 'DbContextOptionsBuilder<AppDbContext>' could be found (are you missing a using directive or an assembly reference?) [C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.Tests\WeeklyPlanner.Tests.csproj]
+C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.Tests\WeeklyPlanServiceTests.cs(128,41): warning CS8602: Dereference of a possibly null reference. [C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.Tests\WeeklyPlanner.Tests.csproj]
+
+Build FAILED.
+
+C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.Tests\WeeklyPlanServiceTests.cs(128,41): warning CS8602: Dereference of a possibly null reference. [C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.Tests\WeeklyPlanner.Tests.csproj]
+C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.Tests\WeeklyPlanServiceTests.cs(19,18): error CS1061: 'DbContextOptionsBuilder<AppDbContext>' does not contain a definition for 'UseInMemoryDatabase' and no accessible extension method 'UseInMemoryDatabase' accepting a first argument of type 'DbContextOptionsBuilder<AppDbContext>' could be found (are you missing a using directive or an assembly reference?) [C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.Tests\WeeklyPlanner.Tests.csproj]
+    1 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.74
+
+Workload updates are available. Run `dotnet workload list` for more information.

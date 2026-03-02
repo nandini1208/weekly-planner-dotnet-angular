@@ -135,3 +135,4 @@ C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.API\bin\Debug\net8.0\runtimes\win\
 C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.API\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
 C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.API\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.API\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+C:\Users\nandi\WeeklyPlannerApp\WeeklyPlanner.API\obj\Debug\net8.0\WeeklyPlanner.API.sourcelink.json
