@@ -7,7 +7,7 @@ import { TeamMember, BacklogItem, WeeklyPlan, TaskAssignment, ProgressUpdate, Pr
     providedIn: 'root'
 })
 export class ApiService {
-    private readonly baseUrl = 'https://localhost:7252/api';
+    private readonly baseUrl = 'http://localhost:5119/api';
     private http = inject(HttpClient);
 
     // Team

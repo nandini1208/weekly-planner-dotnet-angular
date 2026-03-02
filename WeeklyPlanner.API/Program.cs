@@ -39,17 +39,3 @@ app.MapControllers();
 
 app.Run();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseCors("AllowAngular");
-app.UseHttpsRedirection();
-app.MapControllers();
-
-app.Run();
-
-
