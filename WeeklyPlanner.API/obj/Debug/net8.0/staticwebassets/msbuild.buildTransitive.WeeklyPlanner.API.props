@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\buildMultiTargeting\WeeklyPlanner.API.props" />
-</Project>

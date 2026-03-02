@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\WeeklyPlanner.API.props" />
-</Project>
