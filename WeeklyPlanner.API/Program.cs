@@ -13,12 +13,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IWeeklyPlanService, WeeklyPlanService>();
 
-// Configure CORS for Angular (assuming port 4200)
+// Configure CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngular", builder =>
+    options.AddPolicy("AllowAngular", policy =>
     {
-        builder.WithOrigins("http://localhost:4200")
+        var originsString = builder.Configuration["AllowedOrigins"];
+        var origins = string.IsNullOrEmpty(originsString) 
+            ? new[] { "http://localhost:4200" } 
+            : originsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+        policy.WithOrigins(origins)
                .AllowAnyMethod()
                .AllowAnyHeader();
     });

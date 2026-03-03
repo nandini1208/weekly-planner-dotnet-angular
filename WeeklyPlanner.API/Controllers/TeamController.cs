@@ -50,6 +50,17 @@ namespace WeeklyPlanner.API.Controllers
 
             return NoContent();
         }
+        // PUT: api/Team/{id}  — update name
+        [HttpPut("{id}")]
+        public async Task<ActionResult<TeamMember>> UpdateTeamMember(int id, TeamMember updated)
+        {
+            var member = await _context.TeamMembers.FindAsync(id);
+            if (member == null) return NotFound();
+            member.Name = updated.Name;
+            await _context.SaveChangesAsync();
+            return Ok(member);
+        }
+
         // DELETE: api/Team/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTeamMember(int id)

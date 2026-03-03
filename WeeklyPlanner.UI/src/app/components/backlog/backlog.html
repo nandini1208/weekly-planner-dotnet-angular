@@ -1,46 +1,138 @@
-<div class="card">
-    <h2>📋 Manage Backlog</h2>
-    <p>Add, edit, or browse work items.</p>
+<div class="backlog-container">
 
-    <div class="card" style="background-color: #242424;">
-        <h3>Add New Item</h3>
-        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; align-items: start;">
-            <input type="text" [(ngModel)]="newItemTitle" placeholder="Task description">
-            <select [(ngModel)]="newItemCategory">
-                <option value="Client">Client</option>
-                <option value="TechDebt">Tech Debt</option>
-                <option value="R&D">R&D</option>
-            </select>
-            <input type="number" [(ngModel)]="newItemEstimate" min="1" placeholder="Est. Hours">
-            <button (click)="addItem()" [disabled]="!newItemTitle || newItemEstimate <= 0">Add to Backlog</button>
+    <!-- TOAST -->
+    <div class="toast" *ngIf="savedToast">✅ Backlog item saved!</div>
+
+    <!-- HOME BACK BUTTON -->
+    <button class="btn-back" (click)="goHome()">🏠 Home</button>
+
+    <!-- ===================== EDIT FORM ===================== -->
+    <ng-container *ngIf="editingItem">
+        <h1 class="title">Edit Backlog Item</h1>
+
+        <div class="add-form-card">
+            <div class="form-field">
+                <label class="field-label">Title</label>
+                <input class="field-input" type="text" [(ngModel)]="editTitle" placeholder="What is this work about?">
+            </div>
+
+            <div class="form-field">
+                <label class="field-label">Description</label>
+                <textarea class="field-textarea" [(ngModel)]="editDescription"
+                    placeholder="Add more details here (optional)" rows="3"></textarea>
+            </div>
+
+            <div class="form-field">
+                <label class="field-label">Category</label>
+                <div class="field-static" [ngClass]="categoryClass(editCategory)">
+                    {{ editCategory }}
+                </div>
+                <span style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+                    Category cannot be changed after creation.
+                </span>
+            </div>
+
+            <div class="form-field">
+                <label class="field-label">Estimated hours (optional)</label>
+                <input class="field-input" type="number" [(ngModel)]="editEstimate" min="1"
+                    placeholder="How many hours might this take?">
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-save" (click)="saveEdit()" [disabled]="!editTitle.trim()">Save
+                    Changes</button>
+                <button type="button" class="btn-cancel" (click)="cancelEdit()">Cancel</button>
+            </div>
         </div>
-    </div>
+    </ng-container>
 
-    <table *ngIf="backlogItems.length > 0">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Description</th>
-                <th>Category</th>
-                <th>Est. Hours</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let item of backlogItems">
-                <td>#{{ item.id }}</td>
-                <td>{{ item.title }}</td>
-                <td>
-                    <span class="badge" [ngClass]="item.category.toLowerCase().replace('&','')">{{ item.category
-                        }}</span>
-                </td>
-                <td>{{ item.estimatedHours }}h</td>
-                <td>
-                    <span [style.color]="item.status === 'Done' ? 'var(--secondary-color)' : 'var(--text-secondary)'">{{
-                        item.status }}</span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <p *ngIf="backlogItems.length === 0" style="color: var(--text-secondary);">The backlog is empty.</p>
+    <!-- ===================== ADD FORM ===================== -->
+    <ng-container *ngIf="showAddForm && !editingItem">
+        <h1 class="title">Add a New Backlog Item</h1>
+
+        <div class="add-form-card">
+            <div class="form-field">
+                <label class="field-label">Title</label>
+                <input class="field-input" type="text" [(ngModel)]="newItemTitle" placeholder="What is this work about?"
+                    (keydown.enter)="addItem()">
+            </div>
+
+            <div class="form-field">
+                <label class="field-label">Description</label>
+                <textarea class="field-textarea" [(ngModel)]="newItemDescription"
+                    placeholder="Add more details here (optional)" rows="3"></textarea>
+            </div>
+
+            <div class="form-field">
+                <label class="field-label">Category</label>
+                <select class="field-select" [(ngModel)]="newItemCategory">
+                    <option value="">Pick a category</option>
+                    <option value="Client Focused">Client Focused</option>
+                    <option value="Tech Debt">Tech Debt</option>
+                    <option value="R&D">R&amp;D</option>
+                </select>
+            </div>
+
+            <div class="form-field">
+                <label class="field-label">Estimated hours (optional)</label>
+                <input class="field-input" type="number" [(ngModel)]="newItemEstimate" min="1"
+                    placeholder="How many hours might this take?">
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-save" (click)="addItem()"
+                    [disabled]="!newItemTitle.trim() || !newItemCategory">Save
+                    Item</button>
+                <button type="button" class="btn-cancel" (click)="showAddForm = false">Cancel</button>
+            </div>
+        </div>
+    </ng-container>
+
+    <!-- ===================== LIST VIEW ===================== -->
+    <ng-container *ngIf="!showAddForm && !editingItem">
+        <h1 class="title">Manage Backlog</h1>
+
+        <div class="btn-row">
+            <button class="btn-add-new" (click)="showAddForm = true">+ Add a New Backlog Item</button>
+        </div>
+
+        <!-- CATEGORY FILTER PILLS -->
+        <div class="cat-pills">
+            <button class="pill" [class.active-client]="activeCat === 'Client Focused'"
+                (click)="setCat('Client Focused')">Client Focused</button>
+            <button class="pill pill-tech" [class.active-tech]="activeCat === 'Tech Debt'"
+                (click)="setCat('Tech Debt')">Tech Debt</button>
+            <button class="pill pill-rnd" [class.active-rnd]="activeCat === 'R&D'"
+                (click)="setCat('R&D')">R&amp;D</button>
+        </div>
+
+        <!-- FILTERS ROW -->
+        <div class="filters-row">
+            <select [(ngModel)]="statusFilter" class="filter-select">
+                <option value="available">Available Only</option>
+                <option value="all">Show All</option>
+                <option value="completed">Completed</option>
+                <option value="archived">Archived</option>
+            </select>
+            <input class="search-input" type="text" [(ngModel)]="searchQuery" placeholder="Search by title">
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div *ngIf="filteredItems.length === 0" class="empty-state">
+            No backlog items match your filters.
+        </div>
+
+        <!-- ITEMS LIST -->
+        <div class="items-list">
+            <div *ngFor="let item of filteredItems" class="item-row">
+                <span class="item-title">{{ item.title }}</span>
+                <span class="item-cat" [ngClass]="categoryClass(item.category)">{{ categoryLabel(item.category)
+                    }}</span>
+                <span class="item-status">{{ item.status ? item.status.toUpperCase() : 'AVAILABLE' }}</span>
+                <span *ngIf="item.estimatedHours" class="item-hours">{{ item.estimatedHours }}h est.</span>
+                <button class="btn-view-edit" (click)="openEdit(item)">View &amp; Edit</button>
+            </div>
+        </div>
+    </ng-container>
+
 </div>

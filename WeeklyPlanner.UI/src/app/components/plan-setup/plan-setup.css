@@ -6,6 +6,27 @@
     font-family: Inter, sans-serif;
 }
 
+/* Back / Home button */
+.btn-back {
+    background: transparent;
+    color: #9ca3af;
+    border: 1px solid #374151;
+    padding: 7px 14px;
+    border-radius: 7px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-back:hover {
+    background: #374151;
+    color: white;
+}
+
 .plan-setup-container {
     width: 100%;
 }

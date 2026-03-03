@@ -1,45 +1,84 @@
 <div class="container">
 
-  <div class="header-text">
-    👋 Welcome! Let's set up your team.
-  </div>
-  <div class="sub-text">
-    Add the people on your team. Pick one person as the Team Lead.
-  </div>
+  <!-- TOAST -->
+  <div class="member-toast" *ngIf="memberAddedToast">{{ toastMessage }}</div>
 
-  <div class="input-card">
-    <div class="input-row">
-      <input type="text" [(ngModel)]="name" placeholder="Type a name here" (keyup.enter)="addMember()" />
-      <button class="btn btn-add" (click)="addMember()">Add This Person</button>
+  <!-- ===================== MANAGE MODE (from Dashboard) ===================== -->
+  <ng-container *ngIf="isManageMode">
+    <div class="manage-header">
+      <h2 class="header-text">Manage Team Members</h2>
     </div>
-    <div *ngIf="nameError" class="error-text">
-      Please type a name.
+
+    <!-- Add new member input -->
+    <div class="input-card">
+      <div class="input-row">
+        <input type="text" [(ngModel)]="name" placeholder="Type a name" (keyup.enter)="addMember()" />
+        <button type="button" class="btn btn-add" (click)="addMember()">Add</button>
+      </div>
+      <div *ngIf="nameError" class="error-text">Please type a name.</div>
+      <div *ngIf="duplicateNameError" class="error-text">This name is already used.</div>
+    </div>
+
+    <!-- Members in manage mode -->
+    <div *ngFor="let member of members; let i = index" class="member-card">
+      <span class="member-name">
+        {{ member.name }}
+        <span *ngIf="member.isLead" class="lead-badge">Lead</span>
+      </span>
+      <div class="actions">
+        <button type="button" class="btn btn-edit" (click)="startEdit(member)">Edit Name</button>
+        <button type="button" class="btn btn-lead" *ngIf="!member.isLead" (click)="setLead(i)">Make Lead</button>
+        <button type="button" class="btn btn-remove" (click)="remove(member.id, i)">Deactivate</button>
+      </div>
+    </div>
+
+    <div *ngIf="members.length === 0" class="empty-card">No team members added yet</div>
+  </ng-container>
+
+  <!-- ===================== SETUP MODE (initial / root) ===================== -->
+  <ng-container *ngIf="!isManageMode">
+
+    <div class="header-text">👋 Welcome! Let's set up your team.</div>
+    <div class="sub-text">Add the people on your team. Pick one person as the Team Lead.</div>
+
+    <div class="input-card">
+      <div class="input-row">
+        <input type="text" [(ngModel)]="name" placeholder="Type a name here" (keyup.enter)="addMember()" />
+        <button type="button" class="btn btn-add" (click)="addMember()">Add This Person</button>
+      </div>
+      <div *ngIf="nameError" class="error-text">Please type a name.</div>
+      <div *ngIf="duplicateNameError" class="error-text">This name is already used.</div>
+    </div>
+
+    <div *ngIf="members.length === 0" class="empty-card">No team members added yet</div>
+
+    <div *ngFor="let member of members; let i = index" class="member-card">
+      <span class="member-name">
+        {{ member.name }}
+        <span *ngIf="i === leadIndex" class="lead-badge">Team Lead</span>
+      </span>
+      <div class="actions">
+        <button *ngIf="i !== leadIndex" type="button" class="btn btn-lead" (click)="setLead(i)">Make Lead</button>
+        <button type="button" class="btn btn-remove" (click)="remove(member.id, i)">Remove</button>
+      </div>
+    </div>
+
+    <button type="button" class="btn done-btn" [disabled]="members.length === 0 || leadIndex === null"
+      (click)="goToDashboard()">
+      Done — Go to Home Screen
+    </button>
+  </ng-container>
+
+  <!-- ===================== INLINE EDIT MODAL ===================== -->
+  <div class="modal-overlay" *ngIf="editingMember">
+    <div class="edit-modal">
+      <h3>Edit Member</h3>
+      <input type="text" [(ngModel)]="editName" class="edit-input" (keyup.enter)="saveEdit()" />
+      <div class="edit-actions">
+        <button type="button" class="btn btn-add" (click)="saveEdit()">Save</button>
+        <button type="button" class="btn btn-remove" (click)="cancelEdit()">Cancel</button>
+      </div>
     </div>
   </div>
-
-  <div *ngIf="members.length === 0" class="empty-card">
-    No team members added yet
-  </div>
-
-  <div *ngFor="let member of members; let i = index" class="member-card">
-    <span class="member-name">
-      {{ member.name }}
-      <span *ngIf="i === leadIndex" class="lead-badge">Team Lead</span>
-    </span>
-
-    <div class="actions">
-      <button *ngIf="i !== leadIndex" class="btn btn-lead" (click)="setLead(i)">
-        Make Lead
-      </button>
-
-      <button class="btn btn-remove" (click)="remove(member.id, i)">
-        Remove
-      </button>
-    </div>
-  </div>
-
-  <button class="btn done-btn" [disabled]="members.length === 0 || leadIndex === null" (click)="goToDashboard()">
-    Done — Go to Home Screen
-  </button>
 
 </div>

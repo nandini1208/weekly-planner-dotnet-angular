@@ -7,7 +7,9 @@ import { TeamMember, BacklogItem, WeeklyPlan, TaskAssignment, ProgressUpdate, Pr
     providedIn: 'root'
 })
 export class ApiService {
-    private readonly baseUrl = 'http://localhost:5119/api';
+    private readonly baseUrl = (typeof window !== 'undefined' && window.location.hostname !== 'localhost')
+        ? 'https://weeklyplanner-api-3b6d2a4c.azurewebsites.net/api'
+        : 'http://localhost:5119/api';
     private http = inject(HttpClient);
 
     // Current User State
@@ -20,6 +22,21 @@ export class ApiService {
 
     setCurrentUser(user: TeamMember | null) {
         this.currentUserSubject.next(user);
+    }
+
+    resetAll(): Observable<any> {
+        return new Observable(observer => {
+            this.http.delete(`${this.baseUrl}/Reset`).subscribe({
+                next: (res) => {
+                    // Clear all in-memory state
+                    this.membersSubject.next([]);
+                    this.currentUserSubject.next(null);
+                    observer.next(res);
+                    observer.complete();
+                },
+                error: (err) => observer.error(err)
+            });
+        });
     }
 
     // Team
@@ -83,6 +100,20 @@ export class ApiService {
         });
     }
 
+    updateTeamMember(member: TeamMember): Observable<TeamMember> {
+        return new Observable(observer => {
+            this.http.put<TeamMember>(`${this.baseUrl}/Team/${member.id}`, member).subscribe({
+                next: (saved) => {
+                    const updated = this.membersSubject.value.map(m => m.id === saved.id ? saved : m);
+                    this.membersSubject.next(updated);
+                    observer.next(saved);
+                    observer.complete();
+                },
+                error: (err) => observer.error(err)
+            });
+        });
+    }
+
     removeTeamMember(memberId: number): Observable<any> {
         return new Observable(observer => {
             // Optimistic UI Update
@@ -124,6 +155,10 @@ export class ApiService {
 
     addBacklogItem(item: Partial<BacklogItem>): Observable<BacklogItem> {
         return this.http.post<BacklogItem>(`${this.baseUrl}/Backlog`, item);
+    }
+
+    updateBacklogItem(item: BacklogItem): Observable<BacklogItem> {
+        return this.http.put<BacklogItem>(`${this.baseUrl}/Backlog/${item.id}`, item);
     }
 
     // Plan

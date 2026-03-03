@@ -118,11 +118,11 @@ export class PlanSetupComponent implements OnInit {
       totalPlannedHours: this.totalCapacity,
       isFrozen: false
     }).subscribe({
-      next: (plan) => {
-        alert('Plan Created!');
+      next: () => {
+        // Navigate straight to dashboard — no popup, active plan will appear
         this.router.navigate(['/dashboard']);
       },
-      error: (err) => alert("Error creating plan: " + (err.error || err.message))
+      error: (err) => alert('Error creating plan: ' + (err.error || err.message))
     });
   }
 }

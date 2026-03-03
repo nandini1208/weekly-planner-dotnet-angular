@@ -31,5 +31,23 @@ namespace WeeklyPlanner.API.Controllers
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetBacklogItems), new { id = item.Id }, item);
         }
+
+        // PUT: api/Backlog/5
+        [HttpPut("{id}")]
+        public async Task<ActionResult<BacklogItem>> UpdateBacklogItem(int id, BacklogItem item)
+        {
+            if (id != item.Id) return BadRequest("ID mismatch.");
+
+            var existing = await _context.BacklogItems.FindAsync(id);
+            if (existing == null) return NotFound();
+
+            existing.Title = item.Title;
+            existing.Category = item.Category;
+            existing.EstimatedHours = item.EstimatedHours;
+            existing.Status = item.Status;
+
+            await _context.SaveChangesAsync();
+            return Ok(existing);
+        }
     }
 }

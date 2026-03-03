@@ -25,7 +25,9 @@ export class AppComponent implements OnInit {
     this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe((event: any) => {
-        this.showLayout = event.urlAfterRedirects === '/dashboard' || event.urlAfterRedirects === '/setup';
+        this.showLayout = ['/dashboard', '/setup', '/backlog', '/team'].some(
+          path => event.urlAfterRedirects === path || event.urlAfterRedirects.startsWith(path + '?')
+        );
       });
   }
 
@@ -64,14 +66,13 @@ export class AppComponent implements OnInit {
   }
 
   confirmReset() {
-    this.api.clearAllTeamMembers().subscribe({
+    this.api.resetAll().subscribe({
       next: () => {
         localStorage.clear();
-        this.api.setCurrentUser(null);
         this.showResetModal = false;
         this.router.navigate(['/team']);
       },
-      error: (err) => console.error(err)
+      error: (err) => console.error('Reset failed:', err)
     });
   }
 

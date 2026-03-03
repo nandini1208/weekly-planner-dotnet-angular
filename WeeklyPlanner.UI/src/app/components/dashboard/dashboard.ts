@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { TeamMember } from '../../models/models';
@@ -42,8 +43,17 @@ export class DashboardComponent implements OnInit {
       this.currentUser = user;
     });
 
-    this.loadMembers();
+    // Force fresh fetch then subscribe to stream
+    this.api.getTeamMembers().subscribe();
+    this.api.members$.subscribe(members => {
+      this.members = members || [];
+    });
+
+    // Reload the active plan every time we arrive at this page
     this.loadActivePlan();
+    this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.loadActivePlan());
   }
 
   // 🚀 Main dashboard actions
@@ -56,7 +66,7 @@ export class DashboardComponent implements OnInit {
   }
 
   manageTeam() {
-    this.router.navigate(['/team']);
+    this.router.navigate(['/team'], { queryParams: { mode: 'manage' } });
   }
 
   viewPastWeeks() {
