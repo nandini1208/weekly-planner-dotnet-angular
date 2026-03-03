@@ -23,7 +23,7 @@ jobs:
         run: dotnet build WeeklyPlannerApp.sln --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test WeeklyPlanner.Tests/WeeklyPlanner.Tests.csproj --no-build --verbosity normal
+        run: dotnet test WeeklyPlanner.Tests/WeeklyPlanner.Tests.csproj --configuration Release --no-build --verbosity normal
 
       - name: Publish
         run: dotnet publish WeeklyPlanner.API/WeeklyPlanner.API.csproj -c Release -o ./publish/api
