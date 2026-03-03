@@ -1,0 +1,157 @@
+:host {
+    display: block;
+    background: #111827;
+    min-height: 100vh;
+    padding-top: 60px;
+    font-family: Inter, Arial, sans-serif;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header Text - Dark on Dark matching Screenshot 2 */
+.header-text {
+    font-size: 28px;
+    font-weight: 800;
+    color: #000000;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+}
+
+.sub-text {
+    font-size: 15px;
+    color: #000000;
+    margin-bottom: 32px;
+}
+
+/* White Input Box Card */
+.input-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 10px 10px 10px 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.input-card input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    font-family: inherit;
+    color: #111827;
+    background: transparent;
+}
+
+.input-card input::placeholder {
+    color: #9ca3af;
+}
+
+.error-text {
+    color: #ef4444;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+/* Generic Button Styles */
+.btn {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: inherit;
+    transition: opacity 0.15s ease;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-add {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+/* Empty State Card */
+.empty-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 18px 20px;
+    color: #3b82f6;
+    /* Matching the blue tint in the screenshot */
+    font-size: 15px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Member Card */
+.member-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.member-name {
+    color: #111827;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.lead-badge {
+    background: #facc15;
+    color: #000000;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: 12px;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-lead {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.btn-remove {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+/* Done Button - Low Contrast Dark Blue matching Screenshot 2 */
+.done-btn {
+    background: rgb(37, 99, 235);
+    color: rgb(255, 255, 255);
+    padding: 12px 24px;
+    font-size: 15px;
+    margin-top: 24px;
+}
+
+.done-btn:disabled {
+    background: rgb(37, 99, 235);
+    color: rgb(255, 255, 255);
+    cursor: not-allowed;
+    opacity: 0.7;
+}

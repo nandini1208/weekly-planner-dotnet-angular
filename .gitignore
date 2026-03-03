@@ -36,3 +36,8 @@ out-tsc/
 # =========================
 .DS_Store
 Thumbs.db
+
+# =========================
+# Secrets - Never Commit
+# =========================
+WeeklyPlanner.API/appsettings.Development.json

@@ -1,83 +1,86 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
-import { TeamMember, BacklogItem, WeeklyPlan, TaskAssignment } from '../../models/models';
+import { TeamMember } from '../../models/models';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
 export class DashboardComponent implements OnInit {
-  apiService = inject(ApiService);
 
-  teamMembers: TeamMember[] = [];
-  backlogItems: BacklogItem[] = [];
+  currentUser: TeamMember | null = null;
+  members: TeamMember[] = [];
 
-  activeMemberId: number | null = null;
-  selectedPlanId: number = 1; // Assuming Plan 1 for simplicity in this exercise phase
+  constructor(private router: Router, private api: ApiService) { }
 
-  showClaimForm = false;
-  claimItemId: number = 0;
-  claimHours: number = 0;
+  loadMembers() {
+    this.api.getTeamMembers().subscribe(res => {
+      this.members = res || [];
+    });
+  }
 
-  // Track progress updates
-  updateAssignmentId: number = 0;
-  updateDoneHours: number = 0;
-  updateStatus: string = 'In Progress';
+  activePlan: any = null;
+
+  loadActivePlan() {
+    this.api.getWeeklyPlans().subscribe(plans => {
+      // Just grab the most recent non-frozen plan or the latest plan for now
+      if (plans && plans.length > 0) {
+        this.activePlan = plans[plans.length - 1];
+      } else {
+        this.activePlan = null;
+      }
+    });
+  }
 
   ngOnInit(): void {
-    this.apiService.getTeamMembers().subscribe(m => this.teamMembers = m);
-    this.apiService.getBacklogItems().subscribe(i => this.backlogItems = i);
-  }
-
-  selectMember(id: number) {
-    this.activeMemberId = id;
-    this.showClaimForm = false;
-  }
-
-  get activeMemberName(): string {
-    return this.teamMembers.find(m => m.id === this.activeMemberId)?.name || '';
-  }
-
-  toggleClaimForm() {
-    this.showClaimForm = !this.showClaimForm;
-  }
-
-  claimTask() {
-    if (!this.activeMemberId || !this.claimItemId || this.claimHours <= 0) return;
-
-    this.apiService.assignTask({
-      weeklyPlanId: this.selectedPlanId,
-      teamMemberId: this.activeMemberId,
-      backlogItemId: Number(this.claimItemId),
-      plannedHours: this.claimHours
-    }).subscribe({
-      next: (assignment) => {
-        alert("Task claimed successfully!");
-        this.showClaimForm = false;
-        this.claimHours = 0;
-      },
-      error: (err) => alert(err.error || "Failed to claim task. You may have exceeded your 30 hour limit.")
+    this.api.currentUser$.subscribe(user => {
+      this.currentUser = user;
     });
+
+    this.loadMembers();
+    this.loadActivePlan();
   }
 
-  submitProgress() {
-    if (!this.updateAssignmentId || this.updateDoneHours < 0) return;
+  // 🚀 Main dashboard actions
+  startNewWeek() {
+    this.router.navigate(['/setup']);
+  }
 
-    this.apiService.updateProgress({
-      assignmentId: Number(this.updateAssignmentId),
-      completedHours: this.updateDoneHours,
-      status: this.updateStatus
-    }).subscribe({
-      next: () => {
-        alert("Progress updated successfully!");
-        this.apiService.getBacklogItems().subscribe(i => this.backlogItems = i); // Refresh backlog to see status change
-      },
-      error: (err) => alert("Failed to update progress.")
-    });
+  manageBacklog() {
+    this.router.navigate(['/backlog']);
+  }
+
+  manageTeam() {
+    this.router.navigate(['/team']);
+  }
+
+  viewPastWeeks() {
+    console.log('View past weeks clicked');
+  }
+
+  planMyWork() {
+    console.log('Plan My Work clicked');
+  }
+
+  reviewFreeze() {
+    console.log('Review and Freeze clicked');
+  }
+
+  cancelPlan() {
+    if (this.activePlan) {
+      this.api.deleteWeeklyPlan(this.activePlan.id).subscribe(() => {
+        this.activePlan = null;
+      });
+    }
+  }
+
+  // 👤 SELECT USER → Updates global state
+  selectUser(member: TeamMember) {
+    this.api.setCurrentUser(member);
   }
 }

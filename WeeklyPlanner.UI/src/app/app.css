@@ -1,0 +1,289 @@
+body {
+    background-color: #111827;
+    color: white;
+    font-family: Inter, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+/* HEADER */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2f4368;
+    padding: 10px 24px;
+    color: white;
+    font-weight: 600;
+}
+
+.logo {
+    font-size: 18px;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* USER + LEAD PILLS */
+.user-pill {
+    background: #e5e7eb;
+    color: black;
+    padding: 6px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.lead-pill {
+    background: #facc15;
+    color: black;
+    padding: 6px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+/* ACTION BUTTONS */
+.action-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+/* Hover */
+.action-btn:hover,
+.user-pill:hover,
+.lead-pill:hover {
+    background: rgb(37, 99, 235);
+}
+
+/* ACTIVE STATE */
+.active {
+    background: #1e293b !important;
+    color: white !important;
+}
+
+/* Slight click animation */
+.action-btn:active {
+    transform: scale(0.95);
+}
+
+/* LOGO Hover */
+.logo.clickable {
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.logo.clickable:hover {
+    color: #93c5fd;
+    /* Light blue on hover */
+}
+
+/* MEMBER PILL */
+.member-pill {
+    background: #38bdf8;
+    color: black;
+    padding: 6px 12px;
+    border-radius: 10px;
+    cursor: default;
+}
+
+/* LIGHT MODE OVERRIDES */
+body.light-mode {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+body.light-mode .top-nav {
+    background: #1e3a8a;
+    /* Darker blue for contrast in light mode */
+}
+
+/* FOOTER */
+.bottom-bar {
+    background: #1f2937;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    border-top: 1px solid #374151;
+}
+
+body.light-mode .bottom-bar {
+    background: #e5e7eb;
+    border-top: 1px solid #d1d5db;
+}
+
+.footer-btn {
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.footer-btn:hover {
+    background: #374151;
+    color: white;
+}
+
+.footer-btn.danger {
+    background: #ef4444;
+    color: white;
+}
+
+.footer-btn.danger:hover {
+    background: #dc2626;
+}
+
+body.light-mode .footer-btn {
+    color: #4b5563;
+}
+
+body.light-mode .footer-btn:hover {
+    background: #d1d5db;
+    color: #111827;
+}
+
+body.light-mode .footer-btn.danger {
+    color: white;
+}
+
+body.light-mode .footer-btn.danger:hover {
+    background: #dc2626;
+}
+
+/* MODAL STYLES */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #1f2937;
+    border-radius: 8px;
+    width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+body.light-mode .modal-content {
+    background: #ffffff;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #374151;
+}
+
+body.light-mode .modal-header {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #ffffff;
+}
+
+body.light-mode .modal-header h3 {
+    color: #111827;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: #ffffff;
+}
+
+body.light-mode .close-btn:hover {
+    color: #111827;
+}
+
+.modal-body {
+    padding: 24px;
+    color: #d1d5db;
+    font-size: 15px;
+}
+
+body.light-mode .modal-body {
+    color: #4b5563;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    display: flex;
+    gap: 12px;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+.btn-secondary {
+    background: #374151;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-secondary:hover {
+    opacity: 0.9;
+}
+
+body.light-mode .btn-secondary {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+body.light-mode .btn-secondary:hover {
+    background: #d1d5db;
+}

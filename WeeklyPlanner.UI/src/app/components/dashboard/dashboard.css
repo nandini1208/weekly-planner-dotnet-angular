@@ -1,0 +1,180 @@
+:host {
+    display: block;
+    padding: 40px 20px 100px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    font-family: Inter, sans-serif;
+}
+
+.title {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    font-size: 18px;
+    margin-bottom: 32px;
+    color: #f3f4f6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lead-badge {
+    background: #facc15;
+    color: black;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.info-banner {
+    background: #1e3a8a;
+    color: white;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 32px;
+    font-size: 15px;
+    font-weight: 400;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.card {
+    background: #1f2937;
+    padding: 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    border: 1px solid transparent;
+}
+
+.card:hover {
+    background: #374151;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-sub {
+    color: #9ca3af;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* USER SELECTION SCREEN */
+.user-select-container {
+    margin-top: 20px;
+}
+
+.members-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+}
+
+.user-card {
+    background: transparent;
+    border: 1px solid #374151;
+    padding: 24px;
+    border-radius: 12px;
+    width: 200px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-card:hover {
+    background: #1e3a8a;
+    /* Darker blue background on hover */
+    border-color: #3b82f6;
+    /* Blue border on hover */
+    transform: translateY(-2px);
+}
+
+.user-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f3f4f6;
+}
+
+.user-role {
+    display: flex;
+    justify-content: center;
+}
+
+.member-pill-inline {
+    background: #38bdf8;
+    color: black;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+/* LIGHT MODE OVERRIDES */
+:host-context(body.light-mode) .title {
+    color: #111827;
+}
+
+:host-context(body.light-mode) .subtitle {
+    color: #4b5563;
+}
+
+:host-context(body.light-mode) .card {
+    background: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+}
+
+:host-context(body.light-mode) .card:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+:host-context(body.light-mode) .card-title {
+    color: #111827;
+}
+
+:host-context(body.light-mode) .card-sub {
+    color: #6b7280;
+}
+
+:host-context(body.light-mode) .user-card {
+    background: #ffffff;
+    border-color: #d1d5db;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+:host-context(body.light-mode) .user-card:hover {
+    background: #eff6ff;
+    border-color: #3b82f6;
+}
+
+:host-context(body.light-mode) .user-name {
+    color: #111827;
+}
+
+:host-context(body.light-mode) .info-banner {
+    background: #eff6ff !important;
+    color: #1e40af !important;
+    border: 1px solid #bfdbfe !important;
+}

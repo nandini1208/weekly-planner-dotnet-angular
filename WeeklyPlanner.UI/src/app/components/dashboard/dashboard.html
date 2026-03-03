@@ -1,73 +1,141 @@
-<div class="card">
-    <h2>👋 Welcome! Let's get to work.</h2>
+<!-- USER SELECTION SCREEN -->
+<ng-container *ngIf="!currentUser">
+    <div class="user-select-container">
+        <h1 class="title">Who are you?</h1>
+        <div class="subtitle">Click your name to get started.</div>
 
-    <div *ngIf="!activeMemberId">
-        <h3>Who are you?</h3>
-        <p style="color: var(--text-secondary)">Click your name to get started.</p>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
-            <button *ngFor="let member of teamMembers" (click)="selectMember(member.id)"
-                style="background-color: var(--surface-color); color: var(--text-primary); border: 1px solid var(--primary-color);">
-                {{ member.name }}
-            </button>
-        </div>
-    </div>
-
-    <div *ngIf="activeMemberId">
-        <div class="action-row">
-            <h3>Hi, {{ activeMemberName }}!</h3>
-            <button (click)="activeMemberId = null"
-                style="background-color: transparent; color: var(--text-secondary); border: 1px solid var(--border-color)">Switch
-                User</button>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-
-            <!-- Planning Section -->
-            <div class="card" style="background-color: #242424;">
-                <h4>📝 Plan My Work</h4>
-                <p style="color: var(--text-secondary); font-size: 0.9em;">Pick backlog items and commit your 30 hours.
-                </p>
-                <button (click)="toggleClaimForm()">Claim a Task</button>
-
-                <div *ngIf="showClaimForm"
-                    style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color);">
-                    <label>Select Backlog Item:</label>
-                    <select [(ngModel)]="claimItemId">
-                        <option *ngFor="let item of backlogItems" [value]="item.id">{{ item.title }} (Est: {{
-                            item.estimatedHours }}h)</option>
-                    </select>
-
-                    <label>Hours to commit this week:</label>
-                    <input type="number" [(ngModel)]="claimHours" min="1" max="30">
-
-                    <button (click)="claimTask()" style="width: 100%">Confirm Claim</button>
+        <div class="members-grid">
+            <div *ngFor="let member of members" class="user-card" (click)="selectUser(member)">
+                <div class="user-name">{{ member.name }}</div>
+                <div class="user-role">
+                    <span *ngIf="member.isLead" class="lead-badge">Team Lead</span>
+                    <span *ngIf="!member.isLead" class="member-pill-inline">Team Member</span>
                 </div>
             </div>
-
-            <!-- Updating Section -->
-            <div class="card" style="background-color: #242424;">
-                <h4>✏️ Update My Progress</h4>
-                <p style="color: var(--text-secondary); font-size: 0.9em;">Report hours and status on your active tasks.
-                </p>
-
-                <label>Assignment ID (Enter your task ID):</label>
-                <input type="number" [(ngModel)]="updateAssignmentId">
-
-                <label>Total Hours Completed:</label>
-                <input type="number" [(ngModel)]="updateDoneHours" min="0">
-
-                <label>Current Status:</label>
-                <select [(ngModel)]="updateStatus">
-                    <option value="To Do">To Do</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Blocked">Blocked</option>
-                    <option value="Done">Done</option>
-                </select>
-
-                <button (click)="submitProgress()"
-                    style="width: 100%; background-color: var(--secondary-color); color: black;">Save Progress</button>
-            </div>
-
         </div>
     </div>
-</div>
+</ng-container>
+
+<!-- MAIN DASHBOARD -->
+<ng-container *ngIf="currentUser">
+    <h1 class="title">What do you want to do?</h1>
+
+    <div class="subtitle">
+        Hi, {{ currentUser.name }}!
+        <span *ngIf="currentUser.isLead" class="lead-badge">Team Lead</span>
+        <span *ngIf="!currentUser.isLead" class="member-pill-inline">Team Member</span>
+    </div>
+
+    <!-- LEADS SEE FULL DASHBOARD -->
+    <ng-container *ngIf="currentUser.isLead">
+        <ng-container *ngIf="!activePlan">
+            <div class="info-banner">
+                No planning weeks yet. Click "Start a New Week" to begin!
+            </div>
+
+            <div class="grid">
+                <div class="card" (click)="startNewWeek()">
+                    <div class="card-title">⚙️ Set Up This Week's Plan</div>
+                    <div class="card-sub">Pick members and set category percentages.</div>
+                </div>
+
+                <div class="card" (click)="manageBacklog()">
+                    <div class="card-title">📋 Manage Backlog</div>
+                    <div class="card-sub">Add, edit, or browse work items.</div>
+                </div>
+
+                <div class="card" (click)="manageTeam()">
+                    <div class="card-title">👥 Manage Team Members</div>
+                    <div class="card-sub">Add or remove team members.</div>
+                </div>
+
+                <div class="card" (click)="viewPastWeeks()">
+                    <div class="card-title">📅 View Past Weeks</div>
+                    <div class="card-sub">Look at completed planning cycles.</div>
+                </div>
+            </div>
+        </ng-container>
+
+        <ng-container *ngIf="activePlan">
+            <div class="info-banner" style="background-color: #065f46; color: #a7f3d0; border: 1px solid #10b981;">
+                Planning is open! Team members can now plan their work.
+            </div>
+
+            <div class="grid">
+                <div class="card" (click)="reviewFreeze()">
+                    <div class="card-title">❄️ Review and Freeze the Plan</div>
+                    <div class="card-sub">Check everyone's hours and lock the plan.</div>
+                </div>
+
+                <div class="card" (click)="planMyWork()">
+                    <div class="card-title">📝 Plan My Work</div>
+                    <div class="card-sub">Pick backlog items and commit hours.</div>
+                </div>
+
+                <div class="card" (click)="manageBacklog()">
+                    <div class="card-title">📋 Manage Backlog</div>
+                    <div class="card-sub">Add, edit, or browse work items.</div>
+                </div>
+
+                <div class="card" (click)="manageTeam()">
+                    <div class="card-title">👥 Manage Team Members</div>
+                    <div class="card-sub">Add or remove team members.</div>
+                </div>
+
+                <div class="card" (click)="viewPastWeeks()">
+                    <div class="card-title">📅 View Past Weeks</div>
+                    <div class="card-sub">Look at completed planning cycles.</div>
+                </div>
+
+                <div class="card" (click)="cancelPlan()">
+                    <div class="card-title">🗑️ Cancel This Week's Planning</div>
+                    <div class="card-sub">Erase all plans and start over.</div>
+                </div>
+            </div>
+        </ng-container>
+    </ng-container>
+
+    <!-- MEMBERS SEE RESTRICTED DASHBOARD -->
+    <ng-container *ngIf="!currentUser.isLead">
+        <ng-container *ngIf="!activePlan">
+            <div class="info-banner" style="background-color: #1e3a8a; color: #9ca3af; border: 1px solid #3b82f6;">
+                There's no active plan for you right now. Check back on Tuesday or ask your Team Lead.
+            </div>
+
+            <div class="grid">
+                <div class="card" (click)="manageBacklog()">
+                    <div class="card-title">📋 Manage Backlog</div>
+                    <div class="card-sub">Add, edit, or browse work items.</div>
+                </div>
+
+                <div class="card" (click)="viewPastWeeks()">
+                    <div class="card-title">📅 View Past Weeks</div>
+                    <div class="card-sub">Look at completed planning cycles.</div>
+                </div>
+            </div>
+        </ng-container>
+
+        <ng-container *ngIf="activePlan">
+            <div class="info-banner" style="background-color: #065f46; color: #a7f3d0; border: 1px solid #10b981;">
+                Planning is open! You can now plan your work for the week.
+            </div>
+
+            <div class="grid">
+                <div class="card" (click)="planMyWork()">
+                    <div class="card-title">📝 Plan My Work</div>
+                    <div class="card-sub">Pick backlog items and commit hours.</div>
+                </div>
+
+                <div class="card" (click)="manageBacklog()">
+                    <div class="card-title">📋 Manage Backlog</div>
+                    <div class="card-sub">Add, edit, or browse work items.</div>
+                </div>
+
+                <div class="card" (click)="viewPastWeeks()">
+                    <div class="card-title">📅 View Past Weeks</div>
+                    <div class="card-sub">Look at completed planning cycles.</div>
+                </div>
+            </div>
+        </ng-container>
+    </ng-container>
+</ng-container>

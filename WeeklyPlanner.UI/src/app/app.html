@@ -1,16 +1,41 @@
-<div class="container">
-  <header style="margin-bottom: 30px;">
-    <h1 style="color: var(--primary-color);">📋 Weekly Plan Tracker</h1>
+<header *ngIf="showLayout" class="top-nav">
+  <div class="logo clickable" (click)="goHome()">📋 Weekly Plan Tracker</div>
 
-    <nav class="header-nav">
-      <a routerLink="/dashboard" routerLinkActive="active">🏠 Dashboard</a>
-      <a routerLink="/setup" routerLinkActive="active">⚙️ Weekly Setup</a>
-      <a routerLink="/backlog" routerLinkActive="active">📋 Backlog</a>
-      <a routerLink="/team" routerLinkActive="active">👥 Team Management</a>
-    </nav>
-  </header>
+  <div class="nav-actions">
+    <ng-container *ngIf="currentUser">
+      <span class="user-pill">{{ currentUser.name }}</span>
+      <span class="lead-pill" *ngIf="currentUser.isLead">Lead</span>
+      <span class="member-pill" *ngIf="!currentUser.isLead">Team Member</span>
 
-  <main>
-    <router-outlet></router-outlet>
-  </main>
+      <button class="action-btn" (click)="switchUser()">🔄 Switch</button>
+      <button class="action-btn" (click)="goHome()">🏠 Home</button>
+    </ng-container>
+    <button class="action-btn" (click)="toggleTheme()">{{ isDark ? '☀️ Light' : '🌙 Dark' }}</button>
+  </div>
+</header>
+
+<router-outlet></router-outlet>
+
+<footer class="bottom-bar" *ngIf="showLayout">
+  <button class="footer-btn">📥 Download My Data</button>
+  <button class="footer-btn">📂 Load Data from File</button>
+  <button class="footer-btn">🌱 Seed Sample Data</button>
+  <button class="footer-btn danger" (click)="resetApp()">🗑 Reset App</button>
+</footer>
+
+<!-- Reset Modal -->
+<div class="modal-overlay" *ngIf="showResetModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Reset Everything?</h3>
+      <button class="close-btn" (click)="closeResetModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p>This will erase all your data. This cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="confirmReset()">Yes, Erase Everything</button>
+      <button class="btn btn-secondary" (click)="closeResetModal()">No, Go Back</button>
+    </div>
+  </div>
 </div>

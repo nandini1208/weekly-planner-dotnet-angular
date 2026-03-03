@@ -1,38 +1,45 @@
-<div class="card">
-  <h2>👥 Manage Team Members</h2>
-  <p>Add the people on your team. Pick one person as the Team Lead.</p>
+<div class="container">
 
-  <div class="action-row" style="justify-content: flex-start; gap: 10px;">
-    <input type="text" [(ngModel)]="newMemberName" placeholder="Enter member name..." style="width: auto; margin: 0;">
-    
-    <label style="display: flex; align-items: center; gap: 5px;">
-      <input type="checkbox" [(ngModel)]="isLead" [disabled]="hasLead" style="width: auto; margin: 0;"> Set as Lead
-    </label>
-    
-    <button (click)="addMember()" [disabled]="!newMemberName">Add Member</button>
+  <div class="header-text">
+    👋 Welcome! Let's set up your team.
+  </div>
+  <div class="sub-text">
+    Add the people on your team. Pick one person as the Team Lead.
   </div>
 
-  <div *ngIf="teamMembers.length > 0; else noMembers">
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Role</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let member of teamMembers">
-          <td>{{ member.name }}</td>
-          <td>
-            <span *ngIf="member.isLead" style="color: var(--primary-color); font-weight: bold;">⭐ Team Lead</span>
-            <span *ngIf="!member.isLead">Member</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="input-card">
+    <div class="input-row">
+      <input type="text" [(ngModel)]="name" placeholder="Type a name here" (keyup.enter)="addMember()" />
+      <button class="btn btn-add" (click)="addMember()">Add This Person</button>
+    </div>
+    <div *ngIf="nameError" class="error-text">
+      Please type a name.
+    </div>
   </div>
-  
-  <ng-template #noMembers>
-    <p style="color: var(--error-color);">No team members added yet.</p>
-  </ng-template>
+
+  <div *ngIf="members.length === 0" class="empty-card">
+    No team members added yet
+  </div>
+
+  <div *ngFor="let member of members; let i = index" class="member-card">
+    <span class="member-name">
+      {{ member.name }}
+      <span *ngIf="i === leadIndex" class="lead-badge">Team Lead</span>
+    </span>
+
+    <div class="actions">
+      <button *ngIf="i !== leadIndex" class="btn btn-lead" (click)="setLead(i)">
+        Make Lead
+      </button>
+
+      <button class="btn btn-remove" (click)="remove(member.id, i)">
+        Remove
+      </button>
+    </div>
+  </div>
+
+  <button class="btn done-btn" [disabled]="members.length === 0 || leadIndex === null" (click)="goToDashboard()">
+    Done — Go to Home Screen
+  </button>
+
 </div>

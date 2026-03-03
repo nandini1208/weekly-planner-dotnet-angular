@@ -2,7 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
-import { TeamMember, WeeklyPlan, TaskAssignment, BacklogItem } from '../../models/models';
+import { TeamMember, WeeklyPlan, BacklogItem } from '../../models/models';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-plan-setup',
@@ -13,28 +14,77 @@ import { TeamMember, WeeklyPlan, TaskAssignment, BacklogItem } from '../../model
 })
 export class PlanSetupComponent implements OnInit {
   apiService = inject(ApiService);
+  router = inject(Router);
 
   teamMembers: TeamMember[] = [];
-  backlogItems: BacklogItem[] = [];
-  currentPlan: WeeklyPlan | null = null;
+  selectedMemberIds = new Set<number>();
 
-  clientPct = 60;
-  techDebtPct = 30;
-  rndPct = 10;
+  planningDate: string = '';
 
-  isFrozen = false;
+  clientPct = 0;
+  techDebtPct = 0;
+  rndPct = 0;
 
   ngOnInit(): void {
-    this.apiService.getTeamMembers().subscribe(m => this.teamMembers = m);
-    this.apiService.getBacklogItems().subscribe(i => this.backlogItems = i);
+    this.apiService.members$.subscribe(m => this.teamMembers = m);
   }
 
   get totalPct(): number {
-    return this.clientPct + this.techDebtPct + this.rndPct;
+    return (this.clientPct || 0) + (this.techDebtPct || 0) + (this.rndPct || 0);
+  }
+
+  get selectedCount(): number {
+    return this.selectedMemberIds.size;
   }
 
   get totalCapacity(): number {
-    return this.teamMembers.length * 30; // 30 hours per member
+    return this.selectedCount * 30; // 30 hours per member
+  }
+
+  get clientHours(): number {
+    return Math.round(this.totalCapacity * ((this.clientPct || 0) / 100));
+  }
+
+  get techDebtHours(): number {
+    return Math.round(this.totalCapacity * ((this.techDebtPct || 0) / 100));
+  }
+
+  get rndHours(): number {
+    return Math.round(this.totalCapacity * ((this.rndPct || 0) / 100));
+  }
+
+  get isTuesdayValid(): boolean {
+    if (!this.planningDate) return true; // Allow initial empty state
+    // Parse "YYYY-MM-DD" in UTC
+    const selectedDateObj = new Date(this.planningDate);
+    return selectedDateObj.getUTCDay() === 2;
+  }
+
+  get workPeriod(): string {
+    if (!this.planningDate || !this.isTuesdayValid) return '';
+    const start = new Date(this.planningDate);
+    // Add 1 day for Wednesday
+    start.setUTCDate(start.getUTCDate() + 1);
+
+    const end = new Date(start);
+    // Add 5 more days for Monday
+    end.setUTCDate(end.getUTCDate() + 5);
+
+    const startStr = start.toISOString().split('T')[0];
+    const endStr = end.toISOString().split('T')[0];
+    return `${startStr} to ${endStr}`;
+  }
+
+  toggleMember(id: number) {
+    if (this.selectedMemberIds.has(id)) {
+      this.selectedMemberIds.delete(id);
+    } else {
+      this.selectedMemberIds.add(id);
+    }
+  }
+
+  isMemberSelected(id: number): boolean {
+    return this.selectedMemberIds.has(id);
   }
 
   createPlan(): void {
@@ -43,28 +93,36 @@ export class PlanSetupComponent implements OnInit {
       return;
     }
 
+    if (this.selectedCount === 0) {
+      alert("Select at least one team member.");
+      return;
+    }
+
+    if (!this.planningDate) {
+      alert("Please pick a planning date.");
+      return;
+    }
+
+    // Tuesday Validation (0=Sun, 1=Mon, 2=Tue, etc.)
+    const selectedDateObj = new Date(this.planningDate);
+    if (selectedDateObj.getUTCDay() !== 2) {
+      alert(`${this.planningDate} is not a Tuesday. Please pick a Tuesday.`);
+      return;
+    }
+
     this.apiService.createPlan({
-      startDate: new Date().toISOString(),
+      startDate: new Date(this.planningDate).toISOString(),
       clientPercentage: this.clientPct,
       techDebtPercentage: this.techDebtPct,
       rnDPercentage: this.rndPct,
       totalPlannedHours: this.totalCapacity,
       isFrozen: false
     }).subscribe({
-      next: (plan) => this.currentPlan = plan,
-      error: (err) => alert("Error creating plan: " + (err.error || err.message))
-    });
-  }
-
-  freezePlan(): void {
-    if (!this.currentPlan) return;
-
-    this.apiService.freezePlan(this.currentPlan.id).subscribe({
       next: (plan) => {
-        this.currentPlan = plan;
-        this.isFrozen = true;
+        alert('Plan Created!');
+        this.router.navigate(['/dashboard']);
       },
-      error: (err) => alert("Error freezing plan")
+      error: (err) => alert("Error creating plan: " + (err.error || err.message))
     });
   }
 }

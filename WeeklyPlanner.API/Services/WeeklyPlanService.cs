@@ -33,6 +33,20 @@ namespace WeeklyPlanner.API.Services
             return plan;
         }
 
+        public async Task<IEnumerable<WeeklyPlan>> GetPlansAsync()
+        {
+            return await _context.WeeklyPlans.ToListAsync();
+        }
+
+        public async Task DeletePlanAsync(int planId)
+        {
+            var plan = await _context.WeeklyPlans.FindAsync(planId);
+            if (plan == null) throw new KeyNotFoundException("Plan not found");
+
+            _context.WeeklyPlans.Remove(plan);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<TaskAssignment> AddAssignmentAsync(TaskAssignment assignment)
         {
             var plan = await _context.WeeklyPlans.FindAsync(assignment.WeeklyPlanId);

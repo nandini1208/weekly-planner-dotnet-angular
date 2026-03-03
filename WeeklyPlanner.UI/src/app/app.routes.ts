@@ -5,7 +5,7 @@ import { BacklogComponent } from './components/backlog/backlog';
 import { PlanSetupComponent } from './components/plan-setup/plan-setup';
 
 export const routes: Routes = [
-    { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+    { path: '', redirectTo: '/team', pathMatch: 'full' },
     { path: 'dashboard', component: DashboardComponent },
     { path: 'team', component: TeamManagementComponent },
     { path: 'backlog', component: BacklogComponent },

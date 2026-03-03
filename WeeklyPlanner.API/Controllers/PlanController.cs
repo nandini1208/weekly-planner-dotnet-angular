@@ -64,5 +64,28 @@ namespace WeeklyPlanner.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
+        // GET: api/Plan
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<WeeklyPlan>>> GetPlans()
+        {
+            var plans = await _planService.GetPlansAsync();
+            return Ok(plans);
+        }
+
+        // DELETE: api/Plan/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePlan(int id)
+        {
+            try
+            {
+                await _planService.DeletePlanAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
     }
 }

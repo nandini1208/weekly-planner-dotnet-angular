@@ -1,56 +1,75 @@
-<div class="card">
-    <h2>⚙️ Set Up This Week's Plan</h2>
-    <p>Pick members and set category percentages. Only the <strong>Lead</strong> should manage this.</p>
+<div class="plan-setup-container">
+    <h1 class="title">Set Up This Week's Plan</h1>
 
-    <div *ngIf="!currentPlan">
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
-            <div>
-                <label>Client (%)</label>
+    <div class="form-section">
+        <label class="section-label">Planning date (pick a Tuesday)</label>
+        <input type="date" class="date-input" [(ngModel)]="planningDate">
+        <div *ngIf="workPeriod" style="margin-top: 12px; color: #a7f3d0; font-weight: 500;">
+            Work period: {{ workPeriod }}
+        </div>
+        <div *ngIf="!isTuesdayValid" class="warning-text"
+            style="display: block; margin-top: 8px; font-weight: bold; font-size: 15px;">
+            {{ planningDate }} is not a Tuesday. Please pick a Tuesday.
+        </div>
+    </div>
+
+    <div class="form-section">
+        <label class="section-label">Who is working this week?</label>
+        <div class="members-list">
+            <label *ngFor="let member of teamMembers" class="member-row">
+                <input type="checkbox" [checked]="isMemberSelected(member.id)" (change)="toggleMember(member.id)">
+                <span class="member-name">{{ member.name }}</span>
+                <span *ngIf="member.isLead" class="lead-badge">Lead</span>
+            </label>
+        </div>
+
+        <div class="capacity-summary">
+            Team members selected: {{ selectedCount }}. Total hours to plan: {{ totalCapacity }}
+        </div>
+    </div>
+
+    <div class="form-section split-section">
+        <label class="section-label">How should the hours be split?</label>
+
+        <div class="pct-grid">
+            <div class="pct-col">
+                <label>Client Focused %</label>
                 <input type="number" [(ngModel)]="clientPct" min="0" max="100">
             </div>
-            <div>
-                <label>Tech Debt (%)</label>
+            <div class="pct-col">
+                <label>Tech Debt %</label>
                 <input type="number" [(ngModel)]="techDebtPct" min="0" max="100">
             </div>
-            <div>
-                <label>R&D (%)</label>
+            <div class="pct-col">
+                <label>R&D %</label>
                 <input type="number" [(ngModel)]="rndPct" min="0" max="100">
             </div>
         </div>
 
-        <div class="action-row">
-            <span>Total: <strong>{{ totalPct }}%</strong> <span *ngIf="totalPct===100"
-                    style="color: var(--secondary-color)">✓</span></span>
-            <span>Total Team Capacity: <strong>{{ totalCapacity }} hours</strong></span>
+        <div class="total-row">
+            Total: {{ totalPct }}%
+            <span *ngIf="totalPct !== 100" class="warning-text">(must be 100%)</span>
+            <span *ngIf="totalPct === 100" class="success-text">✓</span>
         </div>
 
-        <button (click)="createPlan()" [disabled]="totalPct !== 100 || teamMembers.length === 0">Create Weekly
-            Plan</button>
-    </div>
-
-    <div *ngIf="currentPlan">
-        <div class="card" style="background-color: #242424; border-left: 4px solid var(--secondary-color);">
-            <h3>Plan is Active</h3>
-            <p>Total Capacity: {{ currentPlan.totalPlannedHours }} hours</p>
-            <div style="display: flex; gap: 20px; font-weight: bold; margin-top: 10px;">
-                <span style="color: #64b5f6">Client: {{ currentPlan.clientPercentage }}%</span>
-                <span style="color: #ffb74d">Tech Debt: {{ currentPlan.techDebtPercentage }}%</span>
-                <span style="color: #a1887f">R&D: {{ currentPlan.rnDPercentage }}%</span>
+        <div class="hours-breakdown" *ngIf="totalPct === 100">
+            <div class="hour-card client-card">
+                <div class="hour-label">Client</div>
+                <div class="hour-value">{{ clientHours }}h</div>
             </div>
-
-            <div style="margin-top: 20px;" *ngIf="!currentPlan.isFrozen">
-                <hr style="border-color: var(--border-color)">
-                <h4>❄️ Review and Freeze</h4>
-                <p style="color: var(--text-secondary)">Once the team has claimed their hours, freeze the plan to
-                    prevent further additions.</p>
-                <button (click)="freezePlan()" style="background-color: var(--secondary-color)">Freeze Weekly
-                    Plan</button>
+            <div class="hour-card tech-card">
+                <div class="hour-label">Tech Debt</div>
+                <div class="hour-value">{{ techDebtHours }}h</div>
             </div>
-
-            <div *ngIf="currentPlan.isFrozen"
-                style="margin-top: 20px; color: var(--secondary-color); font-weight: bold;">
-                ❄️ The plan is frozen. Team members can now only update progress.
+            <div class="hour-card rnd-card">
+                <div class="hour-label">R&D</div>
+                <div class="hour-value">{{ rndHours }}h</div>
             </div>
         </div>
     </div>
+
+    <button class="btn-primary" (click)="createPlan()"
+        [disabled]="totalPct !== 100 || selectedCount === 0 || !planningDate || !isTuesdayValid">
+        Open Planning with the Team
+    </button>
 </div>
