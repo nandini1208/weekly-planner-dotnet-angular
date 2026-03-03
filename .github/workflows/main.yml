@@ -17,10 +17,10 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore dependencies
-        run: dotnet restore WeeklyPlanner.sln
+        run: dotnet restore WeeklyPlannerApp.sln
 
       - name: Build
-        run: dotnet build WeeklyPlanner.sln --configuration Release --no-restore
+        run: dotnet build WeeklyPlannerApp.sln --configuration Release --no-restore
 
       - name: Test
         run: dotnet test WeeklyPlanner.Tests/WeeklyPlanner.Tests.csproj --no-build --verbosity normal
