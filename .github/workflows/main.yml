@@ -83,11 +83,11 @@ jobs:
       - name: Deploy API to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ secrets.AZURE_WEBAPP_API_NAME }}
+          app-name: 'weeklyplanner-api-3b6d2a4c'
           package: ./api-app
 
       - name: Deploy UI to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ secrets.AZURE_WEBAPP_UI_NAME }}
+          app-name: 'weeklyplanner-ui-7d2a1b5e'
           package: ./ui-app
