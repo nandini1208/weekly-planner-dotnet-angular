@@ -104,29 +104,30 @@ namespace WeeklyPlanner.Tests
         }
 
         [Fact]
-        public async Task ImportAll_DuplicateIds_SkipsExistingRecords()
+        public async Task ImportAll_ClearsExistingDataBeforeImport()
         {
-            // Seed an existing member with Id = 101
-            _context.TeamMembers.Add(new TeamMember { Id = 101, Name = "Original Alice", IsLead = true });
+            // Seed existing members that should be wiped by import
+            _context.TeamMembers.Add(new TeamMember { Name = "OldMember1", IsLead = true });
+            _context.TeamMembers.Add(new TeamMember { Name = "OldMember2", IsLead = false });
             await _context.SaveChangesAsync();
 
-            // Try to import a member with the same Id
+            // Import a new member — should REPLACE, not merge
             var payload = new ImportPayload
             {
                 TeamMembers = new List<TeamMember>
                 {
-                    new TeamMember { Id = 101, Name = "Duplicate Alice", IsLead = false }
+                    new TeamMember { Id = 1, Name = "NewMember", IsLead = true }
                 }
             };
 
             var result = await _controller.ImportAll(payload);
 
-            // DB should still have only 1 member, and it should still be the original
+            // Only the imported member should exist — old ones wiped
             Assert.IsType<OkObjectResult>(result);
             Assert.Equal(1, await _context.TeamMembers.CountAsync());
 
-            var member = await _context.TeamMembers.FindAsync(101);
-            Assert.Equal("Original Alice", member!.Name); // original not overwritten
+            var member = await _context.TeamMembers.FirstAsync();
+            Assert.Equal("NewMember", member.Name);
         }
 
         [Fact]

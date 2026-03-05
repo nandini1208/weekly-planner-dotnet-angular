@@ -40,6 +40,12 @@ namespace WeeklyPlanner.API.Controllers
         }
 
         // POST: api/Export/import  — restore data from JSON
+        /// <summary>
+        /// Imports all entities from a previously exported JSON backup.
+        /// REPLACES all existing data — clears the database first, then inserts from the file.
+        /// Strips original IDs so SQL Server auto-generates new ones (avoids IDENTITY_INSERT errors).
+        /// Tracks old→new ID mappings to preserve referential integrity between related entities.
+        /// </summary>
         [HttpPost("import")]
         public async Task<ActionResult> ImportAll([FromBody] ImportPayload payload)
         {
@@ -47,57 +53,79 @@ namespace WeeklyPlanner.API.Controllers
 
             try
             {
-                // Import team members (skip if already exists by Id)
+                // ── STEP 1: Clear all existing data (reverse FK order) ──────────
+                _context.ProgressUpdates.RemoveRange(_context.ProgressUpdates);
+                _context.TaskAssignments.RemoveRange(_context.TaskAssignments);
+                _context.WeeklyPlans.RemoveRange(_context.WeeklyPlans);
+                _context.BacklogItems.RemoveRange(_context.BacklogItems);
+                _context.TeamMembers.RemoveRange(_context.TeamMembers);
+                await _context.SaveChangesAsync();
+
+                // ── STEP 2: Import fresh data with ID remapping ─────────────────
+                var memberMap = new Dictionary<int, int>();
+                var backlogMap = new Dictionary<int, int>();
+                var planMap = new Dictionary<int, int>();
+                var assignMap = new Dictionary<int, int>();
+
                 if (payload.TeamMembers != null)
                 {
                     foreach (var m in payload.TeamMembers)
                     {
-                        if (!await _context.TeamMembers.AnyAsync(x => x.Id == m.Id))
-                            _context.TeamMembers.Add(m);
+                        var oldId = m.Id; m.Id = 0;
+                        _context.TeamMembers.Add(m);
+                        await _context.SaveChangesAsync();
+                        memberMap[oldId] = m.Id;
                     }
                 }
 
-                // Import backlog items
                 if (payload.BacklogItems != null)
                 {
                     foreach (var b in payload.BacklogItems)
                     {
-                        if (!await _context.BacklogItems.AnyAsync(x => x.Id == b.Id))
-                            _context.BacklogItems.Add(b);
+                        var oldId = b.Id; b.Id = 0;
+                        _context.BacklogItems.Add(b);
+                        await _context.SaveChangesAsync();
+                        backlogMap[oldId] = b.Id;
                     }
                 }
 
-                // Import weekly plans
                 if (payload.WeeklyPlans != null)
                 {
                     foreach (var p in payload.WeeklyPlans)
                     {
-                        if (!await _context.WeeklyPlans.AnyAsync(x => x.Id == p.Id))
-                            _context.WeeklyPlans.Add(p);
+                        var oldId = p.Id; p.Id = 0;
+                        _context.WeeklyPlans.Add(p);
+                        await _context.SaveChangesAsync();
+                        planMap[oldId] = p.Id;
                     }
                 }
 
-                // Import task assignments
                 if (payload.TaskAssignments != null)
                 {
                     foreach (var a in payload.TaskAssignments)
                     {
-                        if (!await _context.TaskAssignments.AnyAsync(x => x.Id == a.Id))
-                            _context.TaskAssignments.Add(a);
+                        var oldId = a.Id; a.Id = 0;
+                        if (memberMap.TryGetValue(a.TeamMemberId,   out var mId)) a.TeamMemberId  = mId;
+                        if (backlogMap.TryGetValue(a.BacklogItemId, out var bId)) a.BacklogItemId = bId;
+                        if (planMap.TryGetValue(a.WeeklyPlanId,     out var pId)) a.WeeklyPlanId  = pId;
+                        _context.TaskAssignments.Add(a);
+                        await _context.SaveChangesAsync();
+                        assignMap[oldId] = a.Id;
                     }
                 }
 
-                // Import progress updates
                 if (payload.ProgressUpdates != null)
                 {
                     foreach (var u in payload.ProgressUpdates)
                     {
-                        if (!await _context.ProgressUpdates.AnyAsync(x => x.Id == u.Id))
-                            _context.ProgressUpdates.Add(u);
+                        u.Id = 0;
+                        if (assignMap.TryGetValue(u.TaskAssignmentId, out var aId))
+                            u.TaskAssignmentId = aId;
+                        _context.ProgressUpdates.Add(u);
                     }
+                    await _context.SaveChangesAsync();
                 }
 
-                await _context.SaveChangesAsync();
                 return Ok(new { message = "Data imported successfully." });
             }
             catch (Exception ex)

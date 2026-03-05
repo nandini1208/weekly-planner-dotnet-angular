@@ -20,7 +20,7 @@
   <button class="footer-btn" (click)="downloadData()" [disabled]="isExporting">
     {{ isExporting ? '⏳ Exporting...' : '📥 Download My Data' }}
   </button>
-  <button class="footer-btn" (click)="fileInput.click()">📂 Load Data from File</button>
+  <button class="footer-btn" (click)="openLoadModal()">📂 Load Data from File</button>
   <input #fileInput type="file" accept=".json" style="display:none" (change)="loadData($event)" />
   <button class="footer-btn" (click)="openSeedModal()" [disabled]="isSeeding">
     {{ isSeeding ? '⏳ Seeding...' : '🌱 Seed Sample Data' }}
@@ -63,6 +63,24 @@
     <div class="modal-footer">
       <button class="btn btn-add" (click)="confirmSeed()">✅ Yes, Seed It</button>
       <button class="btn btn-secondary" (click)="closeSeedModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Load Data Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showLoadModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Load Data from a Backup File</h3>
+      <button class="close-btn" (click)="closeLoadModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p>Pick the backup file you saved before. <strong>This will replace all your current data</strong> with the data
+        from the file.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-add" (click)="confirmLoad()">📂 Replace My Data</button>
+      <button class="btn btn-secondary" (click)="closeLoadModal()">Cancel</button>
     </div>
   </div>
 </div>

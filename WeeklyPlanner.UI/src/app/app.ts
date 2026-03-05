@@ -21,6 +21,7 @@ export class AppComponent implements OnInit {
   isDark = true;
   showResetModal = false;
   showSeedModal = false;
+  showLoadModal = false;
 
   // Footer states
   isExporting = false;
@@ -113,6 +114,15 @@ export class AppComponent implements OnInit {
     });
   }
 
+  // 📂 Load data modal
+  openLoadModal() { this.showLoadModal = true; }
+  closeLoadModal() { this.showLoadModal = false; }
+  confirmLoad() {
+    this.showLoadModal = false;
+    // Trigger the hidden file input after modal closes
+    setTimeout(() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click(), 50);
+  }
+
   // 📂 Load data from JSON file
   loadData(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -125,8 +135,11 @@ export class AppComponent implements OnInit {
         const payload = JSON.parse(e.target?.result as string);
         this.api.importData(payload).subscribe({
           next: () => {
-            this.showFooterToast('✅ Data loaded! Refreshing...', false);
-            setTimeout(() => window.location.reload(), 1200);
+            // Clear session and force-refresh members from DB
+            this.api.setCurrentUser(null);
+            this.api.getTeamMembers(); // updates membersSubject reactively
+            this.showFooterToast('✅ Your data was loaded!', false);
+            this.router.navigate(['/dashboard']);
           },
           error: (err) => {
             this.showFooterToast('❌ Import failed. Invalid file?', true);
