@@ -5,12 +5,18 @@ using WeeklyPlanner.API.Models;
 
 namespace WeeklyPlanner.API.Controllers
 {
+    /// <summary>
+    /// Provides data export and import functionality.
+    /// GET /api/Export/all returns the full database as JSON for backup.
+    /// POST /api/Export/import restores data from a previously exported JSON file.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class ExportController : ControllerBase
     {
         private readonly AppDbContext _context;
 
+        /// <summary>Injects the database context for direct entity access.</summary>
         public ExportController(AppDbContext context)
         {
             _context = context;

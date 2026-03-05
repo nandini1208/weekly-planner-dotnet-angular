@@ -5,12 +5,16 @@ using WeeklyPlanner.API.Services;
 
 namespace WeeklyPlanner.API.Controllers
 {
+    /// <summary>
+    /// Manages weekly plans including creation, freezing, task assignments, and summaries.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class PlanController : ControllerBase
     {
         private readonly IWeeklyPlanService _planService;
 
+        /// <summary>Injects the weekly plan service dependency.</summary>
         public PlanController(IWeeklyPlanService planService)
         {
             _planService = planService;
