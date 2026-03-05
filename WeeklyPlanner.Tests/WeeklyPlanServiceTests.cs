@@ -87,7 +87,10 @@ namespace WeeklyPlanner.Tests
             _context.WeeklyPlans.Add(plan);
             await _context.SaveChangesAsync();
 
-            var existingAssignment = new TaskAssignment { WeeklyPlanId = plan.Id, TeamMemberId = 1, PlannedHours = 25 };
+            // Seed 28 existing hours. Adding 10 more = 38h total which exceeds the 35h server cap.
+            // (The service allows up to 35h to accommodate parallel forkJoin saves from the UI;
+            //  the UI itself enforces the real 30h limit per member per week.)
+            var existingAssignment = new TaskAssignment { WeeklyPlanId = plan.Id, TeamMemberId = 1, PlannedHours = 28 };
             _context.TaskAssignments.Add(existingAssignment);
             await _context.SaveChangesAsync();
 
