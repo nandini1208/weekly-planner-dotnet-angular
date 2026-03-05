@@ -20,6 +20,7 @@ export class AppComponent implements OnInit {
   currentUser: TeamMember | null = null;
   isDark = true;
   showResetModal = false;
+  showSeedModal = false;
 
   // Footer states
   isExporting = false;
@@ -141,13 +142,18 @@ export class AppComponent implements OnInit {
     input.value = '';
   }
 
+  // 🌱 Seed modal
+  openSeedModal() { this.showSeedModal = true; }
+  closeSeedModal() { this.showSeedModal = false; }
+  confirmSeed() { this.showSeedModal = false; this.seedData(); }
+
   // 🌱 Seed sample data
   seedData() {
     if (this.isSeeding) return;
     this.isSeeding = true;
 
     const sampleMembers = [
-      { name: 'Alice', isLead: true },
+      { name: 'Alice', isLead: false },
       { name: 'Bob', isLead: false },
       { name: 'Charlie', isLead: false }
     ];

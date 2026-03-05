@@ -22,7 +22,7 @@
   </button>
   <button class="footer-btn" (click)="fileInput.click()">📂 Load Data from File</button>
   <input #fileInput type="file" accept=".json" style="display:none" (change)="loadData($event)" />
-  <button class="footer-btn" (click)="seedData()" [disabled]="isSeeding">
+  <button class="footer-btn" (click)="openSeedModal()" [disabled]="isSeeding">
     {{ isSeeding ? '⏳ Seeding...' : '🌱 Seed Sample Data' }}
   </button>
   <button class="footer-btn danger" (click)="resetApp()">🗑 Reset App</button>
@@ -46,6 +46,23 @@
         {{ isResetting ? 'Erasing...' : 'Yes, Erase Everything' }}
       </button>
       <button class="btn btn-secondary" (click)="closeResetModal()" [disabled]="isResetting">No, Go Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- Seed Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showSeedModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Seed Sample Data?</h3>
+      <button class="close-btn" (click)="closeSeedModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p>This will add sample team members, backlog items, and a planning cycle. Existing data will not be erased.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-add" (click)="confirmSeed()">✅ Yes, Seed It</button>
+      <button class="btn btn-secondary" (click)="closeSeedModal()">Cancel</button>
     </div>
   </div>
 </div>

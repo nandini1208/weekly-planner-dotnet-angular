@@ -296,6 +296,26 @@ body.light-mode .modal-body {
     gap: 12px;
 }
 
+/* Shared modal button base */
+.btn {
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: opacity 0.2s ease;
+}
+
+.btn-add {
+    background: #16a34a;
+    color: white;
+}
+
+.btn-add:hover {
+    background: #15803d;
+}
+
 .btn-danger {
     background: #ef4444;
     color: white;
