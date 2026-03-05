@@ -169,6 +169,51 @@ body.light-mode .footer-btn.danger:hover {
     background: #dc2626;
 }
 
+/* Disabled footer buttons */
+.footer-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.footer-btn:disabled:hover {
+    background: transparent;
+    color: #9ca3af;
+}
+
+/* Footer feedback toast */
+.footer-toast {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #065f46;
+    color: #6ee7b7;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9999;
+    animation: toastFadeIn 0.25s ease;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.footer-toast.error {
+    background: #7f1d1d;
+    color: #fca5a5;
+}
+
+@keyframes toastFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
 /* MODAL STYLES */
 .modal-overlay {
     position: fixed;

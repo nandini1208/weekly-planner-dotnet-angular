@@ -1,0 +1,115 @@
+<div class="pmw-container">
+    <div class="top-row">
+        <h1 class="title">Plan My Work</h1>
+        <button class="btn-back-top" (click)="goBack()">← Back to Dashboard</button>
+    </div>
+
+    <!-- Hours bar -->
+    <div class="hours-summary" [class.is-done]="isDone">
+        <span class="hours-text">
+            Your hours: <strong>{{ plannedHours }}</strong> of <strong>{{ capacity }}</strong> planned.
+            <span [class.warn]="hoursLeft < 0" [class.done]="hoursLeft === 0">{{ hoursLeft }} hours left.</span>
+            <span class="ready-badge" *ngIf="isDone">✓ You marked yourself as ready</span>
+        </span>
+        <div class="hours-bar-wrap">
+            <div class="hours-bar-fill" [style.width.%]="(plannedHours / capacity) * 100"
+                [class.full]="plannedHours >= capacity" [class.over]="plannedHours > capacity" [class.ready]="isDone">
+            </div>
+        </div>
+    </div>
+
+    <!-- Category budget cards -->
+    <section class="section">
+        <div class="cat-grid">
+            <div class="cat-card" *ngFor="let cat of categories">
+                <div class="cat-pill" [ngClass]="categoryClass(cat.name)">{{ cat.name }}</div>
+                <div class="cat-stat">
+                    <span class="stat-label">Budget</span>
+                    <span class="stat-val">{{ cat.budget }}h</span>
+                </div>
+                <div class="cat-stat">
+                    <span class="stat-label">Claimed</span>
+                    <span class="stat-val claimed">{{ cat.claimed }}h</span>
+                </div>
+                <div class="cat-stat">
+                    <span class="stat-label">Left</span>
+                    <span class="stat-val" [class.warn]="(cat.budget - cat.claimed) < 0">{{ cat.budget - cat.claimed
+                        }}h</span>
+                </div>
+                <div class="cat-bar-wrap">
+                    <div class="cat-bar-fill" [ngClass]="categoryClass(cat.name)"
+                        [style.width.%]="cat.budget > 0 ? (cat.claimed / cat.budget) * 100 : 0"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- My Plan -->
+    <section class="section">
+        <div class="section-header">
+            <h2 class="section-title">My Plan</h2>
+            <div class="action-btns">
+                <button class="btn-add" (click)="openPicker()" [disabled]="hoursLeft <= 0 || isDone">+ Add Work from
+                    Backlog</button>
+                <button class="btn-done" (click)="donePlanning()" *ngIf="!isDone"
+                    [disabled]="myWork.length === 0 || isSaving">
+                    {{ isSaving ? '⏳ Saving...' : '✅ I\'m Done Planning' }}
+                </button>
+                <button class="btn-undo" (click)="undoDone()" *ngIf="isDone">↩ Undo - I'm not done yet</button>
+            </div>
+        </div>
+        <div class="save-error" *ngIf="saveError">⚠️ {{ saveError }}</div>
+
+        <div *ngIf="myWork.length === 0" class="empty-state">
+            You haven't picked any work yet. Click "Add Work from Backlog" to get started.
+        </div>
+
+        <div class="work-list" *ngIf="myWork.length > 0">
+            <div class="work-row" *ngFor="let w of myWork; let i = index">
+                <div class="work-info">
+                    <span class="work-title">{{ w.backlogItem.title }}</span>
+                    <span class="work-cat-pill" [ngClass]="categoryClass(categoryLabel(w.backlogItem.category))">
+                        {{ categoryLabel(w.backlogItem.category) }}
+                    </span>
+                </div>
+                <div class="work-hours">{{ w.hours }}h</div>
+                <button class="btn-remove" (click)="removeWork(i)">✕</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Backlog Picker Drawer -->
+<div class="picker-overlay" *ngIf="showBacklogPicker" (click)="showBacklogPicker = false">
+    <div class="picker-panel" (click)="$event.stopPropagation()">
+        <div class="picker-header">
+            <h3>Add Work from Backlog</h3>
+            <button class="close-btn" (click)="showBacklogPicker = false">×</button>
+        </div>
+
+        <input class="picker-search" type="text" [(ngModel)]="searchQuery" placeholder="Search backlog items...">
+
+        <div class="picker-list">
+            <div class="picker-item" *ngFor="let item of filteredBacklog"
+                [class.selected]="selectedItem?.id === item.id" (click)="selectItem(item)">
+                <div class="picker-item-title">{{ item.title }}</div>
+                <span class="picker-cat-pill" [ngClass]="categoryClass(categoryLabel(item.category))">
+                    {{ categoryLabel(item.category) }}
+                </span>
+                <span class="picker-est" *ngIf="item.estimatedHours">Est: {{ item.estimatedHours }}h</span>
+            </div>
+            <div *ngIf="filteredBacklog.length === 0" class="picker-empty">No more backlog items available.</div>
+        </div>
+
+        <div class="picker-footer" *ngIf="selectedItem">
+            <span class="picker-selected-name">{{ selectedItem.title }}</span>
+            <label class="picker-hours-label">Hours to commit:
+                <input class="picker-hours-input" type="number" [(ngModel)]="selectedHours" min="1" [max]="hoursLeft">
+            </label>
+            <button class="btn-confirm-add" (click)="confirmAdd()"
+                [disabled]="!selectedHours || selectedHours <= 0 || selectedHours > hoursLeft">
+                ✓ Add to My Plan
+            </button>
+        </div>
+    </div>
+</div>

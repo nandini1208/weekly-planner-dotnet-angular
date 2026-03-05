@@ -17,11 +17,19 @@
 <router-outlet></router-outlet>
 
 <footer class="bottom-bar" *ngIf="showLayout">
-  <button class="footer-btn">📥 Download My Data</button>
-  <button class="footer-btn">📂 Load Data from File</button>
-  <button class="footer-btn">🌱 Seed Sample Data</button>
+  <button class="footer-btn" (click)="downloadData()" [disabled]="isExporting">
+    {{ isExporting ? '⏳ Exporting...' : '📥 Download My Data' }}
+  </button>
+  <button class="footer-btn" (click)="fileInput.click()">📂 Load Data from File</button>
+  <input #fileInput type="file" accept=".json" style="display:none" (change)="loadData($event)" />
+  <button class="footer-btn" (click)="seedData()" [disabled]="isSeeding">
+    {{ isSeeding ? '⏳ Seeding...' : '🌱 Seed Sample Data' }}
+  </button>
   <button class="footer-btn danger" (click)="resetApp()">🗑 Reset App</button>
 </footer>
+
+<!-- Footer toast for feedback -->
+<div class="footer-toast" *ngIf="footerToast" [class.error]="footerToastError">{{ footerToast }}</div>
 
 <!-- Reset Modal -->
 <div class="modal-overlay" *ngIf="showResetModal">
@@ -34,8 +42,10 @@
       <p>This will erase all your data. This cannot be undone.</p>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-danger" (click)="confirmReset()">Yes, Erase Everything</button>
-      <button class="btn btn-secondary" (click)="closeResetModal()">No, Go Back</button>
+      <button class="btn btn-danger" (click)="confirmReset()" [disabled]="isResetting">
+        {{ isResetting ? 'Erasing...' : 'Yes, Erase Everything' }}
+      </button>
+      <button class="btn btn-secondary" (click)="closeResetModal()" [disabled]="isResetting">No, Go Back</button>
     </div>
   </div>
 </div>

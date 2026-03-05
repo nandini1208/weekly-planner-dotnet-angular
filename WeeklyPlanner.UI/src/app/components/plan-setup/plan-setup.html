@@ -1,5 +1,6 @@
 <div class="plan-setup-container">
     <button class="btn-back" (click)="router.navigate(['/dashboard'])">🏠 Home</button>
+    <div class="toast" *ngIf="showToastMsg">✅ Planning Week Opened!</div>
     <h1 class="title">Set Up This Week's Plan</h1>
 
     <div class="form-section">

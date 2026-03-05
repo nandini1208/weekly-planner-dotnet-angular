@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -34,7 +34,7 @@ export class TeamManagementComponent implements OnInit {
 
   private pendingRequests = 0;
 
-  constructor(private api: ApiService, private router: Router, private route: ActivatedRoute) { }
+  constructor(private api: ApiService, private router: Router, private route: ActivatedRoute, private cdr: ChangeDetectorRef) { }
 
   goHome(): void {
     this.router.navigate(['/dashboard']);
@@ -55,6 +55,7 @@ export class TeamManagementComponent implements OnInit {
       this.members = members;
       const lead = members.findIndex(m => m.isLead);
       this.leadIndex = lead !== -1 ? lead : null;
+      this.cdr.detectChanges();
     });
   }
 
@@ -82,11 +83,12 @@ export class TeamManagementComponent implements OnInit {
     const newMember = { name: this.name.trim(), isLead: isFirstMember };
     this.name = '';
 
+    this.showToast('✅ Member added!');
+
     this.pendingRequests++;
     this.api.addTeamMember(newMember).subscribe({
       next: () => {
         this.pendingRequests--;
-        this.showToast('✅ Team member added!');
       },
       error: (err) => { console.error(err); this.pendingRequests--; }
     });

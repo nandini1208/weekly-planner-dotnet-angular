@@ -7,6 +7,7 @@
   <ng-container *ngIf="isManageMode">
     <div class="manage-header">
       <h2 class="header-text">Manage Team Members</h2>
+      <button class="btn-back-dash" (click)="goToDashboard()">← Back to Dashboard</button>
     </div>
 
     <!-- Add new member input -->
@@ -28,7 +29,8 @@
       <div class="actions">
         <button type="button" class="btn btn-edit" (click)="startEdit(member)">Edit Name</button>
         <button type="button" class="btn btn-lead" *ngIf="!member.isLead" (click)="setLead(i)">Make Lead</button>
-        <button type="button" class="btn btn-remove" (click)="remove(member.id, i)">Deactivate</button>
+        <button type="button" class="btn btn-remove" *ngIf="!member.isLead"
+          (click)="remove(member.id, i)">Deactivate</button>
       </div>
     </div>
 

@@ -87,6 +87,9 @@ export class PlanSetupComponent implements OnInit {
     return this.selectedMemberIds.has(id);
   }
 
+  showToastMsg = false;
+  isCreating = false;
+
   createPlan(): void {
     if (this.totalPct !== 100) {
       alert("Percentages must equal 100%");
@@ -110,6 +113,9 @@ export class PlanSetupComponent implements OnInit {
       return;
     }
 
+    if (this.isCreating) return;
+    this.isCreating = true;
+
     this.apiService.createPlan({
       startDate: new Date(this.planningDate).toISOString(),
       clientPercentage: this.clientPct,
@@ -119,10 +125,17 @@ export class PlanSetupComponent implements OnInit {
       isFrozen: false
     }).subscribe({
       next: () => {
-        // Navigate straight to dashboard — no popup, active plan will appear
-        this.router.navigate(['/dashboard']);
+        this.isCreating = false;
+        this.showToastMsg = true;
+        setTimeout(() => {
+          this.showToastMsg = false;
+          this.router.navigate(['/dashboard']);
+        }, 800);
       },
-      error: (err) => alert('Error creating plan: ' + (err.error || err.message))
+      error: (err) => {
+        this.isCreating = false;
+        alert('Error creating plan: ' + (err.error || err.message));
+      }
     });
   }
 }

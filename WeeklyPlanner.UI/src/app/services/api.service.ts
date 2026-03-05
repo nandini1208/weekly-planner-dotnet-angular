@@ -48,6 +48,11 @@ export class ApiService {
         return this.members$;
     }
 
+    // Direct HTTP call for use in forkJoin (does not update the BehaviorSubject)
+    getTeamMembersDirect(): Observable<TeamMember[]> {
+        return this.http.get<TeamMember[]>(`${this.baseUrl}/Team`);
+    }
+
     addTeamMember(member: Partial<TeamMember>): Observable<TeamMember> {
         return new Observable(observer => {
             // Optimistic UI Update: Create a temporary member
@@ -163,7 +168,7 @@ export class ApiService {
 
     // Plan
     getWeeklyPlans(): Observable<WeeklyPlan[]> {
-        return this.http.get<WeeklyPlan[]>(`${this.baseUrl}/Plan`);
+        return this.http.get<WeeklyPlan[]>(`${this.baseUrl}/Plan?t=${new Date().getTime()}`);
     }
 
     createPlan(plan: Partial<WeeklyPlan>): Observable<WeeklyPlan> {
@@ -182,8 +187,37 @@ export class ApiService {
         return this.http.post<TaskAssignment>(`${this.baseUrl}/Plan/assign`, assignment);
     }
 
+    getAssignments(planId: number): Observable<TaskAssignment[]> {
+        return this.http.get<TaskAssignment[]>(`${this.baseUrl}/Plan/${planId}/assignments`);
+    }
+
+    deleteMemberAssignments(planId: number, memberId: number): Observable<any> {
+        return this.http.delete(`${this.baseUrl}/Plan/${planId}/assignments/member/${memberId}`);
+    }
+
     // Progress
     updateProgress(update: ProgressUpdateRequest): Observable<ProgressUpdate> {
         return this.http.post<ProgressUpdate>(`${this.baseUrl}/Progress/update`, update);
+    }
+
+    getMemberProgress(memberId: number, planId: number): Observable<any[]> {
+        return this.http.get<any[]>(`${this.baseUrl}/Progress/member/${memberId}/plan/${planId}`);
+    }
+
+    getTeamProgress(planId: number): Observable<any[]> {
+        return this.http.get<any[]>(`${this.baseUrl}/Progress/plan/${planId}/team`);
+    }
+
+    getPlanSummary(planId: number): Observable<any> {
+        return this.http.get<any>(`${this.baseUrl}/Plan/${planId}/summary`);
+    }
+
+    // Export / Import
+    exportAll(): Observable<any> {
+        return this.http.get<any>(`${this.baseUrl}/Export/all`);
+    }
+
+    importData(payload: any): Observable<any> {
+        return this.http.post<any>(`${this.baseUrl}/Export/import`, payload);
     }
 }

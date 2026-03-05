@@ -1,0 +1,91 @@
+<div class="up-container">
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="isLoading">
+        <div class="loading-spinner"></div>
+        <span>Loading your tasks...</span>
+    </div>
+
+    <ng-container *ngIf="!isLoading">
+        <div class="top-row">
+            <h1 class="title">✏️ Update My Progress</h1>
+            <button class="btn-back-top" (click)="goBack()">← Back to Dashboard</button>
+        </div>
+
+        <!-- No plan / No tasks state -->
+        <div class="empty-state" *ngIf="noTasks || !plan">
+            <div class="empty-icon">📋</div>
+            <div class="empty-msg" *ngIf="!plan">No active plan found.</div>
+            <div class="empty-msg" *ngIf="plan && noTasks">
+                You have no tasks assigned yet. Go to <strong>Plan My Work</strong> to add tasks first.
+            </div>
+            <button class="btn-goto" (click)="goBack()">← Back to Dashboard</button>
+        </div>
+
+        <ng-container *ngIf="plan && !noTasks">
+            <!-- Overall Progress Bar -->
+            <div class="overall-card">
+                <div class="overall-label">
+                    <span>Overall Progress</span>
+                    <span class="overall-pct">{{ totalCompleted }}h / {{ totalPlanned }}h &nbsp;({{ overallPercent
+                        }}%)</span>
+                </div>
+                <div class="overall-bar-wrap">
+                    <div class="overall-bar-fill" [style.width.%]="overallPercent" [class.full]="overallPercent >= 100">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan info -->
+            <div class="plan-meta" *ngIf="plan">
+                Week of {{ plan.startDate | date:'yyyy-MM-dd' }}
+                {{ plan.isFrozen ? '· ❄️ Plan is Frozen' : '· 🟡 Plan not frozen yet — updates are still allowed' }}
+            </div>
+
+            <!-- Task Cards -->
+            <div class="tasks-list">
+                <div class="task-card" *ngFor="let task of tasks" [ngClass]="statusClass(task.status)">
+
+                    <!-- Task Header -->
+                    <div class="task-header">
+                        <div class="task-title">{{ task.title }}</div>
+                        <span class="cat-pill" [ngClass]="categoryClass(task.category)">{{ categoryLabel(task.category)
+                            }}</span>
+                    </div>
+
+                    <!-- Committed hours -->
+                    <div class="task-committed">
+                        Committed: <strong>{{ task.plannedHours }}h</strong>
+                        <span *ngIf="task.completedHours > task.plannedHours" class="over-warn">
+                            &nbsp;⚠️ You've put in more hours than planned — that's okay, it'll be noted.
+                        </span>
+                    </div>
+
+                    <!-- Progress controls -->
+                    <div class="task-controls">
+                        <label class="control-label">
+                            Completed hours
+                            <input class="hours-input" type="number" min="0" [(ngModel)]="task.completedHours" />
+                        </label>
+
+                        <label class="control-label">
+                            Status
+                            <select class="status-select" [(ngModel)]="task.status">
+                                <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+                            </select>
+                        </label>
+
+                        <button class="btn-save" (click)="saveTask(task)" [disabled]="task.saving">
+                            {{ task.saving ? '⏳ Saving...' : task.saved ? '✅ Saved!' : '💾 Save' }}
+                        </button>
+                    </div>
+
+                    <div class="task-error" *ngIf="task.error">⚠️ {{ task.error }}</div>
+                    <div class="task-last-updated" *ngIf="task.lastUpdated">
+                        Last updated: {{ task.lastUpdated | date:'dd MMM, hh:mm a' }}
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </ng-container>
+</div>

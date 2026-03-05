@@ -1,0 +1,484 @@
+:host {
+    display: block;
+    padding: 40px 20px 120px;
+    max-width: 900px;
+    margin: 0 auto;
+    font-family: Inter, sans-serif;
+}
+
+.rf-container {
+    position: relative;
+}
+
+.btn-back {
+    background: transparent;
+    border: 1px solid #374151;
+    color: #d1d5db;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 24px;
+    display: inline-block;
+    transition: background 0.2s;
+}
+
+.btn-back:hover {
+    background: #1f2937;
+}
+
+/* Toast */
+.toast {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    z-index: 9999;
+    animation: fadeIn 0.2s ease;
+}
+
+.toast-success {
+    background: #065f46;
+    color: #a7f3d0;
+    border: 1px solid #10b981;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.plan-meta {
+    color: #9ca3af;
+    font-size: 14px;
+    margin-bottom: 32px;
+}
+
+.section {
+    margin-bottom: 32px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #f3f4f6;
+}
+
+/* Table */
+.table-card {
+    background: #1f2937;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #374151;
+}
+
+.summary-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.summary-table th,
+.summary-table td {
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 1px solid #374151;
+}
+
+.summary-table th {
+    background: #111827;
+    color: #9ca3af;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-table tr:last-child td {
+    border-bottom: none;
+}
+
+.cat-pill {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.cat-client {
+    background: #1e3a8a;
+    color: #93c5fd;
+}
+
+.cat-tech {
+    background: #78350f;
+    color: #fde68a;
+}
+
+.cat-rnd {
+    background: #14532d;
+    color: #86efac;
+}
+
+td.ok {
+    color: #34d399;
+    font-weight: 600;
+}
+
+td.warn {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+/* Member cards */
+.members-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.member-card {
+    background: #1f2937;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #374151;
+}
+
+.member-name {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lead-tag {
+    background: #facc15;
+    color: black;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+.progress-bar-wrap {
+    background: #374151;
+    border-radius: 99px;
+    height: 8px;
+    margin-bottom: 6px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    background: #3b82f6;
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.4s;
+}
+
+.progress-bar-fill.full {
+    background: #10b981;
+}
+
+.member-hours {
+    font-size: 13px;
+    color: #9ca3af;
+    margin-bottom: 4px;
+}
+
+.member-status {
+    font-size: 13px;
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.member-status.ready {
+    color: #34d399;
+}
+
+/* Items table */
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+.items-table th,
+.items-table td {
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 1px solid #374151;
+    color: #d1d5db;
+}
+
+.items-table th {
+    color: #9ca3af;
+    font-weight: 600;
+}
+
+/* Blocking reasons */
+.blocking-card {
+    background: #1c1917;
+    border: 1px solid #ef4444;
+    border-radius: 12px;
+    padding: 20px 24px;
+}
+
+.blocking-title {
+    font-weight: 700;
+    color: #f87171;
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+
+.blocking-list {
+    list-style: disc;
+    padding-left: 20px;
+    color: #fca5a5;
+    font-size: 14px;
+    line-height: 2;
+}
+
+/* Actions */
+.action-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.btn-freeze {
+    background: linear-gradient(135deg, #0284c7, #0ea5e9);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-freeze:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-freeze:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3);
+}
+
+.btn-back-light {
+    background: transparent;
+    border: 1px solid #4b5563;
+    color: #9ca3af;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-back-light:hover {
+    background: #1f2937;
+    color: #f3f4f6;
+}
+
+.no-plan {
+    color: #9ca3af;
+    font-size: 16px;
+    margin-top: 40px;
+}
+
+/* Light mode */
+:host-context(body.light-mode) .table-card,
+:host-context(body.light-mode) .member-card,
+:host-context(body.light-mode) .blocking-card {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+:host-context(body.light-mode) .summary-table th {
+    background: #f9fafb;
+    color: #6b7280;
+}
+
+:host-context(body.light-mode) .summary-table th,
+:host-context(body.light-mode) .summary-table td,
+:host-context(body.light-mode) .items-table th,
+:host-context(body.light-mode) .items-table td {
+    border-color: #e5e7eb;
+}
+
+:host-context(body.light-mode) .section-title,
+:host-context(body.light-mode) .title {
+    color: #111827;
+}
+
+:host-context(body.light-mode) .member-name {
+    color: #111827;
+}
+
+:host-context(body.light-mode) .btn-back {
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+:host-context(body.light-mode) .progress-bar-wrap {
+    background: #e5e7eb;
+}
+
+/* Cancel button in action row */
+.btn-cancel-plan {
+    background: transparent;
+    border: 1px solid #ef4444;
+    color: #f87171;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: auto;
+    transition: background 0.2s;
+}
+
+.btn-cancel-plan:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* Cancel Modal Overlay */
+.cancel-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+}
+
+.cancel-modal {
+    background: #1f2937;
+    border-radius: 16px;
+    padding: 40px 36px;
+    max-width: 430px;
+    width: 90%;
+    text-align: center;
+    border: 1px solid #374151;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+    animation: modalIn 0.25s ease;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(-12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.cancel-modal-icon {
+    font-size: 44px;
+    margin-bottom: 14px;
+}
+
+.cancel-modal-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #f3f4f6;
+    margin: 0 0 10px;
+}
+
+.cancel-modal-body {
+    color: #9ca3af;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0 0 24px;
+}
+
+.cancel-modal-body strong {
+    color: #f87171;
+}
+
+.cancel-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cancel-btn-confirm {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 13px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.cancel-btn-confirm:hover:not(:disabled) {
+    background: #b91c1c;
+}
+
+.cancel-btn-confirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.cancel-btn-back {
+    background: transparent;
+    color: #9ca3af;
+    border: 1px solid #374151;
+    padding: 11px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.cancel-btn-back:hover:not(:disabled) {
+    background: #374151;
+    color: #f3f4f6;
+}
+
+/* Light mode for cancel modal */
+:host-context(body.light-mode) .cancel-modal {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+:host-context(body.light-mode) .cancel-modal-title {
+    color: #111827;
+}
+
+:host-context(body.light-mode) .cancel-btn-back {
+    border-color: #d1d5db;
+}

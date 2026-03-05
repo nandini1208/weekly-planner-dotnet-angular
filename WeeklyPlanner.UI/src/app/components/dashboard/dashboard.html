@@ -57,14 +57,19 @@
         </ng-container>
 
         <ng-container *ngIf="activePlan">
-            <div class="info-banner" style="background-color: #065f46; color: #a7f3d0; border: 1px solid #10b981;">
-                Planning is open! Team members can now plan their work.
-            </div>
+            <!-- Auto-dismiss toast banner -->
+            <div class="plan-open-toast" *ngIf="showPlanBanner">✅ Planning is open! Team members can now plan their
+                work.</div>
 
             <div class="grid">
                 <div class="card" (click)="reviewFreeze()">
                     <div class="card-title">❄️ Review and Freeze the Plan</div>
                     <div class="card-sub">Check everyone's hours and lock the plan.</div>
+                </div>
+
+                <div class="card" (click)="teamProgress()">
+                    <div class="card-title">📊 See Team Progress</div>
+                    <div class="card-sub">View all members' task status and hours done.</div>
                 </div>
 
                 <div class="card" (click)="planMyWork()">
@@ -126,6 +131,11 @@
                     <div class="card-sub">Pick backlog items and commit hours.</div>
                 </div>
 
+                <div class="card" (click)="updateProgress()">
+                    <div class="card-title">✏️ Update My Progress</div>
+                    <div class="card-sub">Report hours done and status on your tasks.</div>
+                </div>
+
                 <div class="card" (click)="manageBacklog()">
                     <div class="card-title">📋 Manage Backlog</div>
                     <div class="card-sub">Add, edit, or browse work items.</div>
@@ -139,3 +149,19 @@
         </ng-container>
     </ng-container>
 </ng-container>
+
+<!-- Cancel Plan Modal -->
+<div class="cancel-overlay" *ngIf="showCancelModal" (click)="closeCancelModal()">
+    <div class="cancel-modal" (click)="$event.stopPropagation()">
+        <div class="cancel-modal-icon">🗑️</div>
+        <h3 class="cancel-modal-title">Cancel Planning?</h3>
+        <p class="cancel-modal-body">This will erase everyone's plans for this week. <strong>This cannot be
+                undone.</strong></p>
+        <div class="cancel-modal-actions">
+            <button class="cancel-btn-confirm" (click)="confirmCancelPlan()" [disabled]="isCancelling">
+                {{ isCancelling ? 'Cancelling...' : 'Yes, Cancel Planning' }}
+            </button>
+            <button class="cancel-btn-back" (click)="closeCancelModal()" [disabled]="isCancelling">No, Go Back</button>
+        </div>
+    </div>
+</div>

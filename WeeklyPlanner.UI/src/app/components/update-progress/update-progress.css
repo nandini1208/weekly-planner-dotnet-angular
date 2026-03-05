@@ -1,0 +1,344 @@
+:host {
+    display: block;
+    padding: 40px 20px 120px;
+    max-width: 900px;
+    margin: 0 auto;
+    font-family: Inter, sans-serif;
+}
+
+/* Loading */
+.loading-state {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #9ca3af;
+    font-size: 15px;
+    padding: 40px 0;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #374151;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Top row */
+.top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.title {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.btn-back-top {
+    background: transparent;
+    border: 1px solid #374151;
+    color: #9ca3af;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-back-top:hover {
+    background: #1f2937;
+    color: #f3f4f6;
+}
+
+/* Overall progress card */
+.overall-card {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+}
+
+.overall-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #d1d5db;
+    margin-bottom: 10px;
+}
+
+.overall-pct {
+    font-weight: 700;
+    color: #f3f4f6;
+}
+
+.overall-bar-wrap {
+    height: 10px;
+    background: #374151;
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.overall-bar-fill {
+    height: 100%;
+    background: #3b82f6;
+    border-radius: 99px;
+    transition: width 0.3s;
+}
+
+.overall-bar-fill.full {
+    background: #10b981;
+}
+
+/* Plan meta */
+.plan-meta {
+    color: #9ca3af;
+    font-size: 13px;
+    margin-bottom: 24px;
+}
+
+/* Task cards */
+.tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.task-card {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 14px;
+    padding: 20px 22px;
+    border-left: 4px solid #374151;
+    transition: border-color 0.2s;
+}
+
+.task-card.status-done {
+    border-left-color: #10b981;
+}
+
+.task-card.status-progress {
+    border-left-color: #3b82f6;
+}
+
+.task-card.status-blocked {
+    border-left-color: #ef4444;
+}
+
+.task-card.status-todo {
+    border-left-color: #6b7280;
+}
+
+/* Task header */
+.task-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.task-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f3f4f6;
+    flex: 1;
+}
+
+/* Category pills */
+.cat-pill {
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.cat-client {
+    background: #1e3a8a;
+    color: #93c5fd;
+}
+
+.cat-tech {
+    background: #78350f;
+    color: #fde68a;
+}
+
+.cat-rnd {
+    background: #14532d;
+    color: #86efac;
+}
+
+/* Committed label */
+.task-committed {
+    font-size: 13px;
+    color: #9ca3af;
+    margin-bottom: 14px;
+}
+
+.task-committed strong {
+    color: #d1d5db;
+}
+
+.over-warn {
+    color: #f59e0b;
+    font-size: 12px;
+}
+
+/* Controls row */
+.task-controls {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.control-label {
+    font-size: 12px;
+    color: #9ca3af;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.hours-input {
+    background: #111827;
+    border: 1px solid #4b5563;
+    color: #f3f4f6;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    width: 90px;
+}
+
+.status-select {
+    background: #111827;
+    border: 1px solid #4b5563;
+    color: #f3f4f6;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    min-width: 140px;
+    cursor: pointer;
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    align-self: flex-end;
+}
+
+.btn-save:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-save:not(:disabled):hover {
+    opacity: 0.88;
+}
+
+/* Task footer */
+.task-error {
+    color: #f87171;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.task-last-updated {
+    color: #4b5563;
+    font-size: 11px;
+    margin-top: 8px;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: #1f2937;
+    border-radius: 14px;
+    border: 1px dashed #374151;
+    margin-top: 20px;
+}
+
+.empty-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.empty-msg {
+    font-size: 15px;
+    color: #9ca3af;
+    margin-bottom: 20px;
+}
+
+.empty-msg strong {
+    color: #d1d5db;
+}
+
+.btn-goto {
+    background: transparent;
+    border: 1px solid #374151;
+    color: #9ca3af;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-goto:hover {
+    background: #374151;
+    color: #f3f4f6;
+}
+
+/* Light mode */
+:host-context(body.light-mode) .title,
+:host-context(body.light-mode) .task-title,
+:host-context(body.light-mode) .overall-pct {
+    color: #111827;
+}
+
+:host-context(body.light-mode) .overall-card,
+:host-context(body.light-mode) .task-card,
+:host-context(body.light-mode) .empty-state {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+:host-context(body.light-mode) .overall-bar-wrap {
+    background: #e5e7eb;
+}
+
+:host-context(body.light-mode) .hours-input,
+:host-context(body.light-mode) .status-select {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: #111827;
+}
+
+:host-context(body.light-mode) .btn-back-top {
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+:host-context(body.light-mode) .btn-back-top:hover {
+    background: #f3f4f6;
+    color: #111827;
+}

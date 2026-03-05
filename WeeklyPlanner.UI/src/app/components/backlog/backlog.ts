@@ -68,27 +68,70 @@ export class BacklogComponent implements OnInit {
     this.activeCat = this.activeCat === cat ? null : cat;
   }
 
-  // ─── ADD ────────────────────────────────────────────
+  isSavingNew = false;
+  categoryError = false;
+
   addItem(): void {
     const title = this.newItemTitle.trim();
-    if (!title || !this.newItemCategory) return;
+    if (!title) return;
 
-    this.apiService.addBacklogItem({
-      title,
+    if (!this.newItemCategory) {
+      this.categoryError = true;
+      return;
+    }
+
+    this.categoryError = false;
+
+    if (this.isSavingNew) return;
+    this.isSavingNew = true;
+
+    // Optimistically add to UI
+    const tempId = -Date.now(); // Fake ID
+    const optimisticItem: BacklogItem = {
+      id: tempId,
+      title: title,
       category: this.newItemCategory,
       estimatedHours: this.newItemEstimate || 0,
       status: 'Available'
+    };
+
+    this.backlogItems.push(optimisticItem);
+
+    this.showToast('✅ Backlog item saved!');
+    this.showAddForm = false; // Hide the add form immediately so they see the list
+
+    // Clear form inputs instantly
+    this.newItemTitle = '';
+    this.newItemDescription = '';
+    this.newItemEstimate = null;
+    this.newItemCategory = '';
+
+    this.apiService.addBacklogItem({
+      title: optimisticItem.title,
+      category: optimisticItem.category,
+      estimatedHours: optimisticItem.estimatedHours,
+      status: 'Available'
     }).subscribe({
       next: (item) => {
-        this.backlogItems.push(item);
-        this.newItemTitle = '';
-        this.newItemDescription = '';
-        this.newItemEstimate = null;
-        this.newItemCategory = '';
-        this.showAddForm = false;
-        this.showToast();
+        this.isSavingNew = false;
+        // Replace optimistic item with real item from server
+        const idx = this.backlogItems.findIndex(i => i.id === tempId);
+        if (idx !== -1) {
+          this.backlogItems[idx] = item;
+        } else {
+          this.backlogItems.push(item);
+        }
       },
-      error: (err) => console.error('Error adding backlog item', err)
+      error: (err) => {
+        this.isSavingNew = false;
+        // Revert optimistic update
+        this.backlogItems = this.backlogItems.filter(i => i.id !== tempId);
+        this.showAddForm = true; // Show it again if there was an error
+        this.newItemTitle = optimisticItem.title; // Restore title
+        this.newItemCategory = optimisticItem.category; // Restore category
+        this.newItemEstimate = optimisticItem.estimatedHours || null; // Restore estimate
+        console.error('Error adding backlog item', err);
+      }
     });
   }
 
@@ -105,8 +148,14 @@ export class BacklogComponent implements OnInit {
   saveEdit(): void {
     if (!this.editingItem) return;
 
+    // Store reference to restore if error
+    const savingItem = this.editingItem;
+
+    this.showToast('✅ Changes saved!');
+    this.editingItem = null; // Hide form immediately
+
     const updated: BacklogItem = {
-      ...this.editingItem,
+      ...savingItem,
       title: this.editTitle.trim(),
       category: this.editCategory,
       estimatedHours: this.editEstimate || 0
@@ -116,10 +165,11 @@ export class BacklogComponent implements OnInit {
       next: (saved) => {
         const idx = this.backlogItems.findIndex(i => i.id === saved.id);
         if (idx !== -1) this.backlogItems[idx] = saved;
-        this.editingItem = null;
-        this.showToast();
       },
-      error: (err) => console.error('Error updating backlog item', err)
+      error: (err) => {
+        this.editingItem = savingItem; // restore form
+        console.error('Error updating backlog item', err);
+      }
     });
   }
 
@@ -127,11 +177,28 @@ export class BacklogComponent implements OnInit {
     this.editingItem = null;
   }
 
+  archiveItem(item: BacklogItem): void {
+    const originalStatus = item.status || 'Available';
+    item.status = 'Archived';
+    this.apiService.updateBacklogItem(item).subscribe({
+      next: () => {
+        // Optionally toast 'Archived!'
+      },
+      error: (err) => {
+        item.status = originalStatus;
+        console.error('Failed to archive', err);
+      }
+    })
+  }
+
   // ─── HELPERS ─────────────────────────────────────────
-  showToast(): void {
+  toastMessage = '✅ Backlog item saved!';
+
+  showToast(msg?: string): void {
+    this.toastMessage = msg || '✅ Backlog item saved!';
     this.savedToast = true;
     clearTimeout(this.toastTimeout);
-    this.toastTimeout = setTimeout(() => { this.savedToast = false; }, 3000);
+    this.toastTimeout = setTimeout(() => { this.savedToast = false; }, 500);
   }
 
   categoryLabel(cat: string): string {

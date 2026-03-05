@@ -1,7 +1,7 @@
 <div class="backlog-container">
 
     <!-- TOAST -->
-    <div class="toast" *ngIf="savedToast">✅ Backlog item saved!</div>
+    <div class="toast" *ngIf="savedToast">{{ toastMessage }}</div>
 
     <!-- HOME BACK BUTTON -->
     <button class="btn-back" (click)="goHome()">🏠 Home</button>
@@ -71,6 +71,8 @@
                     <option value="Tech Debt">Tech Debt</option>
                     <option value="R&D">R&amp;D</option>
                 </select>
+                <div *ngIf="categoryError" class="error-text" style="color: #ef4444; font-size: 14px; margin-top: 4px;">
+                    Please pick a category.</div>
             </div>
 
             <div class="form-field">
@@ -81,9 +83,11 @@
 
             <div class="form-actions">
                 <button type="button" class="btn-save" (click)="addItem()"
-                    [disabled]="!newItemTitle.trim() || !newItemCategory">Save
-                    Item</button>
-                <button type="button" class="btn-cancel" (click)="showAddForm = false">Cancel</button>
+                    [disabled]="!newItemTitle.trim() || isSavingNew">
+                    {{ isSavingNew ? 'Saving...' : 'Save Item' }}
+                </button>
+                <button type="button" class="btn-cancel" (click)="showAddForm = false"
+                    [disabled]="isSavingNew">Cancel</button>
             </div>
         </div>
     </ng-container>
@@ -130,7 +134,11 @@
                     }}</span>
                 <span class="item-status">{{ item.status ? item.status.toUpperCase() : 'AVAILABLE' }}</span>
                 <span *ngIf="item.estimatedHours" class="item-hours">{{ item.estimatedHours }}h est.</span>
-                <button class="btn-view-edit" (click)="openEdit(item)">View &amp; Edit</button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-view-edit" (click)="openEdit(item)">View &amp; Edit</button>
+                    <button *ngIf="item.status !== 'Archived'" class="btn-view-edit" style="background-color: #64748b;"
+                        (click)="archiveItem(item)">Archive</button>
+                </div>
             </div>
         </div>
     </ng-container>

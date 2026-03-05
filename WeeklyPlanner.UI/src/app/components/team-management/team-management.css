@@ -62,13 +62,39 @@
     padding: 0 20px;
 }
 
-/* Header Text - Dark on Dark matching Screenshot 2 */
+/* Manage header row: title + back button side by side */
+.manage-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+/* Header Text */
 .header-text {
     font-size: 28px;
     font-weight: 800;
     color: #000000;
-    margin-bottom: 6px;
+    margin-bottom: 0;
     letter-spacing: -0.5px;
+}
+
+/* Back to Dashboard button */
+.btn-back-dash {
+    background: transparent;
+    border: 1px solid #d1d5db;
+    color: #374151;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-back-dash:hover {
+    background: #f3f4f6;
+    color: #111827;
 }
 
 .sub-text {

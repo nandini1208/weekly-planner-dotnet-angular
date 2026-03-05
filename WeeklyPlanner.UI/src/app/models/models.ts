@@ -28,6 +28,7 @@ export interface TaskAssignment {
   teamMemberId: number;
   backlogItemId: number;
   plannedHours: number;
+  backlogItem?: BacklogItem; // Populated by backend Include()
 }
 
 export interface ProgressUpdate {
