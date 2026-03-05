@@ -28,6 +28,22 @@ namespace WeeklyPlanner.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        // GET: api/Progress/member/5/plan/3
+        [HttpGet("member/{memberId}/plan/{planId}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetMemberProgress(int memberId, int planId)
+        {
+            var result = await _planService.GetMemberProgressAsync(memberId, planId);
+            return Ok(result);
+        }
+
+        // GET: api/Progress/plan/3/team  (Lead's full team view)
+        [HttpGet("plan/{planId}/team")]
+        public async Task<ActionResult<IEnumerable<object>>> GetTeamProgress(int planId)
+        {
+            var result = await _planService.GetTeamProgressAsync(planId);
+            return Ok(result);
+        }
     }
 
     public class ProgressUpdateRequest

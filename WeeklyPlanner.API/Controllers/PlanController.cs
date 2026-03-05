@@ -87,5 +87,36 @@ namespace WeeklyPlanner.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
+        // GET: api/Plan/5/assignments
+        [HttpGet("{id}/assignments")]
+        public async Task<ActionResult<IEnumerable<TaskAssignment>>> GetAssignments(int id)
+        {
+            var assignments = await _planService.GetAssignmentsByPlanIdAsync(id);
+            return Ok(assignments);
+        }
+
+        // DELETE: api/Plan/5/assignments/member/12
+        [HttpDelete("{planId}/assignments/member/{memberId}")]
+        public async Task<IActionResult> DeleteMemberAssignments(int planId, int memberId)
+        {
+            await _planService.DeleteAssignmentsByMemberAsync(planId, memberId);
+            return NoContent();
+        }
+
+        // GET: api/Plan/5/summary
+        [HttpGet("{id}/summary")]
+        public async Task<ActionResult<object>> GetPlanSummary(int id)
+        {
+            try
+            {
+                var summary = await _planService.GetPlanSummaryAsync(id);
+                return Ok(summary);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
     }
 }

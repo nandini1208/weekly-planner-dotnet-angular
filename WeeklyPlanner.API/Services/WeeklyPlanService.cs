@@ -57,7 +57,8 @@ namespace WeeklyPlanner.API.Services
                 .Where(a => a.WeeklyPlanId == assignment.WeeklyPlanId && a.TeamMemberId == assignment.TeamMemberId)
                 .SumAsync(a => a.PlannedHours);
 
-            if (memberAssignments + assignment.PlannedHours > 30)
+            // Use 35h buffer to allow for parallel forkJoin saves (UI enforces the real 30h limit)
+            if (memberAssignments + assignment.PlannedHours > 35)
                 throw new InvalidOperationException("A member cannot plan more than 30 hours per week.");
 
             _context.TaskAssignments.Add(assignment);
@@ -74,6 +75,24 @@ namespace WeeklyPlanner.API.Services
             await _context.SaveChangesAsync();
 
             return assignment;
+        }
+
+        // Get all assignments for a plan (includes BacklogItem info)
+        public async Task<IEnumerable<TaskAssignment>> GetAssignmentsByPlanIdAsync(int planId)
+        {
+            return await _context.TaskAssignments
+                .Where(a => a.WeeklyPlanId == planId)
+                .Include(a => a.BacklogItem)
+                .ToListAsync();
+        }
+
+        // Delete all assignments for a member in a plan (so they can re-submit)
+        public async Task DeleteAssignmentsByMemberAsync(int planId, int memberId)
+        {
+            var existing = _context.TaskAssignments
+                .Where(a => a.WeeklyPlanId == planId && a.TeamMemberId == memberId);
+            _context.TaskAssignments.RemoveRange(existing);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<ProgressUpdate> UpdateProgressAsync(int assignmentId, int completedHours, string status)
@@ -101,6 +120,158 @@ namespace WeeklyPlanner.API.Services
             }
 
             return update;
+        }
+
+        // Return each assignment for a member with the latest progress update
+        public async Task<IEnumerable<object>> GetMemberProgressAsync(int memberId, int planId)
+        {
+            var assignments = await _context.TaskAssignments
+                .Where(a => a.WeeklyPlanId == planId && a.TeamMemberId == memberId)
+                .Include(a => a.BacklogItem)
+                .ToListAsync();
+
+            var result = new List<object>();
+            foreach (var a in assignments)
+            {
+                // Get the latest progress update for this assignment
+                var latest = await _context.ProgressUpdates
+                    .Where(p => p.TaskAssignmentId == a.Id)
+                    .OrderByDescending(p => p.UpdateDate)
+                    .FirstOrDefaultAsync();
+
+                result.Add(new
+                {
+                    assignmentId = a.Id,
+                    backlogItemId = a.BacklogItemId,
+                    title = a.BacklogItem?.Title ?? $"Item #{a.BacklogItemId}",
+                    category = a.BacklogItem?.Category ?? "",
+                    plannedHours = a.PlannedHours,
+                    completedHours = latest?.CompletedHours ?? 0,
+                    status = latest?.Status ?? "To Do",
+                    lastUpdated = latest?.UpdateDate
+                });
+            }
+            return result;
+        }
+
+        // Full team progress for the lead's overview
+        public async Task<IEnumerable<object>> GetTeamProgressAsync(int planId)
+        {
+            var assignments = await _context.TaskAssignments
+                .Where(a => a.WeeklyPlanId == planId)
+                .Include(a => a.BacklogItem)
+                .ToListAsync();
+
+            var members = await _context.TeamMembers.ToListAsync();
+            var plan = await _context.WeeklyPlans.FindAsync(planId);
+            int capacity = plan != null && members.Count > 0
+                ? plan.TotalPlannedHours / members.Count
+                : 30;
+
+            var result = new List<object>();
+
+            foreach (var member in members)
+            {
+                var memberAssignments = assignments.Where(a => a.TeamMemberId == member.Id).ToList();
+                var tasks = new List<object>();
+                int totalPlanned = 0, totalCompleted = 0;
+
+                foreach (var a in memberAssignments)
+                {
+                    var latest = await _context.ProgressUpdates
+                        .Where(p => p.TaskAssignmentId == a.Id)
+                        .OrderByDescending(p => p.UpdateDate)
+                        .FirstOrDefaultAsync();
+
+                    totalPlanned += a.PlannedHours;
+                    totalCompleted += latest?.CompletedHours ?? 0;
+
+                    tasks.Add(new
+                    {
+                        assignmentId = a.Id,
+                        title = a.BacklogItem?.Title ?? $"Item #{a.BacklogItemId}",
+                        category = a.BacklogItem?.Category ?? "",
+                        plannedHours = a.PlannedHours,
+                        completedHours = latest?.CompletedHours ?? 0,
+                        status = latest?.Status ?? "To Do",
+                        lastUpdated = latest?.UpdateDate
+                    });
+                }
+
+                result.Add(new
+                {
+                    memberId = member.Id,
+                    memberName = member.Name,
+                    isLead = member.IsLead,
+                    capacity,
+                    totalPlanned,
+                    totalCompleted,
+                    tasks
+                });
+            }
+
+            return result;
+        }
+
+        // Rich summary for a single plan (used by View Past Weeks)
+        public async Task<object> GetPlanSummaryAsync(int planId)
+        {
+            var plan = await _context.WeeklyPlans.FindAsync(planId);
+            if (plan == null) throw new KeyNotFoundException("Plan not found");
+
+            var assignments = await _context.TaskAssignments
+                .Where(a => a.WeeklyPlanId == planId)
+                .Include(a => a.BacklogItem)
+                .ToListAsync();
+
+            var members = await _context.TeamMembers.ToListAsync();
+            int totalPlanned = 0, totalCompleted = 0;
+            var memberResults = new List<object>();
+
+            foreach (var member in members)
+            {
+                var mine = assignments.Where(a => a.TeamMemberId == member.Id).ToList();
+                if (mine.Count == 0) continue;
+
+                int mPlanned = mine.Sum(a => a.PlannedHours);
+                int mCompleted = 0;
+
+                foreach (var a in mine)
+                {
+                    var latest = await _context.ProgressUpdates
+                        .Where(p => p.TaskAssignmentId == a.Id)
+                        .OrderByDescending(p => p.UpdateDate)
+                        .Select(p => p.CompletedHours)
+                        .FirstOrDefaultAsync();
+                    mCompleted += latest;
+                }
+
+                totalPlanned += mPlanned;
+                totalCompleted += mCompleted;
+
+                memberResults.Add(new {
+                    memberName = member.Name,
+                    isLead = member.IsLead,
+                    planned = mPlanned,
+                    completed = mCompleted,
+                    percent = mPlanned > 0 ? Math.Min(100, mCompleted * 100 / mPlanned) : 0
+                });
+            }
+
+            return new
+            {
+                planId = plan.Id,
+                startDate = plan.StartDate,
+                isFrozen = plan.IsFrozen,
+                totalPlannedHours = plan.TotalPlannedHours,
+                clientPercentage = plan.ClientPercentage,
+                techDebtPercentage = plan.TechDebtPercentage,
+                rnDPercentage = plan.RnDPercentage,
+                totalPlanned,
+                totalCompleted,
+                overallPercent = totalPlanned > 0 ? Math.Min(100, totalCompleted * 100 / totalPlanned) : 0,
+                memberResults
+            };
         }
     }
 }
