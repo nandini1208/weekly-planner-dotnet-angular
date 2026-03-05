@@ -56,9 +56,14 @@ export class BacklogComponent implements OnInit {
       const matchesSearch = item.title.toLowerCase().includes(this.searchQuery.toLowerCase());
       let matchesStatus = true;
       const s = (item.status || '').toLowerCase();
-      if (this.statusFilter === 'available') matchesStatus = s === 'available' || s === 'to do' || !item.status;
-      if (this.statusFilter === 'completed') matchesStatus = s === 'done' || s === 'completed';
-      if (this.statusFilter === 'archived') matchesStatus = s === 'archived';
+      if (this.statusFilter === 'available') {
+        matchesStatus = s === 'available' || s === 'in_plan' || s === 'to do' || !item.status;
+      } else if (this.statusFilter === 'completed') {
+        matchesStatus = s === 'done' || s === 'completed';
+      } else if (this.statusFilter === 'archived') {
+        matchesStatus = s === 'archived';
+      }
+      // 'all' = no status filter applied
       const matchesCat = this.activeCat ? this.categoryLabel(item.category) === this.activeCat : true;
       return matchesSearch && matchesStatus && matchesCat;
     });

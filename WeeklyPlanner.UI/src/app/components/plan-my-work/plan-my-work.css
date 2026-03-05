@@ -689,3 +689,223 @@
     background: #f3f4f6;
     color: #111827;
 }
+
+/* ===== Pick a Backlog Item page ===== */
+.picker-subtitle {
+    font-size: 16px;
+    margin: 8px 0 16px;
+    opacity: 0.8;
+}
+
+.cat-pills-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.cat-pill-tag {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.cat-pill-tag.cat-client {
+    background: #2563eb;
+}
+
+.cat-pill-tag.cat-tech {
+    background: #f59e0b;
+    color: #1a1a2e;
+}
+
+.cat-pill-tag.cat-rnd {
+    background: #10b981;
+}
+
+.pick-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pick-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 10px;
+    padding: 16px 20px;
+    transition: border-color 0.2s;
+}
+
+.pick-item:hover {
+    border-color: #60a5fa;
+}
+
+.pick-item-info {
+    flex: 1;
+}
+
+.pick-item-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.pick-item-title {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.pick-cat-pill {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.pick-cat-pill.cat-client {
+    background: #2563eb;
+}
+
+.pick-cat-pill.cat-tech {
+    background: #f59e0b;
+    color: #1a1a2e;
+}
+
+.pick-cat-pill.cat-rnd {
+    background: #10b981;
+}
+
+.pick-est {
+    font-size: 13px;
+    opacity: 0.6;
+}
+
+.btn-pick {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.btn-pick:hover {
+    background: #1d4ed8;
+}
+
+/* Hours commit modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 14px;
+    width: 480px;
+    max-width: 90vw;
+    padding: 24px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.modal-body p {
+    margin: 6px 0;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.btn-confirm-add {
+    background: #10b981;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-confirm-add:hover {
+    background: #059669;
+}
+
+.btn-confirm-add:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: 1px solid #4b5563;
+    color: #d1d5db;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.btn-cancel:hover {
+    background: #374151;
+}
+
+/* Light mode overrides */
+:host-context(body.light-mode) .pick-item {
+    background: #fff;
+    border-color: #e5e7eb;
+}
+
+:host-context(body.light-mode) .pick-item:hover {
+    border-color: #3b82f6;
+}
+
+:host-context(body.light-mode) .modal-content {
+    background: #fff;
+    border-color: #e5e7eb;
+}
+
+:host-context(body.light-mode) .btn-cancel {
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+:host-context(body.light-mode) .btn-cancel:hover {
+    background: #f3f4f6;
+}

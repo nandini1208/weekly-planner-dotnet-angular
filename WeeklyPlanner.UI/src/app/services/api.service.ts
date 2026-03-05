@@ -30,11 +30,28 @@ export class ApiService {
     /** Observable stream of the team members list. Components subscribe to receive live updates. */
     members$ = this.membersSubject.asObservable();
 
+    /** The latest active weekly plan. */
+    private activePlanSubject = new BehaviorSubject<WeeklyPlan | null>(null);
+    /** Observable stream of the active weekly plan. */
+    activePlan$ = this.activePlanSubject.asObservable();
+
+    /** Flag for showing "Data Loaded" message on dashboard. */
+    private importSuccessSubject = new BehaviorSubject<boolean>(false);
+    importSuccess$ = this.importSuccessSubject.asObservable();
+
     // ─── Session ──────────────────────────────────────────────────────────────
 
     /** Sets the currently active user (called on login/switch). Pass null to clear the session. */
     setCurrentUser(user: TeamMember | null) {
         this.currentUserSubject.next(user);
+    }
+
+    setImportSuccess(val: boolean) {
+        this.importSuccessSubject.next(val);
+    }
+
+    clearImportSuccess() {
+        this.importSuccessSubject.next(false);
     }
 
     /**
@@ -48,6 +65,7 @@ export class ApiService {
                     // Clear all in-memory state
                     this.membersSubject.next([]);
                     this.currentUserSubject.next(null);
+                    this.activePlanSubject.next(null);
                     observer.next(res);
                     observer.complete();
                 },
@@ -199,7 +217,19 @@ export class ApiService {
 
     // Plan
     getWeeklyPlans(): Observable<WeeklyPlan[]> {
-        return this.http.get<WeeklyPlan[]>(`${this.baseUrl}/Plan?t=${new Date().getTime()}`);
+        const obs = this.http.get<WeeklyPlan[]>(`${this.baseUrl}/Plan?t=${new Date().getTime()}`);
+        obs.subscribe({
+            next: (plans) => {
+                if (plans && plans.length > 0) {
+                    const sorted = [...plans].sort((a, b) => b.id - a.id);
+                    this.activePlanSubject.next(sorted[0]);
+                } else {
+                    this.activePlanSubject.next(null);
+                }
+            },
+            error: (err) => console.error('Error fetching plans', err)
+        });
+        return obs;
     }
 
     createPlan(plan: Partial<WeeklyPlan>): Observable<WeeklyPlan> {

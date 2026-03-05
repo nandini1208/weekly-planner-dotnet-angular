@@ -21,7 +21,6 @@
     {{ isExporting ? '⏳ Exporting...' : '📥 Download My Data' }}
   </button>
   <button class="footer-btn" (click)="openLoadModal()">📂 Load Data from File</button>
-  <input #fileInput type="file" accept=".json" style="display:none" (change)="loadData($event)" />
   <button class="footer-btn" (click)="openSeedModal()" [disabled]="isSeeding">
     {{ isSeeding ? '⏳ Seeding...' : '🌱 Seed Sample Data' }}
   </button>
@@ -75,11 +74,21 @@
       <button class="close-btn" (click)="closeLoadModal()">×</button>
     </div>
     <div class="modal-body">
-      <p>Pick the backup file you saved before. <strong>This will replace all your current data</strong> with the data
-        from the file.</p>
+      <p>Pick the backup file you saved before. This will replace all your current data.</p>
+      <div style="margin-top: 16px; display: flex; align-items: center; gap: 10px;">
+        <label class="btn btn-secondary" style="cursor:pointer; margin: 0;">
+          Choose file
+          <input type="file" accept=".json" style="display:none" (change)="handleImportFile($event)" />
+        </label>
+        <span style="font-size: 14px; color: var(--text-muted, #9ca3af);">{{ importFileName || 'No file chosen'
+          }}</span>
+      </div>
+      <p *ngIf="loadError" style="margin-top: 14px; color: #ef4444; font-weight: 600; font-size: 14px;">
+        {{ loadError }}
+      </p>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-add" (click)="confirmLoad()">📂 Replace My Data</button>
+      <button class="btn btn-add" [disabled]="!importData" (click)="executeImport()">Yes, Replace My Data</button>
       <button class="btn btn-secondary" (click)="closeLoadModal()">Cancel</button>
     </div>
   </div>

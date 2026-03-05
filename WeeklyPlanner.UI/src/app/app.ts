@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -22,6 +22,9 @@ export class AppComponent implements OnInit {
   showResetModal = false;
   showSeedModal = false;
   showLoadModal = false;
+  loadError = '';
+  importFileName = '';
+  importData: any = null;
 
   // Footer states
   isExporting = false;
@@ -29,7 +32,7 @@ export class AppComponent implements OnInit {
   footerToast = '';
   footerToastError = false;
 
-  constructor(private router: Router, private api: ApiService) {
+  constructor(private router: Router, private api: ApiService, private zone: NgZone, private cdr: ChangeDetectorRef) {
     this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe((event: any) => {
@@ -115,44 +118,83 @@ export class AppComponent implements OnInit {
   }
 
   // 📂 Load data modal
-  openLoadModal() { this.showLoadModal = true; }
-  closeLoadModal() { this.showLoadModal = false; }
-  confirmLoad() {
+  openLoadModal() {
+    this.showLoadModal = true;
+    this.loadError = '';
+    this.importFileName = '';
+    this.importData = null;
+  }
+  closeLoadModal() {
     this.showLoadModal = false;
-    // Trigger the hidden file input after modal closes
-    setTimeout(() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click(), 50);
+    this.loadError = '';
+    this.importFileName = '';
+    this.importData = null;
   }
 
-  // 📂 Load data from JSON file
-  loadData(event: Event) {
+  // 📂 Called when user picks a file — validates and stores parsed data
+  handleImportFile(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
-
     const file = input.files[0];
+    this.importFileName = file.name;
+    this.loadError = '';
+    this.importData = null;
+
     const reader = new FileReader();
     reader.onload = (e) => {
-      try {
-        const payload = JSON.parse(e.target?.result as string);
-        this.api.importData(payload).subscribe({
-          next: () => {
-            // Clear session and force-refresh members from DB
-            this.api.setCurrentUser(null);
-            this.api.getTeamMembers(); // updates membersSubject reactively
-            this.showFooterToast('✅ Your data was loaded!', false);
-            this.router.navigate(['/dashboard']);
-          },
-          error: (err) => {
-            this.showFooterToast('❌ Import failed. Invalid file?', true);
-            console.error(err);
+      this.zone.run(() => {
+        try {
+          const rawPayload = JSON.parse(e.target?.result as string);
+          const payload = this.normalizeImportPayload(rawPayload);
+          if (!payload) {
+            this.loadError = "This file doesn't look like a backup from this app.";
+            this.importData = null;
+          } else {
+            this.importData = payload;
+            this.loadError = '';
           }
-        });
-      } catch {
-        this.showFooterToast('❌ Invalid JSON file.', true);
-      }
+        } catch {
+          this.loadError = "This file can't be read. Please check the file and try again.";
+          this.importData = null;
+        }
+        input.value = '';
+        this.cdr.detectChanges();
+      });
     };
     reader.readAsText(file);
-    // Reset so the same file can be re-loaded
-    input.value = '';
+  }
+
+  // 📂 Called when user clicks "Yes, Replace My Data" — executes the import
+  executeImport() {
+    if (!this.importData) return;
+    const payload = this.importData;
+    this.showLoadModal = false;
+    this.loadError = '';
+    this.importFileName = '';
+    this.importData = null;
+
+    const currentName = this.currentUser?.name;
+    this.api.setCurrentUser(null);
+
+    this.api.importData(payload).subscribe({
+      next: () => {
+        this.api.getTeamMembersDirect().subscribe(members => {
+          if (currentName) {
+            const sameUser = members.find(m => m.name === currentName);
+            if (sameUser) this.api.setCurrentUser(sameUser);
+          }
+          this.api.getTeamMembers().subscribe();
+          this.api.getWeeklyPlans().subscribe();
+          this.api.setImportSuccess(true);
+          setTimeout(() => this.api.clearImportSuccess(), 5000);
+          this.router.navigate(['/dashboard']);
+        });
+      },
+      error: (err) => {
+        this.showFooterToast('❌ Import failed. Please try again.', true);
+        console.error(err);
+      }
+    });
   }
 
   // 🌱 Seed modal
@@ -160,39 +202,60 @@ export class AppComponent implements OnInit {
   closeSeedModal() { this.showSeedModal = false; }
   confirmSeed() { this.showSeedModal = false; this.seedData(); }
 
-  // 🌱 Seed sample data
+  // 🌱 Seed sample data — matches original reference app exactly
   seedData() {
     if (this.isSeeding) return;
     this.isSeeding = true;
 
-    const sampleMembers = [
-      { name: 'Alice', isLead: false },
-      { name: 'Bob', isLead: false },
-      { name: 'Charlie', isLead: false }
-    ];
-    const sampleBacklog = [
-      { title: 'Setup CI/CD pipeline', category: 'Tech Debt', estimatedHours: 6, status: 'Available' },
-      { title: 'Client dashboard v2', category: 'Client Focused', estimatedHours: 8, status: 'Available' },
-      { title: 'Research AI integration', category: 'R&D', estimatedHours: 4, status: 'Available' },
-      { title: 'API performance audit', category: 'Tech Debt', estimatedHours: 3, status: 'Available' },
-      { title: 'Mobile app prototype', category: 'Client Focused', estimatedHours: 10, status: 'Available' },
-      { title: 'Code review automation', category: 'Tech Debt', estimatedHours: 5, status: 'Available' }
-    ];
+    // Step 1: Reset all existing data first
+    this.api.resetAll().subscribe({
+      next: () => {
+        // Step 2: Add the 4 original team members
+        const sampleMembers = [
+          { name: 'Alice Chen', isLead: true },
+          { name: 'Bob Martinez', isLead: false },
+          { name: 'Carol Singh', isLead: false },
+          { name: 'Dave Kim', isLead: false }
+        ];
+        const sampleBacklog = [
+          { title: 'Customer onboarding redesign', category: 'Client Focused', estimatedHours: 12, status: 'Available' },
+          { title: 'Fix billing invoice formatting', category: 'Client Focused', estimatedHours: 4, status: 'Available' },
+          { title: 'Customer feedback dashboard', category: 'Client Focused', estimatedHours: 16, status: 'Available' },
+          { title: 'Migrate database to PostgreSQL 16', category: 'Tech Debt', estimatedHours: 20, status: 'Available' },
+          { title: 'Remove deprecated API endpoints', category: 'Tech Debt', estimatedHours: 8, status: 'Available' },
+          { title: 'Add unit tests for payment module', category: 'Tech Debt', estimatedHours: 10, status: 'Available' },
+          { title: 'Experiment with LLM-based search', category: 'R&D', estimatedHours: 15, status: 'Available' },
+          { title: 'Evaluate new caching strategy', category: 'R&D', estimatedHours: 6, status: 'Available' },
+          { title: 'Build internal CLI tool', category: 'R&D', estimatedHours: 8, status: 'Available' },
+          { title: 'Client SSO integration', category: 'Client Focused', estimatedHours: 18, status: 'Available' }
+        ];
 
-    const addMember$ = sampleMembers.map(m => this.api.addTeamMember(m));
-    const addBacklog$ = sampleBacklog.map(b => this.api.addBacklogItem(b));
-    const allObs: any[] = [...addMember$, ...addBacklog$];
-    let done = 0;
-    const total = allObs.length;
-    const tryFinish = () => {
-      done++;
-      if (done >= total) {
+        const allObs: any[] = [
+          ...sampleMembers.map(m => this.api.addTeamMember(m)),
+          ...sampleBacklog.map(b => this.api.addBacklogItem(b))
+        ];
+        let done = 0;
+        const total = allObs.length;
+        const tryFinish = () => {
+          done++;
+          if (done >= total) {
+            this.isSeeding = false;
+            this.api.setCurrentUser(null);
+            this.api.getTeamMembers().subscribe();
+            this.showFooterToast('Sample data loaded! Pick a person to get started.', false);
+            this.router.navigate(['/dashboard']);
+            this.cdr.detectChanges();
+          }
+        };
+        allObs.forEach((obs: any) => obs.subscribe({ next: tryFinish, error: () => tryFinish() }));
+        // Safety: force reset seeding state after 8s in case counter doesn't match
+        setTimeout(() => { this.isSeeding = false; this.cdr.detectChanges(); }, 8000);
+      },
+      error: () => {
         this.isSeeding = false;
-        this.showFooterToast('✅ Sample data seeded!', false);
+        this.showFooterToast('❌ Failed to seed data.', true);
       }
-    };
-
-    allObs.forEach((obs: any) => obs.subscribe({ next: tryFinish, error: () => tryFinish() }));
+    });
   }
 
   private showFooterToast(msg: string, isError: boolean) {
@@ -201,6 +264,19 @@ export class AppComponent implements OnInit {
     setTimeout(() => { this.footerToast = ''; }, 3000);
   }
 
+  // Validate that the file is a backup from THIS app
+  private normalizeImportPayload(raw: any): any {
+    if (!raw || typeof raw !== 'object') return null;
+
+    // Our app exports: { exportedAt, teamMembers, backlogItems, weeklyPlans, ... }
+    // Must have exportedAt (proves it came from our Download) AND at least teamMembers
+    if (raw.exportedAt && (raw.teamMembers || raw.backlogItems || raw.weeklyPlans)) {
+      return raw;
+    }
+
+    // Anything else (original reference app, random JSON, etc.) = rejected
+    return null;
+  }
   activeNav: string = '';
   setActive(nav: string) { this.activeNav = nav; }
 }

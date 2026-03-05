@@ -26,6 +26,11 @@
         <span *ngIf="!currentUser.isLead" class="member-pill-inline">Team Member</span>
     </div>
 
+    <!-- Data Loaded Success Banner -->
+    <div class="import-success-banner" *ngIf="showImportSuccess">
+        Your data was loaded!
+    </div>
+
     <!-- LEADS SEE FULL DASHBOARD -->
     <ng-container *ngIf="currentUser.isLead">
         <ng-container *ngIf="!activePlan">
@@ -57,9 +62,10 @@
         </ng-container>
 
         <ng-container *ngIf="activePlan">
-            <!-- Auto-dismiss toast banner -->
-            <div class="plan-open-toast" *ngIf="showPlanBanner">✅ Planning is open! Team members can now plan their
-                work.</div>
+            <!-- Planning open info banner -->
+            <div class="info-banner" style="background-color: #065f46; color: #a7f3d0; border: 1px solid #10b981;">
+                Planning is open! Team members can now plan their work.
+            </div>
 
             <div class="grid">
                 <div class="card" (click)="reviewFreeze()">
@@ -67,10 +73,6 @@
                     <div class="card-sub">Check everyone's hours and lock the plan.</div>
                 </div>
 
-                <div class="card" (click)="teamProgress()">
-                    <div class="card-title">📊 See Team Progress</div>
-                    <div class="card-sub">View all members' task status and hours done.</div>
-                </div>
 
                 <div class="card" (click)="planMyWork()">
                     <div class="card-title">📝 Plan My Work</div>

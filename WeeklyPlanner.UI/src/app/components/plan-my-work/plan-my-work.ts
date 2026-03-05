@@ -44,6 +44,7 @@ export class PlanMyWorkComponent implements OnInit {
     isSaving = false;
     isDone = false;
     saveError = '';
+    showHoursModal = false;
 
     get plannedHours(): number {
         return this.myWork.reduce((s, w) => s + w.hours, 0);
@@ -51,6 +52,13 @@ export class PlanMyWorkComponent implements OnInit {
 
     get hoursLeft(): number {
         return this.capacity - this.plannedHours;
+    }
+
+    get selectedCategoryBudgetLeft(): number {
+        if (!this.selectedItem) return 0;
+        const catName = this.categoryLabel(this.selectedItem.category);
+        const cat = this.categories.find(c => c.name === catName);
+        return cat ? (cat.budget - cat.claimed) : 0;
     }
 
     get filteredBacklog(): BacklogItem[] {
@@ -145,16 +153,18 @@ export class PlanMyWorkComponent implements OnInit {
         this.searchQuery = '';
     }
 
-    selectItem(item: BacklogItem): void {
+    pickItem(item: BacklogItem): void {
         this.selectedItem = item;
-        this.selectedHours = item.estimatedHours || null;
+        this.selectedHours = item.estimatedHours || 1;
+        this.showHoursModal = true;
     }
 
     confirmAdd(): void {
         if (!this.selectedItem || !this.selectedHours) return;
         this.myWork.push({ backlogItem: this.selectedItem, hours: this.selectedHours });
         this.updateCategoryClaims();
-        this.showBacklogPicker = false;
+        this.showHoursModal = false;
+        this.showBacklogPicker = false; // Go back to My Plan view
         this.selectedItem = null;
         this.selectedHours = null;
         this.cdr.detectChanges();

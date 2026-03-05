@@ -16,6 +16,7 @@ export class DashboardComponent implements OnInit {
 
   currentUser: TeamMember | null = null;
   members: TeamMember[] = [];
+  showImportSuccess = false;
 
   constructor(
     private router: Router,
@@ -54,18 +55,39 @@ export class DashboardComponent implements OnInit {
       this.cdr.detectChanges();
     });
 
-    // Force fresh fetch then subscribe to stream
-    this.api.getTeamMembers().subscribe();
+    // Subscribe to reactive members list
     this.api.members$.subscribe(members => {
       this.members = members || [];
       this.cdr.detectChanges();
     });
 
-    // Reload the active plan every time we arrive at this page
-    this.loadActivePlan();
+    // Subscribe to import success flag
+    this.api.importSuccess$.subscribe(success => {
+      this.showImportSuccess = success;
+      this.cdr.detectChanges();
+    });
+
+    // Subscribe to reactive active plan
+    this.api.activePlan$.subscribe(plan => {
+      this.activePlan = plan;
+      if (plan) {
+        // Show the feedback banner briefly if we just got a plan
+        this.showPlanBanner = true;
+        setTimeout(() => { this.showPlanBanner = false; this.cdr.detectChanges(); }, 800);
+      }
+      this.cdr.detectChanges();
+    });
+
+    // Force initial fetch
+    this.api.getTeamMembers().subscribe();
+    this.api.getWeeklyPlans().subscribe();
+
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe(() => this.loadActivePlan());
+      .subscribe(() => {
+        this.api.getTeamMembers().subscribe();
+        this.api.getWeeklyPlans().subscribe();
+      });
   }
 
   // 🚀 Main dashboard actions

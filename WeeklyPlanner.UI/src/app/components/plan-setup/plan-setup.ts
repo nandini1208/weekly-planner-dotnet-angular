@@ -26,7 +26,25 @@ export class PlanSetupComponent implements OnInit {
   rndPct = 0;
 
   ngOnInit(): void {
-    this.apiService.members$.subscribe(m => this.teamMembers = m);
+    // Subscribe to reactive members stream and pre-select all
+    this.apiService.members$.subscribe(members => {
+      if (members && members.length > 0) {
+        this.teamMembers = members;
+        // Pre-select ALL members
+        this.selectedMemberIds.clear();
+        this.teamMembers.forEach(m => this.selectedMemberIds.add(m.id));
+      }
+    });
+    // Trigger a fresh fetch from the API
+    this.apiService.getTeamMembers().subscribe();
+
+    // Auto-set date to next Tuesday
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, 2=Tue...
+    const daysUntilTuesday = dayOfWeek <= 2 ? (2 - dayOfWeek) : (9 - dayOfWeek);
+    const nextTuesday = new Date(today);
+    nextTuesday.setDate(today.getDate() + daysUntilTuesday);
+    this.planningDate = nextTuesday.toISOString().split('T')[0];
   }
 
   get totalPct(): number {
