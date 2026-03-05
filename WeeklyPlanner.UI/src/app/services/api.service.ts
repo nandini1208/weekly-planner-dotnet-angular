@@ -3,27 +3,44 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { TeamMember, BacklogItem, WeeklyPlan, TaskAssignment, ProgressUpdate, ProgressUpdateRequest } from '../models/models';
 
+/**
+ * Central HTTP service for all backend communication.
+ * Uses BehaviorSubjects for reactive state management of the current user and team members list.
+ * Automatically selects the API base URL based on whether the app is running locally or on Azure.
+ */
 @Injectable({
     providedIn: 'root'
 })
 export class ApiService {
+    /** API base URL — defaults to Azure in production, localhost in development. */
     private readonly baseUrl = (typeof window !== 'undefined' && window.location.hostname !== 'localhost')
         ? 'https://weeklyplanner-api-3b6d2a4c.azurewebsites.net/api'
         : 'http://localhost:5119/api';
     private http = inject(HttpClient);
 
-    // Current User State
+    // ─── Reactive State ───────────────────────────────────────────────────────
+
+    /** The currently selected team member (persists across navigation within the session). */
     private currentUserSubject = new BehaviorSubject<TeamMember | null>(null);
+    /** Observable stream of the currently active user. Subscribe to react to user changes. */
     currentUser$ = this.currentUserSubject.asObservable();
 
-    // Members State
+    /** In-memory cache of all team members, kept in sync with the server via BehaviorSubject. */
     private membersSubject = new BehaviorSubject<TeamMember[]>([]);
+    /** Observable stream of the team members list. Components subscribe to receive live updates. */
     members$ = this.membersSubject.asObservable();
 
+    // ─── Session ──────────────────────────────────────────────────────────────
+
+    /** Sets the currently active user (called on login/switch). Pass null to clear the session. */
     setCurrentUser(user: TeamMember | null) {
         this.currentUserSubject.next(user);
     }
 
+    /**
+     * Deletes all data in the database and clears in-memory state.
+     * Used by the "Reset App" footer button.
+     */
     resetAll(): Observable<any> {
         return new Observable(observer => {
             this.http.delete(`${this.baseUrl}/Reset`).subscribe({
@@ -39,7 +56,12 @@ export class ApiService {
         });
     }
 
-    // Team
+    // ─── Team Members ─────────────────────────────────────────────────────────
+
+    /**
+     * Fetches all team members from the API and updates the membersSubject.
+     * Returns the members$ observable so components can reactively receive updates.
+     */
     getTeamMembers(): Observable<TeamMember[]> {
         this.http.get<TeamMember[]>(`${this.baseUrl}/Team`).subscribe({
             next: (members) => this.membersSubject.next(members),
@@ -48,16 +70,25 @@ export class ApiService {
         return this.members$;
     }
 
-    // Direct HTTP call for use in forkJoin (does not update the BehaviorSubject)
+    /**
+     * Direct HTTP GET for team members without updating the BehaviorSubject.
+     * Use this inside forkJoin to avoid reactive side-effects.
+     */
     getTeamMembersDirect(): Observable<TeamMember[]> {
         return this.http.get<TeamMember[]>(`${this.baseUrl}/Team`);
     }
 
+    /**
+     * Posts a new team member to the API with an optimistic UI update:
+     * a temporary member with a negative ID is shown immediately, then replaced
+     * with the real server-assigned ID once the response arrives.
+     */
     addTeamMember(member: Partial<TeamMember>): Observable<TeamMember> {
         return new Observable(observer => {
             // Optimistic UI Update: Create a temporary member
             const tempId = -Math.round(Math.random() * 1000000);
             const tempMember: TeamMember = { isLead: false, ...member, id: tempId } as TeamMember;
+
             const currentMembers = this.membersSubject.value;
             this.membersSubject.next([...currentMembers, tempMember]);
 
