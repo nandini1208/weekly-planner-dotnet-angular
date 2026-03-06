@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { TeamManagementComponent } from './team-management';
 import { ApiService } from '../../services/api.service';
 import { of } from 'rxjs';
+import { provideRouter } from '@angular/router';
 
 describe('TeamManagement', () => {
   let component: TeamManagementComponent;
@@ -10,13 +11,21 @@ describe('TeamManagement', () => {
 
   beforeEach(async () => {
     const apiServiceMock = {
-      getTeamMembers: () => of([])
+      getTeamMembers: () => of([]),
+      clearAllTeamMembers: () => of({}),
+      members$: of([]),
+      currentUser$: of(null),
+      addTeamMember: () => of({}),
+      removeTeamMember: () => of({}),
+      updateTeamMember: () => of({}),
+      makeLead: () => of({})
     };
 
     await TestBed.configureTestingModule({
       imports: [TeamManagementComponent],
       providers: [
         provideHttpClient(),
+        provideRouter([]),
         { provide: ApiService, useValue: apiServiceMock }
       ]
     }).compileComponents();

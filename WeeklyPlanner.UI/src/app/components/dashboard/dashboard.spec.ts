@@ -11,7 +11,13 @@ describe('Dashboard', () => {
   beforeEach(async () => {
     const apiServiceMock = {
       getTeamMembers: () => of([]),
-      getBacklogItems: () => of([])
+      getWeeklyPlans: () => of([]),
+      getBacklogItems: () => of([]),
+      currentUser$: of(null),
+      members$: of([]),
+      importSuccess$: of(false),
+      activePlan$: of(null),
+      setCurrentUser: () => { }
     };
 
     await TestBed.configureTestingModule({

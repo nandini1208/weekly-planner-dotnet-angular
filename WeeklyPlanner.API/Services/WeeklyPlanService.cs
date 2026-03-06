@@ -4,17 +4,29 @@ using WeeklyPlanner.API.Models;
 
 namespace WeeklyPlanner.API.Services
 {
+    /// <summary>
+    /// Core engine for the Weekly Planner. Enforces all exercise constraints:
+    /// - Planning only on Tuesdays.
+    /// - Strict 30-hour weekly capacity per member.
+    /// - Automated progress tracking and backlog state management.
+    /// </summary>
     public class WeeklyPlanService : IWeeklyPlanService
     {
         private readonly AppDbContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public WeeklyPlanService(AppDbContext context)
+        public WeeklyPlanService(AppDbContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<WeeklyPlan> CreatePlanAsync(WeeklyPlan plan)
         {
+            // Requirement check: Planning must happen on Tuesday (DayOfWeek.Tuesday)
+            if (plan.StartDate.DayOfWeek != DayOfWeek.Tuesday)
+                throw new ArgumentException("Planning cycles can only be initialized on Tuesdays as per team requirements.");
+
             if (plan.ClientPercentage + plan.TechDebtPercentage + plan.RnDPercentage != 100)
                 throw new ArgumentException("Category percentages must total 100%.");
 
@@ -57,9 +69,10 @@ namespace WeeklyPlanner.API.Services
                 .Where(a => a.WeeklyPlanId == assignment.WeeklyPlanId && a.TeamMemberId == assignment.TeamMemberId)
                 .SumAsync(a => a.PlannedHours);
 
-            // Use 35h buffer to allow for parallel forkJoin saves (UI enforces the real 30h limit)
-            if (memberAssignments + assignment.PlannedHours > 35)
-                throw new InvalidOperationException("A member cannot plan more than 30 hours per week.");
+            // Requirement check: Every member has exactly 30 hours of work to plan.
+            // This 30h limit accounts for 8h/day * 4 days minus the 2h weekly meeting buffer.
+            if (memberAssignments + assignment.PlannedHours > 30)
+                throw new InvalidOperationException("Weekly capacity is strictly limited to 30 hours (including the 2h weekly meeting allocation).");
 
             _context.TaskAssignments.Add(assignment);
             await _context.SaveChangesAsync();
@@ -102,7 +115,7 @@ namespace WeeklyPlanner.API.Services
                 TaskAssignmentId = assignmentId,
                 CompletedHours = completedHours,
                 Status = status,
-                UpdateDate = DateTime.UtcNow
+                UpdateDate = _dateTimeProvider.UtcNow
             };
             _context.ProgressUpdates.Add(update);
             await _context.SaveChangesAsync();

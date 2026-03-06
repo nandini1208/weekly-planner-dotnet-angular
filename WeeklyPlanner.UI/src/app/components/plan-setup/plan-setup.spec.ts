@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { PlanSetupComponent } from './plan-setup';
 import { ApiService } from '../../services/api.service';
 import { of } from 'rxjs';
+import { provideRouter } from '@angular/router';
 
 describe('PlanSetup', () => {
   let component: PlanSetupComponent;
@@ -11,13 +12,15 @@ describe('PlanSetup', () => {
   beforeEach(async () => {
     const apiServiceMock = {
       getTeamMembers: () => of([]),
-      getBacklogItems: () => of([])
+      members$: of([]),
+      createPlan: () => of({})
     };
 
     await TestBed.configureTestingModule({
       imports: [PlanSetupComponent],
       providers: [
         provideHttpClient(),
+        provideRouter([]),
         { provide: ApiService, useValue: apiServiceMock }
       ]
     }).compileComponents();

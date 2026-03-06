@@ -5,6 +5,11 @@ import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { TeamMember } from '../../models/models';
 
+/**
+ * Main application dashboard.
+ * Coordinates high-level visibility for team leads and individual contributors.
+ * Listens to global reactive state via ApiService to provide real-time updates without page refreshes.
+ */
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -52,6 +57,10 @@ export class DashboardComponent implements OnInit {
   // 🏁 TRACK FINISHED WEEK
   justFinishedWeek = false;
 
+  /**
+   * Initializes component by subscribing to core reactive streams (user, members, plans).
+   * Ensures the UI is always in sync with the latest backend state.
+   */
   ngOnInit(): void {
     this.api.currentUser$.subscribe(user => {
       this.currentUser = user;
@@ -81,10 +90,11 @@ export class DashboardComponent implements OnInit {
       this.cdr.detectChanges();
     });
 
-    // Force initial fetch
+    // Force initial fetch to populate reactive subjects
     this.api.getTeamMembers().subscribe();
     this.api.getWeeklyPlans().subscribe();
 
+    // Re-fetch on navigation to ensure consistency when returning to dashboard
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe(() => {

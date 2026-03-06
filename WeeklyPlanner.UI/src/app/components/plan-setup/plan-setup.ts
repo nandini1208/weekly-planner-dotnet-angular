@@ -38,7 +38,10 @@ export class PlanSetupComponent implements OnInit {
     // Trigger a fresh fetch from the API
     this.apiService.getTeamMembers().subscribe();
 
-    // Auto-set date to next Tuesday
+    /** 
+     * Requirement adherence: Plans must be initialized for a Tuesday cycle.
+     * Calculated as next Tuesday from today to provide a sensible default.
+     */
     const today = new Date();
     const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, 2=Tue...
     const daysUntilTuesday = dayOfWeek <= 2 ? (2 - dayOfWeek) : (9 - dayOfWeek);
@@ -71,6 +74,9 @@ export class PlanSetupComponent implements OnInit {
     return Math.round(this.totalCapacity * ((this.rndPct || 0) / 100));
   }
 
+  /**
+   * Validates that the selected planning date falls on a Tuesday (Requirement).
+   */
   get isTuesdayValid(): boolean {
     if (!this.planningDate) return true; // Allow initial empty state
     // Parse "YYYY-MM-DD" in UTC

@@ -4,9 +4,8 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { TeamMember, BacklogItem, WeeklyPlan, TaskAssignment, ProgressUpdate, ProgressUpdateRequest } from '../models/models';
 
 /**
- * Central HTTP service for all backend communication.
- * Uses BehaviorSubjects for reactive state management of the current user and team members list.
- * Automatically selects the API base URL based on whether the app is running locally or on Azure.
+ * Core API service for managing team members, backlog items, weekly plans, and progress tracking.
+ * Maintains global state via BehaviorSubjects for reactive UI updates across components.
  */
 @Injectable({
     providedIn: 'root'
@@ -20,23 +19,23 @@ export class ApiService {
 
     // ─── Reactive State ───────────────────────────────────────────────────────
 
-    /** The currently selected team member (persists across navigation within the session). */
+    // --- REACTIVE STATE MANAGEMENT ---
+    // Using BehaviorSubjects ensures all components receive real-time updates when data changes locally or via API.
     private currentUserSubject = new BehaviorSubject<TeamMember | null>(null);
+    private membersSubject = new BehaviorSubject<TeamMember[]>([]);
+    private plansSubject = new BehaviorSubject<WeeklyPlan[]>([]);
+    private importSuccessSubject = new BehaviorSubject<boolean>(false);
+    private activePlanSubject = new BehaviorSubject<WeeklyPlan | null>(null);
+
     /** Observable stream of the currently active user. Subscribe to react to user changes. */
     currentUser$ = this.currentUserSubject.asObservable();
 
-    /** In-memory cache of all team members, kept in sync with the server via BehaviorSubject. */
-    private membersSubject = new BehaviorSubject<TeamMember[]>([]);
     /** Observable stream of the team members list. Components subscribe to receive live updates. */
     members$ = this.membersSubject.asObservable();
 
-    /** The latest active weekly plan. */
-    private activePlanSubject = new BehaviorSubject<WeeklyPlan | null>(null);
     /** Observable stream of the active weekly plan. */
     activePlan$ = this.activePlanSubject.asObservable();
 
-    /** Flag for showing "Data Loaded" message on dashboard. */
-    private importSuccessSubject = new BehaviorSubject<boolean>(false);
     importSuccess$ = this.importSuccessSubject.asObservable();
 
     // ─── Session ──────────────────────────────────────────────────────────────

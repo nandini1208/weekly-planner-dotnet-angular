@@ -5,6 +5,10 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { BacklogItem } from '../../models/models';
 
+/**
+ * Component for managing the backlog inventory.
+ * Supports categorization (Client Focused, Tech Debt, R&D) and filtering by availability and search text.
+ */
 @Component({
   selector: 'app-backlog',
   standalone: true,

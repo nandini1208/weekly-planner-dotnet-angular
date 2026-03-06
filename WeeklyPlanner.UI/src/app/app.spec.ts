@@ -20,16 +20,12 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'WeeklyPlanner.UI' title`, () => {
+  it('should render title in header', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('WeeklyPlanner.UI');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.componentInstance;
+    component.showLayout = true; // Manually enable layout for test
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Weekly Plan Tracker');
+    expect(compiled.querySelector('.logo')?.textContent).toContain('Weekly Plan Tracker');
   });
 });

@@ -5,13 +5,16 @@ using WeeklyPlanner.API.Data;
 using WeeklyPlanner.API.Models;
 using WeeklyPlanner.API.Services;
 using Xunit;
+using Moq;
 
 namespace WeeklyPlanner.Tests
 {
     public class WeeklyPlanServiceTests : IDisposable
     {
         private readonly AppDbContext _context;
+        private readonly Mock<IDateTimeProvider> _dateTimeMock;
         private readonly WeeklyPlanService _service;
+        private readonly DateTime _tuesday = new DateTime(2026, 3, 10); // A Tuesday
 
         public WeeklyPlanServiceTests()
         {
@@ -20,7 +23,10 @@ namespace WeeklyPlanner.Tests
                 .Options;
 
             _context = new AppDbContext(options);
-            _service = new WeeklyPlanService(_context);
+            _dateTimeMock = new Mock<IDateTimeProvider>();
+            _dateTimeMock.Setup(m => m.UtcNow).Returns(_tuesday);
+            
+            _service = new WeeklyPlanService(_context, _dateTimeMock.Object);
         }
 
         public void Dispose()
@@ -32,10 +38,17 @@ namespace WeeklyPlanner.Tests
         [Fact]
         public async Task CreatePlanAsync_ValidPercentages_CreatesPlan()
         {
-            var plan = new WeeklyPlan { ClientPercentage = 60, TechDebtPercentage = 30, RnDPercentage = 10 };
+            var plan = new WeeklyPlan { StartDate = new DateTime(2026, 3, 10), ClientPercentage = 60, TechDebtPercentage = 30, RnDPercentage = 10 }; // Tuesday
             var result = await _service.CreatePlanAsync(plan);
             Assert.NotNull(result);
             Assert.Equal(100, result.ClientPercentage + result.TechDebtPercentage + result.RnDPercentage);
+        }
+
+        [Fact]
+        public async Task CreatePlanAsync_NotTuesday_ThrowsArgumentException()
+        {
+            var plan = new WeeklyPlan { StartDate = new DateTime(2026, 3, 9), ClientPercentage = 60, TechDebtPercentage = 30, RnDPercentage = 10 }; // Monday
+            await Assert.ThrowsAsync<ArgumentException>(() => _service.CreatePlanAsync(plan));
         }
 
         [Fact]
@@ -87,10 +100,8 @@ namespace WeeklyPlanner.Tests
             _context.WeeklyPlans.Add(plan);
             await _context.SaveChangesAsync();
 
-            // Seed 28 existing hours. Adding 10 more = 38h total which exceeds the 35h server cap.
-            // (The service allows up to 35h to accommodate parallel forkJoin saves from the UI;
-            //  the UI itself enforces the real 30h limit per member per week.)
-            var existingAssignment = new TaskAssignment { WeeklyPlanId = plan.Id, TeamMemberId = 1, PlannedHours = 28 };
+            // Seed 25 existing hours. Adding 10 more = 35h total which exceeds the 30h strict cap.
+            var existingAssignment = new TaskAssignment { WeeklyPlanId = plan.Id, TeamMemberId = 1, PlannedHours = 25 };
             _context.TaskAssignments.Add(existingAssignment);
             await _context.SaveChangesAsync();
 
