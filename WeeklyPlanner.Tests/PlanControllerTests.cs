@@ -68,5 +68,43 @@ namespace WeeklyPlanner.Tests
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             Assert.Equal("Plan not found", notFoundResult.Value);
         }
+
+        [Fact]
+        public async Task GetPlans_ReturnsAllPlans()
+        {
+            var plans = new List<WeeklyPlan> { new WeeklyPlan { Id = 1 }, new WeeklyPlan { Id = 2 } };
+            _mockService.Setup(s => s.GetPlansAsync()).ReturnsAsync(plans);
+
+            var result = await _controller.GetPlans();
+
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            Assert.Equal(plans, okResult.Value);
+        }
+
+        [Fact]
+        public async Task FinishWeek_ValidId_ReturnsOkResult()
+        {
+            var planId = 1;
+            var plan = new WeeklyPlan { Id = planId, IsCompleted = true };
+            _mockService.Setup(s => s.ClosePlanAsync(planId)).ReturnsAsync(plan);
+
+            var result = await _controller.FinishWeek(planId);
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal(plan, okResult.Value);
+        }
+
+        [Fact]
+        public async Task CreatePlan_NotTuesday_ReturnsBadRequest()
+        {
+            var plan = new WeeklyPlan { StartDate = DateTime.Now }; // Not necessarily a Tuesday
+            _mockService.Setup(s => s.CreatePlanAsync(plan))
+                .ThrowsAsync(new ArgumentException("Planning cycles can only be initialized on Tuesdays."));
+
+            var result = await _controller.CreatePlan(plan);
+
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+            Assert.Equal("Planning cycles can only be initialized on Tuesdays.", badRequestResult.Value);
+        }
     }
 }

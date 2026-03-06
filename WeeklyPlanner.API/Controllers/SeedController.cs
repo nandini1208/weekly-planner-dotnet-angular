@@ -20,11 +20,23 @@ namespace WeeklyPlanner.API.Controllers
         public async Task<IActionResult> SeedAll()
         {
             // 1. Reset first
-            await _context.Database.ExecuteSqlRawAsync("DELETE FROM ProgressUpdates");
-            await _context.Database.ExecuteSqlRawAsync("DELETE FROM TaskAssignments");
-            await _context.Database.ExecuteSqlRawAsync("DELETE FROM WeeklyPlans");
-            await _context.Database.ExecuteSqlRawAsync("DELETE FROM BacklogItems");
-            await _context.Database.ExecuteSqlRawAsync("DELETE FROM TeamMembers");
+            if (_context.Database.IsRelational())
+            {
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM ProgressUpdates");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM TaskAssignments");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM WeeklyPlans");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM BacklogItems");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM TeamMembers");
+            }
+            else
+            {
+                _context.ProgressUpdates.RemoveRange(_context.ProgressUpdates);
+                _context.TaskAssignments.RemoveRange(_context.TaskAssignments);
+                _context.WeeklyPlans.RemoveRange(_context.WeeklyPlans);
+                _context.BacklogItems.RemoveRange(_context.BacklogItems);
+                _context.TeamMembers.RemoveRange(_context.TeamMembers);
+                await _context.SaveChangesAsync();
+            }
 
             // 2. Sample Members
             var members = new List<TeamMember>

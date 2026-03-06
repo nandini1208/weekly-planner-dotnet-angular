@@ -1,78 +1,168 @@
-# 📋 Weekly Planning Tracker - Exercise Submission
-
-A sophisticated, full-stack work cycle management system built with **.NET 8** and **Angular 21**. This application is designed to fulfill the specific requirements of the Weekly Planner exercise, featuring strict business logic enforcement, a premium dark-themed UI, and 100% test coverage.
-
-## 🏁 Exercise Compliance Mapping
-
-| Requirement | Implementation Status | Detail |
-| :--- | :--- | :--- |
-| **Tech Stack** | ✅ **100%** | .NET 8 (API) + Angular 21 (SPA). |
-| **Planning Window** | ✅ **Enforced** | Plan creation is restricted to **Tuesdays** only. |
-| **Weekly Capacity** | ✅ **Enforced** | 30h per member (8h x 4 days - 2h meeting buffer). |
-| **Categorization** | ✅ **Pass** | Client Focused, Tech Debt, and R&D tracking. |
-| **Freeze Mechanism** | ✅ **Pass** | Plans are locked post-commitment; only progress updates allowed. |
-| **Lead Visibility** | ✅ **Pass** | Drill-down dashboards for team-wide progress tracking. |
-| **Bug-Free Score** | ✅ **Pass** | Verified through full production builds and manual audits. |
-| **Test Coverage** | ✅ **Pass** | **53 Tests Passing** (100% logic coverage). |
-| **CI/CD** | ✅ **Pass** | GitHub Actions pipeline to Azure App Service. |
-
----
-
-## 💪 Core Business Logic (The Engine)
-
-The application implements strict adherence to the team's operational rules:
-- **Tuesday Planning Cycle**: The `WeeklyPlanService` utilizes an injected `IDateTimeProvider` to ensure that new planning cycles can only be started on Tuesdays.
-- **30-Hour Constraint**: Capacity is strictly capped at 30 hours per member. This ensures a 4-day work week (Wednesday to Monday) with the required 2-hour daily buffers and weekly meeting allocation.
-- **Lead Overview**: The Lead dashboard provides high-level metrics for Budget vs. Planned hours across all categories without requiring individual member drill-downs.
-
-## ✨ Premium User Experience
-- **Modern Dark UI**: A high-fidelity dark mode with glassmorphism effects and modern typography.
-- **Perfect Responsiveness**: Fully optimized for Desktop, iPad, and Mobile viewports.
-- **Reactive State**: Uses RxJS `BehaviorSubject` streams for real-time UI updates across components.
-
-## 🛠 Technical Stack
-- **Backend**: .NET 8 Web API, Entity Framework Core (SQL Server).
-- **Frontend**: Angular 21 (Standalone Components), Vanilla CSS, RxJS.
-- **Testing**: xUnit (Backend), Vitest (Frontend).
-- **Deployment**: Azure App Service via GitHub Actions.
-
-## 💻 Getting Started
-
-### Prerequisites
-- Node.js v20+
-- .NET SDK v8.0+
-- SQL Server (LocalDB or Azure SQL)
-
-### 🔧 Local Setup
-
-1. **Clone & Install**
-   ```bash
-   git clone https://github.com/nandini1208/weekly-planner-dotnet-angular.git
-   cd WeeklyPlannerApp/WeeklyPlanner.UI && npm install
-   ```
-
-2. **Run Backend**
-   ```bash
-   cd ../WeeklyPlanner.API
-   dotnet run
-   ```
-
-3. **Run Frontend**
-   ```bash
-   cd ../WeeklyPlanner.UI
-   npm start
-   ```
-
-## 🧪 Verification
-The project maintains a **100% pass rate** across its test suite:
-
+**🗓️ WeeklyPlannerApp**
 ```bash
-# Run Backend Tests (41 tests)
-cd WeeklyPlanner.Tests && dotnet test
-
-# Run Frontend Tests (12 tests)
-cd WeeklyPlanner.UI && npm test
+A professional full-stack application designed for agile teams to manage backlogs, plan weekly tasks, and track real-time progress. Built with a modern Angular frontend and a robust .NET 8 backend.
 ```
 
----
-*Developed as part of the Thinkbridge Weekly Exercise.*
+**🚀 Live Demo**
+```bash
+Experience the application live on Azure:
+WeeklyPlanner Live
+
+Note: The application allows you to manage teams, setup plans, and track weekly progress in a streamlined interface.
+```
+
+**✨ Key Features**
+```bash
+👥 Team Management: Add/remove members, assign roles (Team Lead), and manage your roster.
+📋 Backlog Management: Centralized repository for all tasks, ready to be pulled into weekly plans.
+📅 Weekly Planning: Structured 2-step process (Setup → Review & Freeze) to commit to weekly goals.
+📈 Progress Tracking:
+Member View: Individual progress updates on assigned tasks.
+Team Dashboard: High-level overview of total completion percentages and status.
+📁 Data Portability: Full Export/Import functionality for JSON-based data persistence.
+⚙️ Reset & Seed: Quickly clear data or populate the app with demo content for testing.
+📱 Responsive UI: Modern design with interactive elements and real-time state updates using RxJS.
+📸 Screenshots
+(Placeholders - Add your screenshots here)
+```
+
+**🛠️ Tech Stack**
+```bash
+Frontend: 
+
+Framework: Angular (v21)
+State Management: Reactive RxJS (BehaviorSubjects)
+Styling: Vanilla CSS / Responsive Layouts
+HTTP Client: Angular HttpClient
+
+Backend : 
+
+Framework: ASP.NET Core Web API (.NET 8.0)
+ORM: Entity Framework Core
+API Documentation: Swagger / OpenAPI
+Architecture: Service-Oriented (Controller -> Service -> Data Context)
+Infrastructure
+Database: SQL Server
+Hosting: Microsoft Azure (Web Apps)
+CI/CD: GitHub Actions
+Testing: xUnit / .NET Tests, Jasmine/Karma for UI
+```
+
+**🏗️ System Architecture**
+```bash
+Angular SPA: Acts as the client layer, managing UI state and interacting with the REST API.
+ASP.NET Core API: Handles business logic, task assignments, and progress calculations.
+EF Core & SQL Server: Provides persistent storage for teams, backlog items, plans, and progress logs.
+Data Flow:
+UI -> API: User actions (e.g., adding a task) trigger HTTP calls.
+API -> UI: Real-time state updates via BehaviorSubjects ensure the UI stay in sync without refreshing.
+```
+
+**📁 Project Folder Structure**
+```bash
+WeeklyPlannerApp/
+├── .github/workflows/          # CI/CD pipeline (Build & Deploy to Azure)
+├── WeeklyPlanner.API/          # Backend - ASP.NET Core Web API
+│   ├── Controllers/            # API Endpoints (Team, Plan, Backlog, etc.)
+│   ├── Data/                   # EF Core AppDbContext
+│   ├── Migrations/             # Database Schema History
+│   ├── Models/                 # Domain Entities (WeeklyPlan, TeamMember)
+│   ├── Services/               # Business Logic Implementation
+│   └── Program.cs              # API Bootstrapping & DI Container
+├── WeeklyPlanner.UI/           # Frontend - Angular Application
+│   ├── src/app/
+│   │   ├── components/         # Modular UI Components
+│   │   ├── services/           # ApiService (State & HTTP Calls)
+│   │   └── models/             # TypeScript Interfaces
+│   └── angular.json            # Build configuration
+└── WeeklyPlanner.Tests/        # xUnit Test Suite for API Logic
+```
+
+**⚙️ Installation & Setup**
+```bash
+Prerequisites
+.NET 8 SDK
+Node.js (v20+)
+SQL Server
+1. Backend Setup
+bash
+cd WeeklyPlanner.API
+dotnet restore
+# Update connection string in appsettings.json if needed
+dotnet ef database update
+dotnet run
+2. Frontend Setup
+bash
+cd WeeklyPlanner.UI
+npm install
+npm start
+```
+
+**🔐 Environment Variables**
+```bash
+Backend (appsettings.json)
+ConnectionStrings:DefaultConnection: SQL Server connection string.
+AllowedOrigins: List of permitted CORS origins (e.g., http://localhost:4200).
+
+Frontend
+The baseUrl is dynamically assigned in api.service.ts based on the environment (localhost vs. Azure production URL).
+```
+
+**🔌 API Endpoints Overview**
+```bash
+Category	Endpoint	Method	Description
+Team	/api/Team	GET/POST	Manage team members
+/api/Team/{id}	PUT/DELETE	Update or remove members
+Backlog	/api/Backlog	GET/POST	Manage task backlog
+Plan	/api/Plan	POST	Create a new weekly plan
+/api/Plan/{id}/freeze	POST	Lock plan for the week
+Progress	/api/Progress/update	POST	Log task completion
+System	/api/Seed	POST	Populate demo data
+```
+
+**🧪 Testing**
+```
+Backend Tests
+Run the xUnit tests to verify business logic:
+
+bash
+dotnet test
+Frontend Tests
+Run unit tests with Karma/Jasmine:
+
+bash
+cd WeeklyPlanner.UI
+npm test
+```
+
+**🚢 CI/CD & Deployment**
+```bash
+The project uses GitHub Actions (main.yml) for automated pipeline:
+
+Build Phase: Compiles the .NET API and Angular UI.
+Test Phase: Executes unit tests for both projects.
+Publish Phase: Generates build artifacts.
+Deploy Phase: Automatically pushes to Azure Web Apps when changes are merged into main.
+```
+
+**🔮 Future Improvements**
+```bash
+ Authentication: Implement MSAL/Azure AD for secure login.
+ Notifications: Real-time reminders when plans are frozen or tasks completed.
+ Analytics: Advanced charts showing team velocity over time.
+ Mobile App: PWA conversion for on-the-go progress updates.
+ ```
+
+**🤝 Contributing**
+```bash
+Fork the project.
+Create your Feature Branch (git checkout -b feature/AmazingFeature).
+Commit your changes (git commit -m 'Add some AmazingFeature').
+Push to the branch (git checkout origin feature/AmazingFeature).
+Open a Pull Request.
+```
+
+**📄 License**
+Distributed under the MIT License. See LICENSE for more information.
+
+Developed with ❤️ by the WeeklyPlanner Team.
