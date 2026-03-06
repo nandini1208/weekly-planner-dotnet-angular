@@ -88,8 +88,10 @@
       </p>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-add" [disabled]="!importData" (click)="executeImport()">Yes, Replace My Data</button>
-      <button class="btn btn-secondary" (click)="closeLoadModal()">Cancel</button>
+      <button class="btn btn-add" [disabled]="!importData || isImporting" (click)="executeImport()">
+        {{ isImporting ? '⏳ Importing data... Please wait' : 'Yes, Replace My Data' }}
+      </button>
+      <button class="btn btn-secondary" [disabled]="isImporting" (click)="closeLoadModal()">Cancel</button>
     </div>
   </div>
 </div>

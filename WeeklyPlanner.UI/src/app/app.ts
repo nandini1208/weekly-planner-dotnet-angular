@@ -29,6 +29,7 @@ export class AppComponent implements OnInit {
   // Footer states
   isExporting = false;
   isSeeding = false;
+  isImporting = false;
   footerToast = '';
   footerToastError = false;
 
@@ -167,9 +168,10 @@ export class AppComponent implements OnInit {
 
   // 📂 Called when user clicks "Yes, Replace My Data" — executes the import
   executeImport() {
-    if (!this.importData) return;
+    if (!this.importData || this.isImporting) return;
+    this.isImporting = true;
+
     const payload = this.importData;
-    this.showLoadModal = false;
     this.loadError = '';
     this.importFileName = '';
     this.importData = null;
@@ -179,6 +181,13 @@ export class AppComponent implements OnInit {
 
     this.api.importData(payload).subscribe({
       next: () => {
+        // Close modal instantly
+        this.isImporting = false;
+        this.showLoadModal = false;
+        this.importFileName = '';
+        this.importData = null;
+        this.cdr.detectChanges();
+
         this.api.getTeamMembersDirect().subscribe(members => {
           if (currentName) {
             const sameUser = members.find(m => m.name === currentName);
@@ -188,10 +197,12 @@ export class AppComponent implements OnInit {
           this.api.getWeeklyPlans().subscribe();
           this.api.setImportSuccess(true);
           setTimeout(() => this.api.clearImportSuccess(), 5000);
+
           this.router.navigate(['/dashboard']);
         });
       },
       error: (err) => {
+        this.isImporting = false;
         this.showFooterToast('❌ Import failed. Please try again.', true);
         console.error(err);
       }
