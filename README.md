@@ -144,24 +144,5 @@ Publish Phase: Generates build artifacts.
 Deploy Phase: Automatically pushes to Azure Web Apps when changes are merged into main.
 ```
 
-**Future Improvements**
-```bash
- Authentication: Implement MSAL/Azure AD for secure login.
- Notifications: Real-time reminders when plans are frozen or tasks completed.
- Analytics: Advanced charts showing team velocity over time.
- Mobile App: PWA conversion for on-the-go progress updates.
- ```
 
-**Contributing**
-```bash
-Fork the project.
-Create your Feature Branch (git checkout -b feature/AmazingFeature).
-Commit your changes (git commit -m 'Add some AmazingFeature').
-Push to the branch (git checkout origin feature/AmazingFeature).
-Open a Pull Request.
-```
 
-**License**
-Distributed under the MIT License. See LICENSE for more information.
-
-Developed by the WeeklyPlanner Team.
