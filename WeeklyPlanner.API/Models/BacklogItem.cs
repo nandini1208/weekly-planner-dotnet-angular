@@ -13,6 +13,9 @@ namespace WeeklyPlanner.API.Models
         /// <summary>Short description of the task.</summary>
         public string Title { get; set; } = string.Empty;
 
+        /// <summary>Longer description of the work to be done.</summary>
+        public string Description { get; set; } = string.Empty;
+
         /// <summary>Work category: "Client Focused", "Tech Debt", or "R&amp;D".</summary>
         public string Category { get; set; } = string.Empty;
 

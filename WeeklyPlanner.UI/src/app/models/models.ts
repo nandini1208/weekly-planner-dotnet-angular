@@ -7,6 +7,7 @@ export interface TeamMember {
 export interface BacklogItem {
   id: number;
   title: string;
+  description?: string;
   category: string;
   estimatedHours: number;
   status: string;
@@ -20,6 +21,7 @@ export interface WeeklyPlan {
   techDebtPercentage: number;
   rnDPercentage: number;
   isFrozen: boolean;
+  isCompleted: boolean;
 }
 
 export interface TaskAssignment {

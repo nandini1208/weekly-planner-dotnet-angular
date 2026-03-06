@@ -263,6 +263,7 @@ namespace WeeklyPlanner.API.Services
                 planId = plan.Id,
                 startDate = plan.StartDate,
                 isFrozen = plan.IsFrozen,
+                isCompleted = plan.IsCompleted,
                 totalPlannedHours = plan.TotalPlannedHours,
                 clientPercentage = plan.ClientPercentage,
                 techDebtPercentage = plan.TechDebtPercentage,
@@ -272,6 +273,39 @@ namespace WeeklyPlanner.API.Services
                 overallPercent = totalPlanned > 0 ? Math.Min(100, totalCompleted * 100 / totalPlanned) : 0,
                 memberResults
             };
+        }
+
+        public async Task<WeeklyPlan> ClosePlanAsync(int planId)
+        {
+            var plan = await _context.WeeklyPlans.FindAsync(planId);
+            if (plan == null) throw new KeyNotFoundException("Plan not found");
+
+            plan.IsCompleted = true;
+
+            // Find unfinished backlog items and reset them
+            var assignments = await _context.TaskAssignments
+                .Where(a => a.WeeklyPlanId == planId)
+                .ToListAsync();
+
+            foreach (var a in assignments)
+            {
+                var latestUpdate = await _context.ProgressUpdates
+                    .Where(p => p.TaskAssignmentId == a.Id)
+                    .OrderByDescending(p => p.UpdateDate)
+                    .FirstOrDefaultAsync();
+
+                if (latestUpdate == null || latestUpdate.Status != "Done")
+                {
+                    var item = await _context.BacklogItems.FindAsync(a.BacklogItemId);
+                    if (item != null)
+                    {
+                        item.Status = "Available"; // Reset unfinished items
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return plan;
         }
     }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -15,6 +15,7 @@ import { BacklogItem } from '../../models/models';
 export class BacklogComponent implements OnInit {
   apiService = inject(ApiService);
   router = inject(Router);
+  cdr = inject(ChangeDetectorRef);
 
   backlogItems: BacklogItem[] = [];
 
@@ -44,6 +45,7 @@ export class BacklogComponent implements OnInit {
   ngOnInit(): void {
     this.apiService.getBacklogItems().subscribe(items => {
       this.backlogItems = items || [];
+      this.cdr.detectChanges();
     });
   }
 
@@ -52,19 +54,26 @@ export class BacklogComponent implements OnInit {
   }
 
   get filteredItems(): BacklogItem[] {
+    const q = (this.searchQuery || '').toLowerCase().trim();
+    const filter = this.statusFilter;
+
     return this.backlogItems.filter(item => {
-      const matchesSearch = item.title.toLowerCase().includes(this.searchQuery.toLowerCase());
+      const matchesSearch = !q || item.title.toLowerCase().includes(q);
+
       let matchesStatus = true;
-      const s = (item.status || '').toLowerCase();
-      if (this.statusFilter === 'available') {
-        matchesStatus = s === 'available' || s === 'in_plan' || s === 'to do' || !item.status;
-      } else if (this.statusFilter === 'completed') {
-        matchesStatus = s === 'done' || s === 'completed';
-      } else if (this.statusFilter === 'archived') {
-        matchesStatus = s === 'archived';
+      const s = (item.status || '').toLowerCase().trim();
+
+      if (filter === 'available') {
+        // Safe check: exclude only completed and archived
+        matchesStatus = s !== 'done' && s !== 'completed' && s !== '2' && s !== 'archived' && s !== '3';
+      } else if (filter === 'completed') {
+        matchesStatus = s === 'done' || s === 'completed' || s === '2';
+      } else if (filter === 'archived') {
+        matchesStatus = s === 'archived' || s === '3';
       }
-      // 'all' = no status filter applied
-      const matchesCat = this.activeCat ? this.categoryLabel(item.category) === this.activeCat : true;
+
+      const matchesCat = !this.activeCat || this.categoryLabel(item.category) === this.activeCat;
+
       return matchesSearch && matchesStatus && matchesCat;
     });
   }

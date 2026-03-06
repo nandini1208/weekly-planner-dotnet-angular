@@ -36,7 +36,16 @@ export class UpdateProgressComponent implements OnInit {
     isLoading = true;
     noTasks = false;
 
-    readonly statuses = ['To Do', 'In Progress', 'Done', 'Blocked'];
+    readonly statuses = ['In Progress', 'Completed', 'Blocked'];
+
+    // Modal state
+    updatingTask: TaskProgress | null = null;
+    tempHours: number = 0;
+    tempStatus: string = 'To Do';
+    tempNote: string = '';
+
+    // Toast state
+    showToast = false;
 
     get totalPlanned(): number {
         return this.tasks.reduce((s, t) => s + t.plannedHours, 0);
@@ -48,7 +57,11 @@ export class UpdateProgressComponent implements OnInit {
 
     get overallPercent(): number {
         if (this.totalPlanned === 0) return 0;
-        return Math.min(100, Math.round((this.totalCompleted / this.totalPlanned) * 100));
+        return Math.round((this.totalCompleted / this.totalPlanned) * 100);
+    }
+
+    get progressBarPercent(): number {
+        return Math.min(100, this.overallPercent);
     }
 
     ngOnInit(): void {
@@ -104,24 +117,38 @@ export class UpdateProgressComponent implements OnInit {
         });
     }
 
-    saveTask(task: TaskProgress): void {
-        if (task.saving) return;
+    // Open modal instead of inline save
+    openUpdateModal(task: TaskProgress): void {
+        this.updatingTask = task;
+        this.tempHours = task.completedHours || 0;
+        this.tempStatus = task.status || 'To Do';
+        this.tempNote = ''; // Could load from backend if model supported notes
+    }
+
+    closeUpdateModal(): void {
+        this.updatingTask = null;
+    }
+
+    confirmUpdateTask(): void {
+        if (!this.updatingTask || this.updatingTask.saving) return;
+
+        const task = this.updatingTask;
         task.saving = true;
-        task.saved = false;
         task.error = '';
 
         this.api.updateProgress({
             assignmentId: task.assignmentId,
-            completedHours: task.completedHours,
-            status: task.status
+            completedHours: this.tempHours,
+            status: this.tempStatus
         }).subscribe({
             next: () => {
+                task.completedHours = this.tempHours;
+                task.status = this.tempStatus;
                 task.saving = false;
-                task.saved = true;
                 task.lastUpdated = new Date().toISOString();
+                this.closeUpdateModal();
+                this.triggerToast();
                 this.cdr.detectChanges();
-                // Clear the "saved" checkmark after 2 seconds
-                setTimeout(() => { task.saved = false; this.cdr.detectChanges(); }, 2000);
             },
             error: (err) => {
                 task.saving = false;
@@ -130,6 +157,14 @@ export class UpdateProgressComponent implements OnInit {
                 this.cdr.detectChanges();
             }
         });
+    }
+
+    triggerToast(): void {
+        this.showToast = true;
+        setTimeout(() => {
+            this.showToast = false;
+            this.cdr.detectChanges();
+        }, 3000); // Hide after 3 seconds
     }
 
     categoryClass(cat: string): string {

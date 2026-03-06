@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Plan Tracker</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+<style>
+:root { font-size: 90%; }
+.theme-light {
+  --bg: #FFFFFF; --bg-surface: #F9FAFB; --text-primary: #111827; --text-secondary: #6B7280;
+  --border: #E5E7EB; --primary: #2563EB; --primary-hover: #1D4ED8; --primary-light: #DBEAFE;
+  --danger: #DC2626; --danger-hover: #B91C1C; --success: #16A34A; --success-light: #D1FAE5;
+  --warning: #D97706; --warning-light: #FEF3C7; --info: #3B82F6; --info-light: #DBEAFE;
+  --cat-client: #3B82F6; --cat-tech: #F97316; --cat-rd: #22C55E;
+  --stat-notstarted: #9CA3AF; --stat-inprogress: #3B82F6; --stat-completed: #22C55E; --stat-blocked: #EF4444;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.1); --navbar-bg: #2563EB; --navbar-text: #FFFFFF;
+  --secondary-bg: #F3F4F6; --secondary-text: #374151; --tag-light-bg: #E5E7EB;
+}
+.theme-dark {
+  --bg: #111827; --bg-surface: #1F2937; --text-primary: #F9FAFB; --text-secondary: #9CA3AF;
+  --border: #374151; --primary: #3B82F6; --primary-hover: #2563EB; --primary-light: #1E3A5F;
+  --danger: #EF4444; --danger-hover: #DC2626; --success: #22C55E; --success-light: #064E3B;
+  --warning: #F59E0B; --warning-light: #78350F; --info: #60A5FA; --info-light: #1E3A5F;
+  --cat-client: #60A5FA; --cat-tech: #FB923C; --cat-rd: #4ADE80;
+  --stat-notstarted: #6B7280; --stat-inprogress: #60A5FA; --stat-completed: #4ADE80; --stat-blocked: #F87171;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.4); --navbar-bg: #1E3A5F; --navbar-text: #F9FAFB;
+  --secondary-bg: #374151; --secondary-text: #D1D5DB; --tag-light-bg: #374151;
+}
+body { background: var(--bg); color: var(--text-primary); transition: background .2s, color .2s; min-height: 100vh; }
+.navbar.is-app { background: var(--navbar-bg) !important; }
+.navbar.is-app .navbar-item, .navbar.is-app .navbar-brand .navbar-item { color: var(--navbar-text) !important; }
+.box, .modal-card { background: var(--bg-surface) !important; color: var(--text-primary) !important; border: 1px solid var(--border); box-shadow: var(--card-shadow); }
+.modal-card-head, .modal-card-foot { background: var(--bg-surface) !important; border-color: var(--border) !important; }
+.modal-card-head .modal-card-title { color: var(--text-primary) !important; }
+.input, .textarea, .select select { background: var(--bg) !important; color: var(--text-primary) !important; border-color: var(--border) !important; }
+.label { color: var(--text-primary) !important; }
+.table { background: var(--bg-surface) !important; color: var(--text-primary) !important; }
+.table th { color: var(--text-primary) !important; border-color: var(--border) !important; }
+.table td { border-color: var(--border) !important; }
+.table.is-hoverable tbody tr:hover { background: var(--primary-light) !important; }
+.title, .subtitle { color: var(--text-primary) !important; }
+.text-secondary { color: var(--text-secondary); }
+.notification.is-app-info { background: var(--info-light); color: var(--text-primary); border-left: 4px solid var(--info); }
+.notification.is-app-success { background: var(--success-light); color: var(--text-primary); border-left: 4px solid var(--success); }
+.notification.is-app-warning { background: var(--warning-light); color: var(--text-primary); border-left: 4px solid var(--warning); }
+.notification.is-app-danger { background: var(--primary-light); color: var(--danger); border-left: 4px solid var(--danger); }
+.cat-badge-CLIENT_FOCUSED { background: var(--cat-client); color: #fff; }
+.cat-badge-TECH_DEBT { background: var(--cat-tech); color: #fff; }
+.cat-badge-R_AND_D { background: var(--cat-rd); color: #fff; }
+.stat-badge-NOT_STARTED { background: var(--stat-notstarted); color: #fff; }
+.stat-badge-IN_PROGRESS { background: var(--stat-inprogress); color: #fff; }
+.stat-badge-COMPLETED { background: var(--stat-completed); color: #fff; }
+.stat-badge-BLOCKED { background: var(--stat-blocked); color: #fff; }
+.action-card { cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.action-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+.progress-bar-outer { background: var(--tag-light-bg); border-radius: 4px; height: 10px; overflow: hidden; }
+.progress-bar-inner { height: 100%; border-radius: 4px; transition: width .3s; }
+.progress-bar-inner.is-ok { background: var(--success); }
+.progress-bar-inner.is-over { background: var(--warning); }
+.footer-bar { background: var(--bg-surface); border-top: 1px solid var(--border); padding: 12px 0; margin-top: 24px; }
+.btn-primary { background: var(--primary) !important; color: #fff !important; border: none !important; }
+.btn-primary:hover { background: var(--primary-hover) !important; }
+.btn-danger { background: var(--danger) !important; color: #fff !important; border: none !important; }
+.btn-danger:hover { background: var(--danger-hover) !important; }
+.btn-secondary { background: var(--secondary-bg) !important; color: var(--secondary-text) !important; border: 1px solid var(--border) !important; }
+.btn-secondary:hover { opacity: .85; }
+.tag.is-cat { font-size: .75rem; font-weight: 600; }
+.member-card { border: 2px solid var(--border); border-radius: 8px; padding: 16px; cursor: pointer; transition: all .15s; text-align: center; }
+.member-card:hover { border-color: var(--primary); background: var(--primary-light); }
+.overage { background: var(--warning-light) !important; }
+.section { padding: 1.5rem 1.5rem; }
+@media(max-width:768px){ .section{padding:1rem .75rem;} .box{padding:.75rem;} }
+</style>
+</head>
+<body>
+<div x-data="app()" x-init="init()" :class="theme === 'dark' ? 'theme-dark' : 'theme-light'">
+<!-- NAVBAR -->
+<nav class="navbar is-app" role="navigation" x-show="appSettings.setupComplete">
+  <div class="navbar-brand">
+    <a class="navbar-item has-text-weight-bold is-size-5" @click="goHome()">📋 Weekly Plan Tracker</a>
+  </div>
+  <div class="navbar-end">
+    <div class="navbar-item" x-show="currentUserId">
+      <span class="tag is-light mr-2" x-text="currentUserName()"></span>
+      <span class="tag" :class="isLead() ? 'is-warning' : 'is-info'" x-text="isLead() ? 'Lead' : 'Member'"></span>
+    </div>
+    <a class="navbar-item" @click="view='identity'" x-show="currentUserId" title="Switch Person">🔄 Switch</a>
+    <a class="navbar-item" @click="goHome()" x-show="view!=='hub' && view!=='identity' && view!=='setup'" title="Home">🏠 Home</a>
+    <a class="navbar-item" @click="toggleTheme()" x-text="theme==='dark'?'☀️ Light':'🌙 Dark'" title="Toggle theme"></a>
+  </div>
+</nav>
+
+<main class="section">
+<div class="container" style="max-width:960px">
+
+<!-- TOAST -->
+<div x-show="toast" x-transition class="notification is-app-success mb-4" style="position:fixed;top:70px;right:20px;z-index:100;max-width:350px;">
+  <button class="delete" @click="toast=''"></button>
+  <span x-text="toast"></span>
+</div>
+
+<!-- ERROR TOAST -->
+<div x-show="errorMsg" x-transition class="notification is-app-danger mb-4" style="position:fixed;top:70px;right:20px;z-index:100;max-width:400px;">
+  <button class="delete" @click="errorMsg=''"></button>
+  <span x-text="errorMsg"></span>
+</div>
+
+<!-- VIEW: FIRST-TIME SETUP -->
+<template x-if="view==='setup'">
+<div>
+  <h1 class="title is-3">👋 Welcome! Let's set up your team.</h1>
+  <p class="subtitle is-6">Add the people on your team. Pick one person as the Team Lead.</p>
+  <div class="box mb-4">
+    <div class="field has-addons">
+      <div class="control is-expanded">
+        <input class="input" type="text" x-model="setupName" placeholder="Type a name here" @keydown.enter="addSetupMember()" maxlength="100">
+      </div>
+      <div class="control">
+        <button class="button btn-primary" @click="addSetupMember()">Add This Person</button>
+      </div>
+    </div>
+    <p class="help has-text-danger" x-show="setupError" x-text="setupError"></p>
+  </div>
+  <div class="box" x-show="setupMembers.length===0">
+    <p class="text-secondary">No team members added yet.</p>
+  </div>
+  <template x-for="(m,i) in setupMembers" :key="i">
+    <div class="box mb-2">
+      <div class="columns is-vcentered is-mobile">
+        <div class="column">
+          <strong x-text="m.name"></strong>
+          <span class="tag is-warning is-light ml-2" x-show="m.isLead">Team Lead</span>
+        </div>
+        <div class="column is-narrow">
+          <button class="button is-small btn-secondary mr-1" @click="setupMembers[i].isLead=true; setupMembers.forEach((x,j)=>{if(j!==i)x.isLead=false})" x-show="!m.isLead">Make Lead</button>
+          <button class="button is-small btn-danger" @click="setupMembers.splice(i,1)">Remove</button>
+        </div>
+      </div>
+    </div>
+  </template>
+  <button class="button btn-primary is-medium mt-4" :disabled="setupMembers.length===0 || !setupMembers.some(m=>m.isLead)" @click="finishSetup()">Done — Go to Home Screen</button>
+</div>
+</template>
+
+<!-- VIEW: IDENTITY SELECTION -->
+<template x-if="view==='identity'">
+<div>
+  <h1 class="title is-3">Who are you?</h1>
+  <p class="subtitle is-6">Click your name to get started.</p>
+  <div class="columns is-multiline">
+    <template x-for="m in activeMembers()" :key="m.id">
+      <div class="column is-6-tablet is-4-desktop">
+        <div class="member-card" @click="selectIdentity(m.id)">
+          <p class="is-size-5 has-text-weight-semibold" x-text="m.name"></p>
+          <span class="tag mt-2" :class="m.isLead ? 'is-warning' : 'is-info'" x-text="m.isLead ? 'Team Lead' : 'Team Member'"></span>
+        </div>
+      </div>
+    </template>
+  </div>
+</div>
+</template>
+
+<!-- VIEW: ACTION HUB -->
+<template x-if="view==='hub'">
+<div>
+  <h1 class="title is-3">What do you want to do?</h1>
+  <p class="subtitle is-5">Hi, <span x-text="currentUserName()"></span>! <span class="tag" :class="isLead()?'is-warning':'is-info'" x-text="isLead()?'Team Lead':'Team Member'"></span></p>
+
+  <div x-show="!activeCycle() && isLead()" class="notification is-app-info mb-4">No planning weeks yet. Click "Start a New Week" to begin!</div>
+
+  <div class="columns is-multiline">
+    <!-- Lead: No active cycle -->
+    <template x-if="isLead() && !activeCycle()">
+      <div class="column is-6"><div class="box action-card" @click="startNewWeek()"><p class="is-size-5 has-text-weight-bold">🚀 Start a New Week</p><p class="text-secondary">Set up a new planning cycle.</p></div></div>
+    </template>
+    <!-- Lead: SETUP -->
+    <template x-if="isLead() && activeCycle()?.state==='SETUP'">
+      <div class="column is-6"><div class="box action-card" @click="view='cycleSetup'"><p class="is-size-5 has-text-weight-bold">⚙️ Set Up This Week's Plan</p><p class="text-secondary">Pick members and set category percentages.</p></div></div>
+    </template>
+    <!-- Lead: PLANNING -->
+    <template x-if="isLead() && activeCycle()?.state==='PLANNING'">
+      <div class="column is-6"><div class="box action-card" @click="view='freezeReview'"><p class="is-size-5 has-text-weight-bold">❄️ Review and Freeze the Plan</p><p class="text-secondary">Check everyone's hours and lock the plan.</p></div></div>
+    </template>
+    <template x-if="isLead() && activeCycle()?.state==='PLANNING' && isParticipating()">
+      <div class="column is-6"><div class="box action-card" @click="view='planning'"><p class="is-size-5 has-text-weight-bold">📝 Plan My Work</p><p class="text-secondary">Pick backlog items and commit hours.</p></div></div>
+    </template>
+    <!-- Lead: FROZEN -->
+    <template x-if="isLead() && activeCycle()?.state==='FROZEN'">
+      <div class="column is-6"><div class="box action-card" @click="viewDashboard()"><p class="is-size-5 has-text-weight-bold">📊 See Team Progress</p><p class="text-secondary">Check how the team is doing.</p></div></div>
+    </template>
+    <template x-if="isLead() && activeCycle()?.state==='FROZEN' && isParticipating()">
+      <div class="column is-6"><div class="box action-card" @click="view='progress'"><p class="is-size-5 has-text-weight-bold">✏️ Update My Progress</p><p class="text-secondary">Report hours and status on your tasks.</p></div></div>
+    </template>
+    <template x-if="isLead() && activeCycle()?.state==='FROZEN'">
+      <div class="column is-6"><div class="box action-card" @click="confirmFinishWeek()"><p class="is-size-5 has-text-weight-bold">✅ Finish This Week</p><p class="text-secondary">Close out this cycle.</p></div></div>
+    </template>
+    <!-- Member: PLANNING -->
+    <template x-if="!isLead() && activeCycle()?.state==='PLANNING' && isParticipating()">
+      <div class="column is-6"><div class="box action-card" @click="view='planning'"><p class="is-size-5 has-text-weight-bold">📝 Plan My Work</p><p class="text-secondary">Pick backlog items and commit your 30 hours.</p></div></div>
+    </template>
+    <!-- Member: FROZEN -->
+    <template x-if="!isLead() && activeCycle()?.state==='FROZEN' && isParticipating()">
+      <div class="column is-6"><div class="box action-card" @click="view='progress'"><p class="is-size-5 has-text-weight-bold">✏️ Update My Progress</p><p class="text-secondary">Report hours and status on your tasks.</p></div></div>
+    </template>
+    <template x-if="!isLead() && activeCycle()?.state==='FROZEN' && isParticipating()">
+      <div class="column is-6"><div class="box action-card" @click="viewDashboard()"><p class="is-size-5 has-text-weight-bold">📊 See Team Progress</p><p class="text-secondary">See how the team is doing overall.</p></div></div>
+    </template>
+    <!-- No active cycle for member -->
+    <template x-if="!isLead() && (!activeCycle() || !isParticipating())">
+      <div class="column is-12"><div class="notification is-app-info">There's no active plan for you right now. Check back on Tuesday or ask your Team Lead.</div></div>
+    </template>
+    <!-- Common -->
+    <div class="column is-6"><div class="box action-card" @click="view='backlog'"><p class="is-size-5 has-text-weight-bold">📋 Manage Backlog</p><p class="text-secondary">Add, edit, or browse work items.</p></div></div>
+    <template x-if="isLead()">
+      <div class="column is-6"><div class="box action-card" @click="view='team'"><p class="is-size-5 has-text-weight-bold">👥 Manage Team Members</p><p class="text-secondary">Add or remove team members.</p></div></div>
+    </template>
+    <div class="column is-6"><div class="box action-card" @click="view='pastCycles'"><p class="is-size-5 has-text-weight-bold">📅 View Past Weeks</p><p class="text-secondary">Look at completed planning cycles.</p></div></div>
+    <!-- Cancel planning (lead) -->
+    <template x-if="isLead() && activeCycle()?.state==='PLANNING'">
+      <div class="column is-6"><div class="box action-card" style="border-color:var(--danger)" @click="confirmCancelPlanning()"><p class="is-size-5 has-text-weight-bold" style="color:var(--danger)">🗑️ Cancel This Week's Planning</p><p class="text-secondary">Erase all plans and start over.</p></div></div>
+    </template>
+  </div>
+</div>
+</template>
+
+<!-- VIEW: MANAGE TEAM -->
+<template x-if="view==='team'">
+<div>
+  <button class="button btn-secondary mb-4" @click="goHome()">← Home</button>
+  <h2 class="title is-4">Manage Team Members</h2>
+  <div class="box mb-4">
+    <div class="field has-addons">
+      <div class="control is-expanded">
+        <input class="input" type="text" x-model="newMemberName" placeholder="Type a name" maxlength="100" @keydown.enter="addTeamMember()">
+      </div>
+      <div class="control"><button class="button btn-primary" @click="addTeamMember()">Save This Person</button></div>
+    </div>
+    <p class="help has-text-danger" x-show="teamError" x-text="teamError"></p>
+  </div>
+  <template x-for="m in teamMembers" :key="m.id">
+    <div class="box mb-2" :style="!m.isActive?'opacity:.6':''">
+      <div class="columns is-vcentered is-mobile is-multiline">
+        <div class="column">
+          <template x-if="editingMemberId!==m.id">
+            <span>
+              <strong x-text="m.name"></strong>
+              <span class="tag is-warning is-light ml-1" x-show="m.isLead">Lead</span>
+              <span class="tag is-light ml-1" x-show="!m.isActive">Inactive</span>
+            </span>
+          </template>
+          <template x-if="editingMemberId===m.id">
+            <div class="field has-addons">
+              <div class="control"><input class="input is-small" x-model="editingMemberVal" maxlength="100" @keydown.enter="saveEditMember(m.id)"></div>
+              <div class="control"><button class="button is-small btn-primary" @click="saveEditMember(m.id)">Save</button></div>
+              <div class="control"><button class="button is-small btn-secondary" @click="editingMemberId=null">Cancel</button></div>
+            </div>
+          </template>
+        </div>
+        <div class="column is-narrow" x-show="editingMemberId!==m.id">
+          <button class="button is-small btn-secondary mr-1" @click="editingMemberId=m.id;editingMemberVal=m.name" x-show="m.isActive">Edit Name</button>
+          <button class="button is-small btn-secondary mr-1" @click="makeLead(m.id)" x-show="m.isActive && !m.isLead">Make Lead</button>
+          <button class="button is-small btn-danger mr-1" @click="deactivateMember(m.id)" x-show="m.isActive && !m.isLead">Deactivate</button>
+          <button class="button is-small btn-secondary" @click="reactivateMember(m.id)" x-show="!m.isActive">Reactivate</button>
+        </div>
+      </div>
+    </div>
+  </template>
+</div>
+</template>
+
+<!-- VIEW: MANAGE BACKLOG -->
+<template x-if="view==='backlog'">
+<div>
+  <button class="button btn-secondary mb-4" @click="goHome()">← Home</button>
+  <h2 class="title is-4">Manage Backlog</h2>
+  <button class="button btn-primary mb-4" @click="editEntry=null;backlogForm={title:'',description:'',category:'',estimatedEffort:''};view='backlogEdit'">Add a New Backlog Item</button>
+  <div class="field is-grouped is-grouped-multiline mb-3">
+    <div class="control"><button class="button is-small" :class="blFilter.client?'cat-badge-CLIENT_FOCUSED':'btn-secondary'" @click="blFilter.client=!blFilter.client">Client Focused</button></div>
+    <div class="control"><button class="button is-small" :class="blFilter.tech?'cat-badge-TECH_DEBT':'btn-secondary'" @click="blFilter.tech=!blFilter.tech">Tech Debt</button></div>
+    <div class="control"><button class="button is-small" :class="blFilter.rd?'cat-badge-R_AND_D':'btn-secondary'" @click="blFilter.rd=!blFilter.rd">R&D</button></div>
+  </div>
+  <div class="field is-grouped mb-3">
+    <div class="control"><div class="select is-small"><select x-model="blFilter.status">
+      <option value="">Available Only</option><option value="ALL">Show All</option><option value="COMPLETED">Completed</option><option value="ARCHIVED">Archived</option>
+    </select></div></div>
+    <div class="control is-expanded"><input class="input is-small" type="text" x-model="blFilter.search" placeholder="Search by title"></div>
+  </div>
+  <template x-for="e in filteredBacklog()" :key="e.id">
+    <div class="box mb-2">
+      <div class="columns is-vcentered is-mobile is-multiline">
+        <div class="column">
+          <strong x-text="e.title"></strong>
+          <span class="tag is-cat ml-1" :class="'cat-badge-'+e.category" x-text="catLabel(e.category)"></span>
+          <span class="tag is-light ml-1" x-text="e.status"></span>
+          <span class="text-secondary is-size-7 ml-1" x-show="e.estimatedEffort" x-text="e.estimatedEffort+'h est.'"></span>
+        </div>
+        <div class="column is-narrow">
+          <button class="button is-small btn-secondary mr-1" @click="startEditEntry(e)">View & Edit</button>
+          <button class="button is-small btn-danger" x-show="isLead() && (e.status==='AVAILABLE'||e.status==='COMPLETED')" @click="archiveEntry(e.id)">Archive</button>
+        </div>
+      </div>
+    </div>
+  </template>
+  <div class="notification is-app-info" x-show="filteredBacklog().length===0">No backlog items match your filters.</div>
+</div>
+</template>
+
+<!-- VIEW: ADD/EDIT BACKLOG ENTRY -->
+<template x-if="view==='backlogEdit'">
+<div>
+  <button class="button btn-secondary mb-4" @click="view='backlog'">← Go Back</button>
+  <h2 class="title is-4" x-text="editEntry?'Edit Backlog Item':'Add a New Backlog Item'"></h2>
+  <div class="box">
+    <div class="field"><label class="label">Title</label><div class="control"><input class="input" type="text" x-model="backlogForm.title" placeholder="What is this work about?" maxlength="200"></div></div>
+    <div class="field"><label class="label">Description</label><div class="control"><textarea class="textarea" x-model="backlogForm.description" placeholder="Add more details here (optional)" maxlength="5000"></textarea></div></div>
+    <div class="field"><label class="label">Category</label><div class="control"><div class="select"><select x-model="backlogForm.category" :disabled="!!editEntry">
+      <option value="">Pick a category</option><option value="CLIENT_FOCUSED">Client Focused</option><option value="TECH_DEBT">Tech Debt</option><option value="R_AND_D">R&D</option>
+    </select></div></div></div>
+    <div class="field"><label class="label">Estimated hours (optional)</label><div class="control"><input class="input" type="number" x-model.number="backlogForm.estimatedEffort" placeholder="How many hours might this take?" min="0" max="999.5" step="0.5"></div></div>
+    <p class="help has-text-danger mb-2" x-show="backlogError" x-text="backlogError"></p>
+    <div class="field is-grouped">
+      <div class="control"><button class="button btn-primary" @click="saveBacklogEntry()">Save This Item</button></div>
+      <div class="control"><button class="button btn-secondary" @click="view='backlog'">Cancel</button></div>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- VIEW: CYCLE SETUP -->
+<template x-if="view==='cycleSetup'">
+<div>
+  <button class="button btn-secondary mb-4" @click="goHome()">← Home</button>
+  <h2 class="title is-4">Set Up This Week's Plan</h2>
+  <div class="box mb-4">
+    <div class="field"><label class="label">Planning date (pick a Tuesday)</label><div class="control"><input class="input" type="date" x-model="cycleForm.planningDate"></div>
+      <p class="help has-text-danger" x-show="cycleForm.planningDate && !isTuesday(cycleForm.planningDate)" x-text="cycleForm.planningDate + ' is not a Tuesday. Please pick a Tuesday.'"></p>
+      <p class="help" x-show="cycleForm.planningDate && isTuesday(cycleForm.planningDate)" x-text="'Work period: ' + addDays(cycleForm.planningDate,1) + ' to ' + addDays(cycleForm.planningDate,6)"></p>
+    </div>
+  </div>
+  <div class="box mb-4">
+    <label class="label">Who is working this week?</label>
+    <template x-for="m in activeMembers()" :key="m.id">
+      <label class="checkbox is-block mb-2" style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" :value="m.id" x-model="cycleForm.memberIds">
+        <span x-text="m.name"></span>
+        <span class="tag is-warning is-light" x-show="m.isLead">Lead</span>
+      </label>
+    </template>
+    <p class="mt-2 text-secondary">Team members selected: <strong x-text="cycleForm.memberIds.length"></strong>. Total hours to plan: <strong x-text="cycleForm.memberIds.length * 30"></strong></p>
+  </div>
+  <div class="box mb-4">
+    <label class="label">How should the hours be split?</label>
+    <div class="columns">
+      <div class="column"><div class="field"><label class="label is-small">Client Focused %</label><div class="control"><input class="input" type="number" x-model.number="cycleForm.pctClient" min="0" max="100" step="1"></div></div></div>
+      <div class="column"><div class="field"><label class="label is-small">Tech Debt %</label><div class="control"><input class="input" type="number" x-model.number="cycleForm.pctTech" min="0" max="100" step="1"></div></div></div>
+      <div class="column"><div class="field"><label class="label is-small">R&D %</label><div class="control"><input class="input" type="number" x-model.number="cycleForm.pctRD" min="0" max="100" step="1"></div></div></div>
+    </div>
+    <p :class="pctSum()===100?'has-text-success':'has-text-danger'" class="has-text-weight-bold">Total: <span x-text="pctSum()"></span>% <span x-show="pctSum()!==100">(must be 100%)</span><span x-show="pctSum()===100">✓</span></p>
+    <div class="columns mt-2" x-show="pctSum()===100 && cycleForm.memberIds.length>0">
+      <div class="column has-text-centered"><span class="tag cat-badge-CLIENT_FOCUSED">Client</span><br><strong x-text="calcBudget('CLIENT_FOCUSED')+'h'"></strong></div>
+      <div class="column has-text-centered"><span class="tag cat-badge-TECH_DEBT">Tech Debt</span><br><strong x-text="calcBudget('TECH_DEBT')+'h'"></strong></div>
+      <div class="column has-text-centered"><span class="tag cat-badge-R_AND_D">R&D</span><br><strong x-text="calcBudget('R_AND_D')+'h'"></strong></div>
+    </div>
+  </div>
+  <p class="help has-text-danger mb-2" x-show="cycleError" x-text="cycleError"></p>
+  <button class="button btn-primary is-medium" @click="openPlanning()" :disabled="cycleForm.memberIds.length===0||pctSum()!==100||!isTuesday(cycleForm.planningDate)">Open Planning for the Team</button>
+</div>
+</template>
+
+<!-- VIEW: PLANNING -->
+<template x-if="view==='planning'">
+<div>
+  <button class="button btn-secondary mb-4" @click="goHome()">← Home</button>
+  <h2 class="title is-4">Plan My Work</h2>
+  <div class="notification is-app-info">
+    Your hours: <strong x-text="myPlannedHours()"></strong> of 30 planned. <strong x-text="(30 - myPlannedHours())"></strong> hours left.
+    <span class="tag is-success ml-2" x-show="myPlan()?.isReady">✓ You marked yourself as ready</span>
+  </div>
+  <!-- Category budgets -->
+  <div class="columns mb-4">
+    <template x-for="cat in ['CLIENT_FOCUSED','TECH_DEBT','R_AND_D']" :key="cat">
+      <div class="column">
+        <div class="box">
+          <span class="tag is-cat mb-1" :class="'cat-badge-'+cat" x-text="catLabel(cat)"></span>
+          <p class="is-size-7">Budget: <strong x-text="getCatBudget(cat)+'h'"></strong></p>
+          <p class="is-size-7">Claimed: <strong x-text="getCatClaimed(cat)+'h'"></strong></p>
+          <p class="is-size-7">Left: <strong x-text="(getCatBudget(cat)-getCatClaimed(cat))+'h'"></strong></p>
+          <div class="progress-bar-outer mt-1"><div class="progress-bar-inner is-ok" :style="'width:'+Math.min(100,(getCatClaimed(cat)/Math.max(1,getCatBudget(cat)))*100)+'%'"></div></div>
+        </div>
+      </div>
+    </template>
+  </div>
+  <button class="button btn-primary mb-4" @click="view='claim'" :disabled="myPlannedHours()>=30">Add Work from Backlog</button>
+  <button class="button btn-secondary mb-4 ml-2" @click="toggleReady()" x-text="myPlan()?.isReady ? 'Undo — I\'m Not Done Yet' : 'I\'m Done Planning'"></button>
+  <!-- My tasks -->
+  <h3 class="title is-5">My Plan</h3>
+  <div x-show="myAssignments().length===0" class="notification is-app-info">You haven't picked any work yet. Click "Add Work from Backlog" to get started.</div>
+  <template x-for="ta in myAssignments()" :key="ta.id">
+    <div class="box mb-2">
+      <div class="columns is-vcentered is-mobile is-multiline">
+        <div class="column">
+          <strong x-text="getEntry(ta.backlogEntryId)?.title"></strong>
+          <span class="tag is-cat ml-1" :class="'cat-badge-'+getEntry(ta.backlogEntryId)?.category" x-text="catLabel(getEntry(ta.backlogEntryId)?.category)"></span>
+          <span class="ml-2" x-text="ta.committedHours+'h'"></span>
+        </div>
+        <div class="column is-narrow">
+          <template x-if="editingAssignId!==ta.id">
+            <span>
+              <button class="button is-small btn-secondary mr-1" @click="editingAssignId=ta.id;editingAssignHrs=ta.committedHours">Change Hours</button>
+              <button class="button is-small btn-danger" @click="removeAssignment(ta.id)">Remove</button>
+            </span>
+          </template>
+          <template x-if="editingAssignId===ta.id">
+            <div class="field has-addons">
+              <div class="control"><input class="input is-small" type="number" x-model.number="editingAssignHrs" step="0.5" min="0.5" max="30" style="width:80px"></div>
+              <div class="control"><button class="button is-small btn-primary" @click="saveAssignHours(ta.id)">Save</button></div>
+              <div class="control"><button class="button is-small btn-secondary" @click="editingAssignId=null">Cancel</button></div>
+            </div>
+          </template>
+        </div>
+      </div>
+      <p class="help has-text-danger" x-show="assignError && editingAssignId===ta.id" x-text="assignError"></p>
+    </div>
+  </template>
+</div>
+</template>
+
+<!-- VIEW: CLAIM BACKLOG ITEM -->
+<template x-if="view==='claim'">
+<div>
+  <button class="button btn-secondary mb-4" @click="view='planning'">← Go Back</button>
+  <h2 class="title is-4">Pick a Backlog Item</h2>
+  <p class="mb-3">You have <strong x-text="30-myPlannedHours()"></strong> hours left to plan.</p>
+  <div class="field is-grouped mb-3">
+    <template x-for="cat in ['CLIENT_FOCUSED','TECH_DEBT','R_AND_D']" :key="cat">
+      <div class="control">
+        <button class="button is-small" :class="claimCatFilter[cat]?'cat-badge-'+cat:'btn-secondary'" @click="claimCatFilter[cat]=!claimCatFilter[cat]" x-text="catLabel(cat)+' ('+(getCatBudget(cat)-getCatClaimed(cat))+'h left)'"></button>
+      </div>
+    </template>
+  </div>
+  <template x-for="e in claimableEntries()" :key="e.id">
+    <div class="box mb-2">
+      <div class="columns is-vcentered is-multiline">
+        <div class="column">
+          <strong x-text="e.title"></strong>
+          <span class="tag is-cat ml-1" :class="'cat-badge-'+e.category" x-text="catLabel(e.category)"></span>
+          <span class="text-secondary is-size-7 ml-1" x-show="e.estimatedEffort" x-text="e.estimatedEffort+'h est.'"></span>
+          <span class="tag is-light ml-1" x-show="e.status==='IN_PLAN'">(Someone picked this)</span>
+          <p class="text-secondary is-size-7 mt-1" x-text="(e.description||'').substring(0,100)+(e.description?.length>100?'...':'')"></p>
+        </div>
+        <div class="column is-narrow">
+          <button class="button is-small btn-primary" @click="startClaim(e)">Pick This Item</button>
+        </div>
+      </div>
+    </div>
+  </template>
+  <div class="notification is-app-info" x-show="claimableEntries().length===0">No backlog items are available in the categories you selected.</div>
+
+  <!-- Claim Modal -->
+  <div class="modal" :class="claimModal?'is-active':''">
+    <div class="modal-background" @click="claimModal=false"></div>
+    <div class="modal-card">
+      <header class="modal-card-head"><p class="modal-card-title">How many hours will you work on this?</p><button class="delete" @click="claimModal=false"></button></header>
+      <section class="modal-card-body" style="background:var(--bg-surface);color:var(--text-primary)">
+        <p class="mb-2"><strong x-text="claimEntry?.title"></strong> <span class="tag is-cat" :class="'cat-badge-'+(claimEntry?.category||'')" x-text="catLabel(claimEntry?.category)"></span></p>
+        <p class="mb-1">Your hours left: <strong x-text="30-myPlannedHours()"></strong></p>
+        <p class="mb-3" x-text="catLabel(claimEntry?.category)+' budget left: '+(getCatBudget(claimEntry?.category)-getCatClaimed(claimEntry?.category))+'h'"></p>
+        <p class="mb-2 text-secondary" x-show="claimEntry?.estimatedEffort" x-text="'Estimate for this item: '+claimEntry?.estimatedEffort+'h. You can enter any amount.'"></p>
+        <div class="field"><label class="label">Hours to commit</label><div class="control"><input class="input" type="number" x-model.number="claimHours" step="0.5" min="0.5" placeholder="Enter hours (like 2 or 3.5)"></div></div>
+        <p class="help has-text-danger" x-show="claimError" x-text="claimError"></p>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button btn-primary" @click="submitClaim()">Add to My Plan</button>
+        <button class="button btn-secondary" @click="claimModal=false">Cancel</button>
+      </footer>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- VIEW: FREEZE REVIEW -->
+<template x-if="view==='freezeReview'">
+<div>
+  <button class="button btn-secondary mb-4" @click="goHome()">← Home</button>
+  <h2 class="title is-4">Review the Team's Plan</h2>
+  <p class="text-secondary mb-4" x-text="'Week of '+activeCycle()?.planningDate+'. '+activeCycle()?.participatingMemberIds.length+' team members. '+(activeCycle()?.participatingMemberIds.length*30)+' total hours.'"></p>
+  <!-- Category summary -->
+  <h3 class="title is-5">Category Summary</h3>
+  <table class="table is-fullwidth is-hoverable mb-4">
+    <thead><tr><th>Category</th><th>Budget</th><th>Planned</th><th>Status</th></tr></thead>
+    <tbody>
+      <template x-for="cat in ['CLIENT_FOCUSED','TECH_DEBT','R_AND_D']" :key="cat">
+        <tr>
+          <td><span class="tag is-cat" :class="'cat-badge-'+cat" x-text="catLabel(cat)"></span></td>
+          <td x-text="getCatBudget(cat)+'h'"></td>
+          <td x-text="getCatClaimed(cat)+'h'"></td>
+          <td><span :class="getCatClaimed(cat)===getCatBudget(cat)?'has-text-success':'has-text-danger'" x-text="getCatClaimed(cat)===getCatBudget(cat)?'✓ Match':'⚠ Off by '+(getCatBudget(cat)-getCatClaimed(cat))+'h'"></span></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+  <!-- Member summary -->
+  <h3 class="title is-5">Member Summary</h3>
+  <template x-for="mid in activeCycle()?.participatingMemberIds||[]" :key="mid">
+    <div class="box mb-2" @click="freezeDetailMember=freezeDetailMember===mid?null:mid" style="cursor:pointer">
+      <div class="columns is-vcentered is-mobile">
+        <div class="column"><strong x-text="getMember(mid)?.name"></strong></div>
+        <div class="column"><span :class="getMemberPlanned(mid)===30?'has-text-success':'has-text-danger'" x-text="getMemberPlanned(mid)+' / 30h'"></span></div>
+        <div class="column is-narrow"><span class="tag" :class="getMemberPlan(mid)?.isReady?'is-success':'is-light'" x-text="getMemberPlan(mid)?.isReady?'✓ Ready':'Not yet'"></span></div>
+      </div>
+      <div x-show="freezeDetailMember===mid" class="mt-2">
+        <table class="table is-fullwidth is-size-7">
+          <thead><tr><th>Item</th><th>Category</th><th>Hours</th></tr></thead>
+          <tbody>
+            <template x-for="ta in getMemberAssignments(mid)" :key="ta.id">
+              <tr>
+                <td x-text="getEntry(ta.backlogEntryId)?.title"></td>
+                <td><span class="tag is-cat is-small" :class="'cat-badge-'+getEntry(ta.backlogEntryId)?.category" x-text="catLabel(getEntry(ta.backlogEntryId)?.category)"></span></td>
+                <td x-text="ta.committedHours+'h'"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </template>
+  <!-- Validation -->
+  <div x-show="freezeErrors().length===0" class="notification is-app-success mt-4">Everything looks good! You can freeze the plan.</div>
+  <div x-show="freezeErrors().length>0" class="notification is-app-danger mt-4">
+    <p class="has-text-weight-bold mb-1">Can't freeze yet:</p>
+    <template x-for="(err,i) in freezeErrors()" :key="i"><p x-text="'• '+err"></p></template>
+  </div>
+  <div class="mt-4">
+    <button class="button btn-primary is-medium" :disabled="freezeErrors().length>0" @click="confirmFreeze()">❄️ Freeze the Plan</button>
+    <button class="button btn-danger is-small ml-3" @click="confirmCancelPlanning()">Cancel Planning</button>
+  </div>
+</div>
+</template>
+
+<!-- VIEW: PROGRESS UPDATE -->
+<template x-if="view==='progress'">
+<div>
+  <button class="button btn-secondary mb-4" @click="goHome()">← Home</button>
+  <h2 class="title is-4">Update My Progress</h2>
+  <p class="text-secondary mb-2" x-text="'Week of '+frozenCycle()?.planningDate+'. Your plan: 30 hours.'"></p>
+  <div class="notification is-app-info mb-4">
+    You've completed <strong x-text="myCompletedHours()"></strong> of 30 hours (<strong x-text="Math.round(myCompletedHours()/30*100)"></strong>%)
+    <div class="progress-bar-outer mt-2"><div class="progress-bar-inner is-ok" :style="'width:'+Math.min(100,myCompletedHours()/30*100)+'%'"></div></div>
+  </div>
+  <template x-for="ta in myFrozenAssignments()" :key="ta.id">
+    <div class="box mb-2" :class="ta.hoursCompleted>ta.committedHours?'overage':''">
+      <div class="columns is-vcentered is-multiline">
+        <div class="column">
+          <strong x-text="getEntry(ta.backlogEntryId)?.title"></strong>
+          <span class="tag is-cat ml-1" :class="'cat-badge-'+getEntry(ta.backlogEntryId)?.category" x-text="catLabel(getEntry(ta.backlogEntryId)?.category)"></span>
+          <span class="tag ml-1" :class="'stat-badge-'+ta.progressStatus" x-text="statusLabel(ta.progressStatus)"></span>
+        </div>
+        <div class="column">
+          <span x-text="ta.hoursCompleted+' of '+ta.committedHours+'h done'"></span>
+          <span class="has-text-warning" x-show="ta.hoursCompleted>ta.committedHours" x-text="' (over by '+(ta.hoursCompleted-ta.committedHours)+'h)'"></span>
+          <div class="progress-bar-outer mt-1"><div class="progress-bar-inner" :class="ta.hoursCompleted>ta.committedHours?'is-over':'is-ok'" :style="'width:'+Math.min(100,(ta.hoursCompleted/Math.max(1,ta.committedHours))*100)+'%'"></div></div>
+        </div>
+        <div class="column is-narrow"><button class="button is-small btn-primary" @click="startProgressUpdate(ta)">Update This Task</button></div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Progress Modal -->
+  <div class="modal" :class="progressModal?'is-active':''">
+    <div class="modal-background" @click="progressModal=false"></div>
+    <div class="modal-card">
+      <header class="modal-card-head"><p class="modal-card-title" x-text="'Update: '+(getEntry(progressTA?.backlogEntryId)?.title||'')"></p><button class="delete" @click="progressModal=false"></button></header>
+      <section class="modal-card-body" style="background:var(--bg-surface);color:var(--text-primary)">
+        <p class="mb-3">Committed: <strong x-text="progressTA?.committedHours+'h'"></strong>. Currently: <strong x-text="progressTA?.hoursCompleted+'h'"></strong> done.</p>
+        <div class="field"><label class="label">Hours completed</label><div class="control"><input class="input" type="number" x-model.number="progForm.hours" step="0.5" min="0"></div></div>
+        <div class="field"><label class="label">Status</label><div class="control"><div class="select"><select x-model="progForm.status">
+          <template x-for="opt in allowedStatuses()" :key="opt"><option :value="opt" x-text="statusLabel(opt)"></option></template>
+        </select></div></div></div>
+        <div class="field"><label class="label">Note (optional)</label><div class="control"><textarea class="textarea" x-model="progForm.note" placeholder="Add a note about this task" maxlength="1000"></textarea></div></div>
+        <p class="help has-text-warning" x-show="progForm.hours>progressTA?.committedHours">You've put in more hours than you planned. That's okay — this will be noted.</p>
+        <p class="help has-text-danger" x-show="progError" x-text="progError"></p>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button btn-primary" @click="submitProgress()">Save Progress</button>
+        <button class="button btn-secondary" @click="progressModal=false">Cancel</button>
+      </footer>
+    </div>
+  </div>
+</div>
+</template>
+
+<!-- VIEW: TEAM PROGRESS DASHBOARD -->
+<template x-if="view==='dashboard'">
+<div>
+  <button class="button btn-secondary mb-4" @click="dashCycleId===activeCycle()?.id ? goHome() : (view='pastCycles')">← <span x-text="dashCycleId===activeCycle()?.id?'Home':'Back'"></span></button>
+  <h2 class="title is-4" x-text="(dashCycle()?.state==='COMPLETED'?'Past Week — ':'Team Progress — ')+dashCycle()?.planningDate"></h2>
+  <span class="tag mb-4" :class="dashCycle()?.state==='FROZEN'?'is-info':'is-success'" x-text="dashCycle()?.state"></span>
+
+  <!-- Summary Cards -->
+  <div class="columns mb-4">
+    <div class="column"><div class="box has-text-centered"><p class="is-size-7 text-secondary">Overall Progress</p><p class="is-size-4 has-text-weight-bold" x-text="dashTotalCompleted()+'h / '+dashCapacity()+'h'"></p><p x-text="Math.round(dashTotalCompleted()/Math.max(1,dashCapacity())*100)+'%'"></p><div class="progress-bar-outer mt-1"><div class="progress-bar-inner is-ok" :style="'width:'+Math.min(100,dashTotalCompleted()/Math.max(1,dashCapacity())*100)+'%'"></div></div></div></div>
+    <div class="column"><div class="box has-text-centered"><p class="is-size-7 text-secondary">Tasks Done</p><p class="is-size-4 has-text-weight-bold" x-text="dashCompletedTasks()+' / '+dashAllAssignments().length"></p></div></div>
+    <div class="column"><div class="box has-text-centered" :style="dashBlockedTasks()>0?'border-color:var(--danger)':''"><p class="is-size-7 text-secondary">Blocked</p><p class="is-size-4 has-text-weight-bold" :style="dashBlockedTasks()>0?'color:var(--danger)':''" x-text="dashBlockedTasks()"></p></div></div>
+  </div>
+
+  <div x-show="dashAllAssignments().every(t=>t.progressStatus==='COMPLETED')" class="notification is-app-success mb-4">🎉 Great work! All tasks are done this week!</div>
+  <div x-show="dashAllAssignments().every(t=>t.hoursCompleted===0) && dashCycle()?.state==='FROZEN'" class="notification is-app-info mb-4">No one has reported progress yet.</div>
+
+  <!-- Category Breakdown -->
+  <h3 class="title is-5">By Category</h3>
+  <template x-for="cat in ['CLIENT_FOCUSED','TECH_DEBT','R_AND_D']" :key="cat">
+    <div class="box mb-3" @click="drillCat=cat;view='catDrill'" style="cursor:pointer">
+      <div class="columns is-vcentered">
+        <div class="column"><span class="tag is-cat" :class="'cat-badge-'+cat" x-text="catLabel(cat)"></span></div>
+        <div class="column"><span x-text="'Budget: '+getDashCatBudget(cat)+'h'"></span></div>
+        <div class="column"><span x-text="'Done: '+dashCatCompleted(cat)+'h ('+Math.round(dashCatCompleted(cat)/Math.max(1,getDashCatBudget(cat))*100)+'%)'"></span></div>
+        <div class="column is-narrow"><button class="button is-small btn-secondary">See Details →</button></div>
+      </div>
+      <div class="progress-bar-outer mt-1"><div class="progress-bar-inner is-ok" :style="'width:'+Math.min(100,dashCatCompleted(cat)/Math.max(1,getDashCatBudget(cat))*100)+'%'"></div></div>
+    </div>
+  </template>
+
+  <!-- Member Breakdown (Lead only) -->
+  <template x-if="isLead()">
+    <div>
+      <h3 class="title is-5 mt-5">By Member</h3>
+      <template x-for="mid in dashCycle()?.participatingMemberIds||[]" :key="mid">
+        <div class="box mb-2" @click="drillMember=mid;view='memberDrill'" style="cursor:pointer">
+          <div class="columns is-vcentered is-mobile">
+            <div class="column"><strong x-text="getMember(mid)?.name"></strong></div>
+            <div class="column"><span x-text="dashMemberCompleted(mid)+'h / 30h ('+Math.round(dashMemberCompleted(mid)/30*100)+'%)'"></span></div>
+            <div class="column is-narrow">
+              <span class="tag" :class="dashMemberBlocked(mid)?'is-danger':dashMemberAllDone(mid)?'is-success':'is-info'" x-text="dashMemberBlocked(mid)?'Blocked':dashMemberAllDone(mid)?'All Done':'Working'"></span>
+              <button class="button is-small btn-secondary ml-2">See Plan →</button>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </template>
+  <!-- Aggregate for members -->
+  <template x-if="!isLead()">
+    <div class="notification is-app-info mt-4">Team completion: <strong x-text="Math.round(dashTotalCompleted()/Math.max(1,dashCapacity())*100)+'%'"></strong></div>
+  </template>
+</div>
+</template>
+
+<!-- VIEW: CATEGORY DRILL-DOWN -->
+<template x-if="view==='catDrill'">
+<div>
+  <button class="button btn-secondary mb-4" @click="view='dashboard'">← Go Back</button>
+  <h2 class="title is-4"><span class="tag is-cat" :class="'cat-badge-'+drillCat" x-text="catLabel(drillCat)"></span> — Details</h2>
+  <p class="mb-3" x-text="'Budget: '+getDashCatBudget(drillCat)+'h. Completed: '+dashCatCompleted(drillCat)+'h ('+Math.round(dashCatCompleted(drillCat)/Math.max(1,getDashCatBudget(drillCat))*100)+'%)'"></p>
+  <table class="table is-fullwidth is-hoverable">
+    <thead><tr><th>Item</th><th x-text="isLead()?'Assigned To':'Member'"></th><th>Committed</th><th>Done</th><th>Status</th></tr></thead>
+    <tbody>
+      <template x-for="ta in dashCatAssignments(drillCat)" :key="ta.id">
+        <tr @click="drillTask=ta;view='taskDrill'" style="cursor:pointer">
+          <td x-text="getEntry(ta.backlogEntryId)?.title"></td>
+          <td x-text="isLead()?getMember(getAssignMember(ta))?.name:'Team Member'"></td>
+          <td x-text="ta.committedHours+'h'"></td>
+          <td x-text="ta.hoursCompleted+'h'"></td>
+          <td><span class="tag" :class="'stat-badge-'+ta.progressStatus" x-text="statusLabel(ta.progressStatus)"></span></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+</div>
+</template>
+
+<!-- VIEW: MEMBER DRILL-DOWN -->
+<template x-if="view==='memberDrill'">
+<div>
+  <button class="button btn-secondary mb-4" @click="view='dashboard'">← Go Back</button>
+  <h2 class="title is-4" x-text="getMember(drillMember)?.name + '\'s Plan'"></h2>
+  <p class="mb-3" x-text="'Hours completed: '+dashMemberCompleted(drillMember)+' of 30 ('+Math.round(dashMemberCompleted(drillMember)/30*100)+'%)'"></p>
+  <div class="progress-bar-outer mb-4"><div class="progress-bar-inner is-ok" :style="'width:'+Math.min(100,dashMemberCompleted(drillMember)/30*100)+'%'"></div></div>
+  <table class="table is-fullwidth is-hoverable">
+    <thead><tr><th>Item</th><th>Category</th><th>Committed</th><th>Done</th><th>Status</th></tr></thead>
+    <tbody>
+      <template x-for="ta in dashMemberAssignments(drillMember)" :key="ta.id">
+        <tr @click="drillTask=ta;view='taskDrill'" style="cursor:pointer" :class="ta.hoursCompleted>ta.committedHours?'overage':''">
+          <td x-text="getEntry(ta.backlogEntryId)?.title"></td>
+          <td><span class="tag is-cat" :class="'cat-badge-'+getEntry(ta.backlogEntryId)?.category" x-text="catLabel(getEntry(ta.backlogEntryId)?.category)"></span></td>
+          <td x-text="ta.committedHours+'h'"></td>
+          <td x-text="ta.hoursCompleted+'h'"></td>
+          <td><span class="tag" :class="'stat-badge-'+ta.progressStatus" x-text="statusLabel(ta.progressStatus)"></span></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+</div>
+</template>
+
+<!-- VIEW: TASK DRILL-DOWN -->
+<template x-if="view==='taskDrill'">
+<div>
+  <button class="button btn-secondary mb-4" @click="view=prevDrillView||'dashboard'">← Go Back</button>
+  <h2 class="title is-4" x-text="getEntry(drillTask?.backlogEntryId)?.title"></h2>
+  <div class="box mb-4">
+    <p><strong>Category:</strong> <span class="tag is-cat" :class="'cat-badge-'+getEntry(drillTask?.backlogEntryId)?.category" x-text="catLabel(getEntry(drillTask?.backlogEntryId)?.category)"></span></p>
+    <p x-show="getEntry(drillTask?.backlogEntryId)?.description"><strong>Description:</strong> <span x-text="getEntry(drillTask?.backlogEntryId)?.description"></span></p>
+    <p x-show="getEntry(drillTask?.backlogEntryId)?.estimatedEffort"><strong>Estimate:</strong> <span x-text="getEntry(drillTask?.backlogEntryId)?.estimatedEffort+'h'"></span></p>
+    <p><strong>Assigned to:</strong> <span x-text="getMember(getAssignMember(drillTask))?.name"></span></p>
+    <p><strong>Committed:</strong> <span x-text="drillTask?.committedHours+'h'"></span></p>
+    <p><strong>Done:</strong> <span x-text="drillTask?.hoursCompleted+'h'"></span></p>
+    <p><strong>Status:</strong> <span class="tag" :class="'stat-badge-'+drillTask?.progressStatus" x-text="statusLabel(drillTask?.progressStatus)"></span></p>
+  </div>
+  <!-- All assignments for this backlog entry in this cycle -->
+  <div x-show="allEntryAssignments(drillTask?.backlogEntryId).length>1" class="box mb-4">
+    <h4 class="title is-6">All members assigned to this item</h4>
+    <table class="table is-fullwidth is-size-7">
+      <thead><tr><th>Member</th><th>Committed</th><th>Done</th><th>Status</th></tr></thead>
+      <tbody>
+        <template x-for="ta2 in allEntryAssignments(drillTask?.backlogEntryId)" :key="ta2.id">
+          <tr><td x-text="getMember(getAssignMember(ta2))?.name"></td><td x-text="ta2.committedHours+'h'"></td><td x-text="ta2.hoursCompleted+'h'"></td><td><span class="tag" :class="'stat-badge-'+ta2.progressStatus" x-text="statusLabel(ta2.progressStatus)"></span></td></tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+  <!-- Progress history -->
+  <h4 class="title is-6">Update History</h4>
+  <div x-show="taskProgressHistory(drillTask?.id).length===0" class="notification is-app-info">No progress updates yet.</div>
+  <template x-for="pu in taskProgressHistory(drillTask?.id)" :key="pu.id">
+    <div class="box mb-2 is-size-7">
+      <p><strong x-text="new Date(pu.timestamp).toLocaleString()"></strong> — <span x-text="getMember(pu.updatedBy)?.name||'Unknown'"></span></p>
+      <p x-text="'Hours: '+pu.previousHoursCompleted+' → '+pu.newHoursCompleted+' | Status: '+statusLabel(pu.previousStatus)+' → '+statusLabel(pu.newStatus)"></p>
+      <p x-show="pu.note" class="text-secondary" x-text="'Note: '+pu.note"></p>
+    </div>
+  </template>
+</div>
+</template>
+
+<!-- VIEW: PAST CYCLES -->
+<template x-if="view==='pastCycles'">
+<div>
+  <button class="button btn-secondary mb-4" @click="goHome()">← Home</button>
+  <h2 class="title is-4">Past Weeks</h2>
+  <div x-show="pastCycles().length===0" class="notification is-app-info">No past weeks yet.</div>
+  <template x-for="c in pastCycles()" :key="c.id">
+    <div class="box mb-2 action-card" @click="dashCycleId=c.id;view='dashboard'">
+      <div class="columns is-vcentered is-mobile">
+        <div class="column">
+          <strong x-text="'Week of '+c.planningDate"></strong>
+          <span class="tag ml-2" :class="c.state==='COMPLETED'?'is-success':'is-info'" x-text="c.state"></span>
+        </div>
+        <div class="column is-narrow">
+          <span class="text-secondary" x-text="c.participatingMemberIds.length+' members'"></span>
+          <button class="button is-small btn-secondary ml-2">View Details →</button>
+        </div>
+      </div>
+    </div>
+  </template>
+</div>
+</template>
+
+<!-- CONFIRM MODAL -->
+<div class="modal" :class="confirmModal?'is-active':''">
+  <div class="modal-background" @click="confirmModal=false"></div>
+  <div class="modal-card">
+    <header class="modal-card-head"><p class="modal-card-title" x-text="confirmTitle"></p><button class="delete" @click="confirmModal=false"></button></header>
+    <section class="modal-card-body" style="background:var(--bg-surface);color:var(--text-primary)"><p x-text="confirmText"></p></section>
+    <footer class="modal-card-foot">
+      <button class="button" :class="confirmDanger?'btn-danger':'btn-primary'" @click="confirmAction();confirmModal=false" x-text="confirmYes"></button>
+      <button class="button btn-secondary" @click="confirmModal=false" x-text="confirmNo||'No, Go Back'"></button>
+    </footer>
+  </div>
+</div>
+
+</div><!-- container -->
+</main>
+
+<!-- FOOTER -->
+<footer class="footer-bar" x-show="appSettings.setupComplete">
+  <div class="container has-text-centered" style="max-width:960px">
+    <button class="button is-small btn-secondary mr-2" @click="exportData()">📥 Download My Data</button>
+    <button class="button is-small btn-secondary mr-2" @click="importModal=true">📤 Load Data from File</button>
+    <button class="button is-small btn-secondary mr-2" @click="seedData()">🌱 Seed Sample Data</button>
+    <button class="button is-small btn-danger" @click="showConfirm('Reset Everything?','This will erase all your data. This cannot be undone.',()=>{localStorage.clear();location.reload()},'Yes, Erase Everything',true)">🗑️ Reset App</button>
+  </div>
+</footer>
+
+<!-- IMPORT MODAL -->
+<div class="modal" :class="importModal?'is-active':''">
+  <div class="modal-background" @click="importModal=false"></div>
+  <div class="modal-card">
+    <header class="modal-card-head"><p class="modal-card-title">Load Data from a Backup File</p><button class="delete" @click="importModal=false"></button></header>
+    <section class="modal-card-body" style="background:var(--bg-surface);color:var(--text-primary)">
+      <p class="mb-3">Pick the backup file you saved before. This will replace all your current data.</p>
+      <div class="field"><div class="file has-name"><label class="file-label"><input class="file-input" type="file" accept=".json" @change="handleImportFile($event)"><span class="file-cta"><span class="file-label">Choose file</span></span><span class="file-name" x-text="importFileName||'No file chosen'"></span></label></div></div>
+      <p class="help has-text-danger" x-show="importError" x-text="importError"></p>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button btn-danger" :disabled="!importData" @click="executeImport()">Yes, Replace My Data</button>
+      <button class="button btn-secondary" @click="importModal=false;importData=null;importFileName=''">Cancel</button>
+    </footer>
+  </div>
+</div>
+
+</div><!-- /Alpine root -->
+
+<script>
+function uid(){return crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=crypto.getRandomValues(new Uint8Array(1))[0]%16;return(c==='x'?r:(r&0x3|0x8)).toString(16)})}
+function lsGet(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){console.error(e)}}
+
+function app(){return{
+  theme:lsGet('wpt_theme','light'),
+  view:'identity',
+  toast:'',errorMsg:'',
+  appSettings:lsGet('wpt_appSettings',{setupComplete:false,dataVersion:1}),
+  teamMembers:lsGet('wpt_teamMembers',[]),
+  backlogEntries:lsGet('wpt_backlogEntries',[]),
+  planningCycles:lsGet('wpt_planningCycles',[]),
+  categoryAllocations:lsGet('wpt_categoryAllocations',[]),
+  memberPlans:lsGet('wpt_memberPlans',[]),
+  taskAssignments:lsGet('wpt_taskAssignments',[]),
+  progressUpdates:lsGet('wpt_progressUpdates',[]),
+  currentUserId:null,
+  // Setup
+  setupMembers:[],setupName:'',setupError:'',
+  // Team
+  newMemberName:'',teamError:'',editingMemberId:null,editingMemberVal:'',
+  // Backlog
+  blFilter:{client:true,tech:true,rd:true,status:'',search:''},
+  editEntry:null,backlogForm:{title:'',description:'',category:'',estimatedEffort:''},backlogError:'',
+  // Cycle
+  cycleForm:{planningDate:'',memberIds:[],pctClient:0,pctTech:0,pctRD:0},cycleError:'',
+  // Planning
+  editingAssignId:null,editingAssignHrs:0,assignError:'',
+  claimCatFilter:{CLIENT_FOCUSED:true,TECH_DEBT:true,R_AND_D:true},
+  claimModal:false,claimEntry:null,claimHours:0,claimError:'',
+  // Freeze
+  freezeDetailMember:null,
+  // Progress
+  progressModal:false,progressTA:null,
+  progForm:{hours:0,status:'',note:''},progError:'',
+  // Dashboard
+  dashCycleId:null,drillCat:null,drillMember:null,drillTask:null,prevDrillView:'dashboard',
+  // Confirm
+  confirmModal:false,confirmTitle:'',confirmText:'',confirmYes:'',confirmNo:'',confirmDanger:false,confirmAction:()=>{},
+  // Import
+  importModal:false,importData:null,importFileName:'',importError:'',
+
+  init(){
+    if(!this.appSettings.setupComplete){this.view='setup';return}
+    if(this.teamMembers.filter(m=>m.isActive).length===1 && this.teamMembers.find(m=>m.isActive)?.isLead){
+      this.currentUserId=this.teamMembers.find(m=>m.isActive).id;this.view='hub'
+    } else { this.view='identity' }
+    this.$watch('toast',v=>{if(v)setTimeout(()=>this.toast='',3000)});
+    this.$watch('errorMsg',v=>{if(v)setTimeout(()=>this.errorMsg='',5000)});
+  },
+  toggleTheme(){this.theme=this.theme==='dark'?'light':'dark';lsSet('wpt_theme',this.theme)},
+  save(){
+    lsSet('wpt_appSettings',this.appSettings);lsSet('wpt_teamMembers',this.teamMembers);
+    lsSet('wpt_backlogEntries',this.backlogEntries);lsSet('wpt_planningCycles',this.planningCycles);
+    lsSet('wpt_categoryAllocations',this.categoryAllocations);lsSet('wpt_memberPlans',this.memberPlans);
+    lsSet('wpt_taskAssignments',this.taskAssignments);lsSet('wpt_progressUpdates',this.progressUpdates);
+  },
+  goHome(){this.view='hub';this.dashCycleId=this.activeCycle()?.id||null},
+  showToast(m){this.toast=m},
+  showError(m){this.errorMsg=m},
+  showConfirm(title,text,action,yes='Yes',danger=false,no='No, Go Back'){
+    this.confirmTitle=title;this.confirmText=text;this.confirmAction=action;
+    this.confirmYes=yes;this.confirmDanger=danger;this.confirmNo=no;this.confirmModal=true;
+  },
+
+  // Helpers
+  activeMembers(){return this.teamMembers.filter(m=>m.isActive)},
+  getMember(id){return this.teamMembers.find(m=>m.id===id)},
+  currentUserName(){return this.getMember(this.currentUserId)?.name||''},
+  isLead(){return this.getMember(this.currentUserId)?.isLead||false},
+  activeCycle(){return this.planningCycles.find(c=>['SETUP','PLANNING','FROZEN'].includes(c.state))},
+  frozenCycle(){return this.planningCycles.find(c=>c.state==='FROZEN')||this.activeCycle()},
+  isParticipating(){const c=this.activeCycle();return c?c.participatingMemberIds.includes(this.currentUserId):false},
+  catLabel(c){return{CLIENT_FOCUSED:'Client Focused',TECH_DEBT:'Tech Debt',R_AND_D:'R&D'}[c]||c},
+  statusLabel(s){return{NOT_STARTED:'Not Started',IN_PROGRESS:'In Progress',COMPLETED:'Completed',BLOCKED:'Blocked'}[s]||s},
+
+  // Identity
+  selectIdentity(id){this.currentUserId=id;this.dashCycleId=this.activeCycle()?.id||null;this.view='hub'},
+
+  // Setup
+  addSetupMember(){
+    this.setupError='';
+    const n=this.setupName.trim();
+    if(!n){this.setupError='Please type a name.';return}
+    if(this.setupMembers.some(m=>m.name.toLowerCase()===n.toLowerCase())){this.setupError='This name is already used.';return}
+    this.setupMembers.push({id:uid(),name:n,isLead:this.setupMembers.length===0,isActive:true,createdAt:new Date().toISOString()});
+    this.setupName='';
+  },
+  finishSetup(){
+    if(this.setupMembers.length===0){this.setupError='Please add at least one team member.';return}
+    if(!this.setupMembers.some(m=>m.isLead)){this.setupError='Please pick one person as the Team Lead.';return}
+    this.teamMembers=this.setupMembers;this.appSettings.setupComplete=true;this.save();
+    if(this.teamMembers.length===1){this.currentUserId=this.teamMembers[0].id;this.view='hub'}
+    else{this.view='identity'}
+  },
+
+  // Team Management
+  addTeamMember(){
+    this.teamError='';const n=this.newMemberName.trim();
+    if(!n){this.teamError='Please type a name.';return}
+    if(n.length>100){this.teamError='Name is too long. Please use 100 letters or fewer.';return}
+    if(this.teamMembers.some(m=>m.name.toLowerCase()===n.toLowerCase())){this.teamError='This name is already used.';return}
+    this.teamMembers.push({id:uid(),name:n,isLead:false,isActive:true,createdAt:new Date().toISOString()});
+    this.newMemberName='';this.save();this.showToast('Team member added!');
+  },
+  saveEditMember(id){
+    const n=this.editingMemberVal.trim();
+    if(!n){this.teamError='Please type a name.';return}
+    if(this.teamMembers.some(m=>m.id!==id&&m.name.toLowerCase()===n.toLowerCase())){this.showError('This name is already used.');return}
+    this.getMember(id).name=n;this.editingMemberId=null;this.save();this.showToast('Name updated!');
+  },
+  makeLead(id){
+    this.teamMembers.forEach(m=>m.isLead=m.id===id);this.save();this.showToast('Team Lead changed!');
+  },
+  deactivateMember(id){
+    const ac=this.activeCycle();
+    if(ac&&ac.participatingMemberIds.includes(id)){this.showError('This person is part of an active plan right now.');return}
+    this.showConfirm('Remove '+this.getMember(id)?.name+'?','They won\'t be available for future plans. Their past work will still be saved.',()=>{this.getMember(id).isActive=false;this.save();this.showToast('Member deactivated.')},'Yes, Remove Them',true);
+  },
+  reactivateMember(id){this.getMember(id).isActive=true;this.save();this.showToast('Member reactivated!')},
+
+  // Backlog
+  filteredBacklog(){
+    let entries=this.backlogEntries;
+    const cats=[];
+    if(this.blFilter.client)cats.push('CLIENT_FOCUSED');
+    if(this.blFilter.tech)cats.push('TECH_DEBT');
+    if(this.blFilter.rd)cats.push('R_AND_D');
+    entries=entries.filter(e=>cats.includes(e.category));
+    if(!this.blFilter.status)entries=entries.filter(e=>e.status==='AVAILABLE'||e.status==='IN_PLAN');
+    else if(this.blFilter.status!=='ALL')entries=entries.filter(e=>e.status===this.blFilter.status);
+    if(this.blFilter.search){const s=this.blFilter.search.toLowerCase();entries=entries.filter(e=>e.title.toLowerCase().includes(s))}
+    return entries.sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+  },
+  startEditEntry(e){
+    this.editEntry=e;this.backlogForm={title:e.title,description:e.description,category:e.category,estimatedEffort:e.estimatedEffort||''};this.backlogError='';this.view='backlogEdit';
+  },
+  saveBacklogEntry(){
+    this.backlogError='';const f=this.backlogForm;
+    if(!f.title.trim()){this.backlogError='Please give this item a title.';return}
+    if(f.title.length>200){this.backlogError='Title is too long.';return}
+    if(!this.editEntry&&!f.category){this.backlogError='Please pick a category.';return}
+    const eff=f.estimatedEffort===''||f.estimatedEffort===null?null:parseFloat(f.estimatedEffort);
+    if(eff!==null&&(eff<0||isNaN(eff))){this.backlogError='Hours can\'t be less than zero.';return}
+    if(eff!==null&&eff%0.5!==0){this.backlogError='Please enter hours in half-hour steps.';return}
+    if(this.editEntry){
+      const e=this.backlogEntries.find(x=>x.id===this.editEntry.id);
+      e.title=f.title.trim();e.description=f.description;e.estimatedEffort=eff;
+    } else {
+      this.backlogEntries.push({id:uid(),title:f.title.trim(),description:f.description,category:f.category,status:'AVAILABLE',estimatedEffort:eff,createdBy:this.currentUserId,createdAt:new Date().toISOString()});
+    }
+    this.save();this.showToast(this.editEntry?'Changes saved!':'Backlog item saved!');this.view='backlog';
+  },
+  archiveEntry(id){
+    const e=this.backlogEntries.find(x=>x.id===id);
+    if(e.status==='IN_PLAN'){this.showError('This item is part of an active plan.');return}
+    this.showConfirm('Archive "'+e.title+'"?','It will be moved to the archived list.',()=>{e.status='ARCHIVED';this.save();this.showToast('Archived!')},'Yes, Archive It',true);
+  },
+
+  // Cycle Setup
+  isTuesday(d){if(!d)return false;const dt=new Date(d+'T12:00:00');return dt.getDay()===2},
+  addDays(d,n){const dt=new Date(d+'T12:00:00');dt.setDate(dt.getDate()+n);return dt.toISOString().slice(0,10)},
+  getNextTuesday(){const d=new Date();while(d.getDay()!==2)d.setDate(d.getDate()+1);return d.toISOString().slice(0,10)},
+  pctSum(){return(parseInt(this.cycleForm.pctClient)||0)+(parseInt(this.cycleForm.pctTech)||0)+(parseInt(this.cycleForm.pctRD)||0)},
+  calcBudget(cat){
+    const cap=this.cycleForm.memberIds.length*30;
+    const pcts={CLIENT_FOCUSED:parseInt(this.cycleForm.pctClient)||0,TECH_DEBT:parseInt(this.cycleForm.pctTech)||0,R_AND_D:parseInt(this.cycleForm.pctRD)||0};
+    const raw={};let sum=0;
+    for(const c of ['CLIENT_FOCUSED','TECH_DEBT','R_AND_D']){raw[c]=Math.round(cap*pcts[c]/100*2)/2;sum+=raw[c]}
+    if(sum!==cap){const sorted=['CLIENT_FOCUSED','TECH_DEBT','R_AND_D'].sort((a,b)=>pcts[b]-pcts[a]);raw[sorted[0]]+=(cap-sum)}
+    return raw[cat];
+  },
+  startNewWeek(){
+    if(this.activeCycle()){this.showError('There is already a week being planned.');return}
+    const d=this.getNextTuesday();
+    this.planningCycles.push({id:uid(),planningDate:d,executionStartDate:this.addDays(d,1),executionEndDate:this.addDays(d,6),state:'SETUP',participatingMemberIds:[],teamCapacity:0,createdAt:new Date().toISOString()});
+    this.cycleForm={planningDate:d,memberIds:this.activeMembers().map(m=>m.id),pctClient:0,pctTech:0,pctRD:0};
+    this.save();this.view='cycleSetup';
+  },
+  openPlanning(){
+    this.cycleError='';const f=this.cycleForm;
+    if(f.memberIds.length===0){this.cycleError='Please pick at least one team member.';return}
+    if(this.pctSum()!==100){this.cycleError='Percentages must add up to 100.';return}
+    if(!this.isTuesday(f.planningDate)){this.cycleError='Please pick a Tuesday.';return}
+    const c=this.activeCycle();
+    c.planningDate=f.planningDate;c.executionStartDate=this.addDays(f.planningDate,1);c.executionEndDate=this.addDays(f.planningDate,6);
+    c.participatingMemberIds=f.memberIds;c.teamCapacity=f.memberIds.length*30;c.state='PLANNING';
+    // Create allocations
+    this.categoryAllocations=this.categoryAllocations.filter(a=>a.cycleId!==c.id);
+    for(const cat of ['CLIENT_FOCUSED','TECH_DEBT','R_AND_D']){
+      this.categoryAllocations.push({id:uid(),cycleId:c.id,category:cat,percentage:cat==='CLIENT_FOCUSED'?parseInt(f.pctClient):cat==='TECH_DEBT'?parseInt(f.pctTech):parseInt(f.pctRD),budgetHours:this.calcBudget(cat)});
+    }
+    // Create member plans
+    this.memberPlans=this.memberPlans.filter(p=>p.cycleId!==c.id);
+    for(const mid of f.memberIds){
+      this.memberPlans.push({id:uid(),cycleId:c.id,memberId:mid,isReady:false,totalPlannedHours:0});
+    }
+    this.save();this.showToast('Planning is open! Team members can now plan their work.');this.goHome();
+  },
+
+  // Planning helpers
+  myPlan(){const c=this.activeCycle();return c?this.memberPlans.find(p=>p.cycleId===c.id&&p.memberId===this.currentUserId):null},
+  myAssignments(){const p=this.myPlan();return p?this.taskAssignments.filter(t=>t.memberPlanId===p.id):[]},
+  myPlannedHours(){return this.myAssignments().reduce((s,t)=>s+t.committedHours,0)},
+  getCatBudget(cat){const c=this.activeCycle();if(!c)return 0;const a=this.categoryAllocations.find(x=>x.cycleId===c.id&&x.category===cat);return a?a.budgetHours:0},
+  getCatClaimed(cat){
+    const c=this.activeCycle();if(!c)return 0;
+    const planIds=this.memberPlans.filter(p=>p.cycleId===c.id).map(p=>p.id);
+    return this.taskAssignments.filter(t=>planIds.includes(t.memberPlanId)&&this.getEntry(t.backlogEntryId)?.category===cat).reduce((s,t)=>s+t.committedHours,0);
+  },
+  getEntry(id){return this.backlogEntries.find(e=>e.id===id)},
+  toggleReady(){const p=this.myPlan();if(p){p.isReady=!p.isReady;this.save()}},
+
+  // Claim
+  claimableEntries(){
+    const c=this.activeCycle();if(!c)return[];
+    return this.backlogEntries.filter(e=>{
+      if(e.status!=='AVAILABLE'&&e.status!=='IN_PLAN')return false;
+      if(!this.claimCatFilter[e.category])return false;
+      // Check cross-cycle BR-17
+      if(e.status==='IN_PLAN'){
+        const otherCycles=this.planningCycles.filter(cy=>cy.id!==c.id&&['PLANNING','FROZEN'].includes(cy.state));
+        for(const oc of otherCycles){
+          const pids=this.memberPlans.filter(p=>p.cycleId===oc.id).map(p=>p.id);
+          if(this.taskAssignments.some(t=>pids.includes(t.memberPlanId)&&t.backlogEntryId===e.id))return false;
+        }
+      }
+      return true;
+    });
+  },
+  startClaim(e){this.claimEntry=e;this.claimHours=0;this.claimError='';this.claimModal=true},
+  submitClaim(){
+    this.claimError='';const h=this.claimHours;
+    if(!h||h<=0){this.claimError='Please enter more than 0 hours.';return}
+    if(h%0.5!==0){this.claimError='Please enter hours in half-hour steps.';return}
+    const rem=30-this.myPlannedHours();
+    if(h>rem){this.claimError='You only have '+rem+' hours left.';return}
+    const catRem=this.getCatBudget(this.claimEntry.category)-this.getCatClaimed(this.claimEntry.category);
+    if(h>catRem){this.claimError='The '+this.catLabel(this.claimEntry.category)+' budget only has '+catRem+' hours left.';return}
+    const p=this.myPlan();
+    this.taskAssignments.push({id:uid(),memberPlanId:p.id,backlogEntryId:this.claimEntry.id,committedHours:h,progressStatus:'NOT_STARTED',hoursCompleted:0,createdAt:new Date().toISOString()});
+    if(this.claimEntry.status==='AVAILABLE')this.claimEntry.status='IN_PLAN';
+    p.totalPlannedHours=this.myPlannedHours()+h;p.isReady=false;
+    this.save();this.claimModal=false;this.showToast('Added! '+this.claimEntry.title+' — '+h+'h');this.view='planning';
+  },
+  saveAssignHours(taId){
+    this.assignError='';const ta=this.taskAssignments.find(t=>t.id===taId);
+    const newH=this.editingAssignHrs;const oldH=ta.committedHours;const delta=newH-oldH;
+    if(newH<=0){this.assignError='Hours must be more than 0.';return}
+    if(newH%0.5!==0){this.assignError='Please enter hours in half-hour steps.';return}
+    if(delta>0){
+      const rem=30-this.myPlannedHours();
+      if(delta>rem){this.assignError='You only have '+(rem+oldH)+' hours you can set here.';return}
+      const e=this.getEntry(ta.backlogEntryId);
+      const catRem=this.getCatBudget(e.category)-this.getCatClaimed(e.category);
+      if(delta>catRem){this.assignError='The '+this.catLabel(e.category)+' budget only has '+(catRem+oldH)+' hours left.';return}
+    }
+    ta.committedHours=newH;this.myPlan().totalPlannedHours=this.myPlannedHours();this.myPlan().isReady=false;
+    this.editingAssignId=null;this.save();this.showToast('Hours updated!');
+  },
+  removeAssignment(taId){
+    const ta=this.taskAssignments.find(t=>t.id===taId);const e=this.getEntry(ta.backlogEntryId);
+    this.showConfirm('Remove "'+e?.title+'"?','The '+ta.committedHours+' hours will be freed up.',()=>{
+      this.taskAssignments=this.taskAssignments.filter(t=>t.id!==taId);
+      // Check if no other assignment references this entry in this cycle
+      const c=this.activeCycle();const pids=this.memberPlans.filter(p=>p.cycleId===c.id).map(p=>p.id);
+      const still=this.taskAssignments.some(t=>pids.includes(t.memberPlanId)&&t.backlogEntryId===e.id);
+      if(!still&&e.status==='IN_PLAN')e.status='AVAILABLE';
+      const p=this.myPlan();p.totalPlannedHours=this.myPlannedHours();p.isReady=false;
+      this.save();this.showToast('Removed!');
+    },'Yes, Remove It',true);
+  },
+
+  // Freeze
+  getMemberPlan(mid){const c=this.activeCycle();return c?this.memberPlans.find(p=>p.cycleId===c.id&&p.memberId===mid):null},
+  getMemberAssignments(mid){const p=this.getMemberPlan(mid);return p?this.taskAssignments.filter(t=>t.memberPlanId===p.id):[]},
+  getMemberPlanned(mid){return this.getMemberAssignments(mid).reduce((s,t)=>s+t.committedHours,0)},
+  freezeErrors(){
+    const c=this.activeCycle();if(!c)return[];const errs=[];
+    for(const mid of c.participatingMemberIds){
+      const h=this.getMemberPlanned(mid);const n=this.getMember(mid)?.name;
+      if(h!==30)errs.push(n+' has '+h+' hours (needs '+(h<30?(30-h)+' more':(h-30)+' fewer')+').');
+    }
+    for(const cat of ['CLIENT_FOCUSED','TECH_DEBT','R_AND_D']){
+      const budget=this.getCatBudget(cat);const claimed=this.getCatClaimed(cat);
+      if(claimed!==budget)errs.push(this.catLabel(cat)+' has '+claimed+'h planned but budget is '+budget+'h.');
+    }
+    return errs;
+  },
+  confirmFreeze(){
+    this.showConfirm('Freeze the Plan?','After this, nobody can change their hours. Team members will only report progress.',()=>{
+      if(this.freezeErrors().length>0){this.showError('Validation failed.');return}
+      this.activeCycle().state='FROZEN';this.save();this.showToast('The plan is frozen! Team members can now report progress.');this.goHome();
+    },'Yes, Freeze It');
+  },
+  confirmCancelPlanning(){
+    this.showConfirm('Cancel Planning?','This will erase everyone\'s plans. This cannot be undone.',()=>{
+      const c=this.activeCycle();
+      const pids=this.memberPlans.filter(p=>p.cycleId===c.id).map(p=>p.id);
+      const affectedEntryIds=[...new Set(this.taskAssignments.filter(t=>pids.includes(t.memberPlanId)).map(t=>t.backlogEntryId))];
+      this.taskAssignments=this.taskAssignments.filter(t=>!pids.includes(t.memberPlanId));
+      this.memberPlans=this.memberPlans.filter(p=>p.cycleId!==c.id);
+      this.categoryAllocations=this.categoryAllocations.filter(a=>a.cycleId!==c.id);
+      for(const eid of affectedEntryIds){
+        const e=this.getEntry(eid);
+        if(e&&e.status==='IN_PLAN'){
+          const anyRef=this.taskAssignments.some(t=>t.backlogEntryId===eid);
+          if(!anyRef)e.status='AVAILABLE';
+        }
+      }
+      this.planningCycles=this.planningCycles.filter(x=>x.id!==c.id);
+      this.save();this.showToast('Planning has been canceled.');this.goHome();
+    },'Yes, Cancel Planning',true);
+  },
+
+  // Progress
+  myFrozenAssignments(){
+    const c=this.frozenCycle();if(!c)return[];
+    const p=this.memberPlans.find(pp=>pp.cycleId===c.id&&pp.memberId===this.currentUserId);
+    if(!p)return[];
+    const a=this.taskAssignments.filter(t=>t.memberPlanId===p.id);
+    const order={BLOCKED:0,IN_PROGRESS:1,NOT_STARTED:2,COMPLETED:3};
+    return a.sort((x,y)=>(order[x.progressStatus]||9)-(order[y.progressStatus]||9));
+  },
+  myCompletedHours(){return this.myFrozenAssignments().reduce((s,t)=>s+t.hoursCompleted,0)},
+  startProgressUpdate(ta){
+    this.progressTA=ta;this.progForm={hours:ta.hoursCompleted,status:ta.progressStatus,note:''};this.progError='';this.progressModal=true;
+  },
+  allowedStatuses(){
+    if(!this.progressTA)return[];
+    const s=this.progressTA.progressStatus;
+    const map={NOT_STARTED:['NOT_STARTED','IN_PROGRESS','BLOCKED'],IN_PROGRESS:['IN_PROGRESS','COMPLETED','BLOCKED'],BLOCKED:['BLOCKED','IN_PROGRESS'],COMPLETED:['COMPLETED','IN_PROGRESS']};
+    return map[s]||[];
+  },
+  submitProgress(){
+    this.progError='';const f=this.progForm;const ta=this.progressTA;
+    if(f.hours<0){this.progError='Hours can\'t be less than zero.';return}
+    if(f.hours%0.5!==0){this.progError='Please enter hours in half-hour steps.';return}
+    if(f.note&&f.note.length>1000){this.progError='Notes can be up to 1000 letters.';return}
+    // Auto-status
+    if(f.hours>0&&ta.progressStatus==='NOT_STARTED'&&f.status==='NOT_STARTED')f.status='IN_PROGRESS';
+    // Validate transition
+    const invalid=(ta.progressStatus==='NOT_STARTED'&&f.status==='COMPLETED')||(ta.progressStatus==='BLOCKED'&&f.status==='COMPLETED');
+    if(invalid){this.progError='Please set this to "In Progress" first, then mark it as "Completed" after.';return}
+    this.progressUpdates.push({id:uid(),taskAssignmentId:ta.id,timestamp:new Date().toISOString(),previousHoursCompleted:ta.hoursCompleted,newHoursCompleted:f.hours,previousStatus:ta.progressStatus,newStatus:f.status,note:f.note||'',updatedBy:this.currentUserId});
+    const real=this.taskAssignments.find(t=>t.id===ta.id);
+    real.hoursCompleted=f.hours;real.progressStatus=f.status;
+    this.save();this.progressModal=false;this.showToast('Progress saved!');
+  },
+
+  // Dashboard
+  viewDashboard(){this.dashCycleId=this.activeCycle()?.id||null;this.view='dashboard'},
+  dashCycle(){return this.planningCycles.find(c=>c.id===this.dashCycleId)},
+  dashAllAssignments(){
+    const c=this.dashCycle();if(!c)return[];
+    const pids=this.memberPlans.filter(p=>p.cycleId===c.id).map(p=>p.id);
+    return this.taskAssignments.filter(t=>pids.includes(t.memberPlanId));
+  },
+  dashCapacity(){return this.dashCycle()?.teamCapacity||0},
+  dashTotalCompleted(){return this.dashAllAssignments().reduce((s,t)=>s+t.hoursCompleted,0)},
+  dashCompletedTasks(){return this.dashAllAssignments().filter(t=>t.progressStatus==='COMPLETED').length},
+  dashBlockedTasks(){return this.dashAllAssignments().filter(t=>t.progressStatus==='BLOCKED').length},
+  getDashCatBudget(cat){const c=this.dashCycle();if(!c)return 0;const a=this.categoryAllocations.find(x=>x.cycleId===c.id&&x.category===cat);return a?a.budgetHours:0},
+  dashCatCompleted(cat){return this.dashAllAssignments().filter(t=>this.getEntry(t.backlogEntryId)?.category===cat).reduce((s,t)=>s+t.hoursCompleted,0)},
+  dashCatAssignments(cat){return this.dashAllAssignments().filter(t=>this.getEntry(t.backlogEntryId)?.category===cat)},
+  getAssignMember(ta){if(!ta)return null;const p=this.memberPlans.find(pp=>pp.id===ta.memberPlanId);return p?.memberId},
+  dashMemberCompleted(mid){const c=this.dashCycle();const p=this.memberPlans.find(pp=>pp.cycleId===c?.id&&pp.memberId===mid);return p?this.taskAssignments.filter(t=>t.memberPlanId===p.id).reduce((s,t)=>s+t.hoursCompleted,0):0},
+  dashMemberAssignments(mid){const c=this.dashCycle();const p=this.memberPlans.find(pp=>pp.cycleId===c?.id&&pp.memberId===mid);return p?this.taskAssignments.filter(t=>t.memberPlanId===p.id):[]},
+  dashMemberBlocked(mid){return this.dashMemberAssignments(mid).some(t=>t.progressStatus==='BLOCKED')},
+  dashMemberAllDone(mid){const a=this.dashMemberAssignments(mid);return a.length>0&&a.every(t=>t.progressStatus==='COMPLETED')},
+  allEntryAssignments(eid){return this.dashAllAssignments().filter(t=>t.backlogEntryId===eid)},
+  taskProgressHistory(taId){return this.progressUpdates.filter(p=>p.taskAssignmentId===taId).sort((a,b)=>b.timestamp.localeCompare(a.timestamp))},
+
+  // Finish week
+  confirmFinishWeek(){
+    const c=this.activeCycle();if(!c||c.state!=='FROZEN')return;
+    const pids=this.memberPlans.filter(p=>p.cycleId===c.id).map(p=>p.id);
+    const allDone=this.taskAssignments.filter(t=>pids.includes(t.memberPlanId)).every(t=>t.progressStatus==='COMPLETED');
+    const msg=allDone?'All tasks are completed! Close out this week?':'Some tasks are not finished yet. Those backlog items will go back to the backlog. Are you sure?';
+    this.showConfirm('Finish This Week?',msg,()=>{
+      c.state='COMPLETED';
+      const entryIds=[...new Set(this.taskAssignments.filter(t=>pids.includes(t.memberPlanId)).map(t=>t.backlogEntryId))];
+      for(const eid of entryIds){
+        const tas=this.taskAssignments.filter(t=>pids.includes(t.memberPlanId)&&t.backlogEntryId===eid);
+        const e=this.getEntry(eid);if(!e)continue;
+        if(tas.every(t=>t.progressStatus==='COMPLETED'))e.status='COMPLETED';
+        else e.status='AVAILABLE';
+      }
+      this.save();this.showToast('This week is done! You can start planning a new week.');this.goHome();
+    },'Yes, Finish This Week');
+  },
+
+  // Past cycles
+  pastCycles(){return this.planningCycles.filter(c=>c.state==='COMPLETED'||c.state==='FROZEN').sort((a,b)=>b.planningDate.localeCompare(a.planningDate))},
+
+  // Export
+  exportData(){
+    const data={appName:'WeeklyPlanTracker',dataVersion:1,exportedAt:new Date().toISOString(),data:{appSettings:this.appSettings,teamMembers:this.teamMembers,backlogEntries:this.backlogEntries,planningCycles:this.planningCycles,categoryAllocations:this.categoryAllocations,memberPlans:this.memberPlans,taskAssignments:this.taskAssignments,progressUpdates:this.progressUpdates}};
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    const d=new Date();a.download='weeklyplantracker-backup-'+d.toISOString().slice(0,10)+'-'+d.toTimeString().slice(0,8).replace(/:/g,'')+'.json';
+    a.click();URL.revokeObjectURL(a.href);this.showToast('Your data was saved to a file.');
+  },
+  handleImportFile(ev){
+    this.importError='';this.importData=null;
+    const f=ev.target.files[0];if(!f)return;this.importFileName=f.name;
+    const reader=new FileReader();
+    reader.onload=(e)=>{
+      try{
+        const d=JSON.parse(e.target.result);
+        if(d.appName!=='WeeklyPlanTracker'){this.importError='This file doesn\'t look like a backup from this app.';return}
+        if(!d.dataVersion||d.dataVersion>1){this.importError='This backup file is from a newer version.';return}
+        if(!d.data||!d.data.teamMembers||!d.data.backlogEntries){this.importError='This backup file is missing some data.';return}
+        this.importData=d;
+      }catch{this.importError='This file can\'t be read.'}
+    };reader.readAsText(f);
+  },
+  executeImport(){
+    if(!this.importData)return;
+    const d=this.importData.data;
+    this.appSettings=d.appSettings||{setupComplete:true,dataVersion:1};
+    this.teamMembers=d.teamMembers||[];this.backlogEntries=d.backlogEntries||[];
+    this.planningCycles=d.planningCycles||[];this.categoryAllocations=d.categoryAllocations||[];
+    this.memberPlans=d.memberPlans||[];this.taskAssignments=d.taskAssignments||[];
+    this.progressUpdates=d.progressUpdates||[];
+    this.save();this.importModal=false;this.importData=null;
+    this.currentUserId=null;this.view='identity';this.showToast('Your data was loaded!');
+  },
+
+  // Seed
+  seedData(){
+    this.showConfirm('Seed Sample Data?','This will add sample team members, backlog items, and a planning cycle. Existing data will not be erased.',()=>{
+      const m1={id:uid(),name:'Alice Chen',isLead:true,isActive:true,createdAt:new Date().toISOString()};
+      const m2={id:uid(),name:'Bob Martinez',isLead:false,isActive:true,createdAt:new Date().toISOString()};
+      const m3={id:uid(),name:'Carol Singh',isLead:false,isActive:true,createdAt:new Date().toISOString()};
+      const m4={id:uid(),name:'Dave Kim',isLead:false,isActive:true,createdAt:new Date().toISOString()};
+      this.teamMembers=[m1,m2,m3,m4];
+      const entries=[
+        {id:uid(),title:'Customer onboarding redesign',description:'Revamp the onboarding flow for new customers.',category:'CLIENT_FOCUSED',status:'AVAILABLE',estimatedEffort:12,createdBy:m1.id,createdAt:new Date().toISOString()},
+        {id:uid(),title:'Fix billing invoice formatting',description:'Some invoices show wrong currency format.',category:'CLIENT_FOCUSED',status:'AVAILABLE',estimatedEffort:4,createdBy:m1.id,createdAt:new Date().toISOString()},
+        {id:uid(),title:'Customer feedback dashboard',description:'Build a dashboard showing NPS scores.',category:'CLIENT_FOCUSED',status:'AVAILABLE',estimatedEffort:16,createdBy:m2.id,createdAt:new Date().toISOString()},
+        {id:uid(),title:'Migrate database to PostgreSQL 16',description:'Upgrade from PG 14 to PG 16.',category:'TECH_DEBT',status:'AVAILABLE',estimatedEffort:20,createdBy:m1.id,createdAt:new Date().toISOString()},
+        {id:uid(),title:'Remove deprecated API endpoints',description:'Clean up v1 API routes.',category:'TECH_DEBT',status:'AVAILABLE',estimatedEffort:8,createdBy:m3.id,createdAt:new Date().toISOString()},
+        {id:uid(),title:'Add unit tests for payment module',description:'Coverage is below 50%.',category:'TECH_DEBT',status:'AVAILABLE',estimatedEffort:10,createdBy:m2.id,createdAt:new Date().toISOString()},
+        {id:uid(),title:'Experiment with LLM-based search',description:'Prototype semantic search using embeddings.',category:'R_AND_D',status:'AVAILABLE',estimatedEffort:15,createdBy:m1.id,createdAt:new Date().toISOString()},
+        {id:uid(),title:'Evaluate new caching strategy',description:'Compare Redis Cluster vs Memcached.',category:'R_AND_D',status:'AVAILABLE',estimatedEffort:6,createdBy:m4.id,createdAt:new Date().toISOString()},
+        {id:uid(),title:'Build internal CLI tool',description:'A command-line tool for common dev tasks.',category:'R_AND_D',status:'AVAILABLE',estimatedEffort:8,createdBy:m3.id,createdAt:new Date().toISOString()},
+        {id:uid(),title:'Client SSO integration',description:'Support SAML-based single sign-on for enterprise clients.',category:'CLIENT_FOCUSED',status:'AVAILABLE',estimatedEffort:18,createdBy:m1.id,createdAt:new Date().toISOString()},
+      ];
+      this.backlogEntries=entries;this.planningCycles=[];this.categoryAllocations=[];
+      this.memberPlans=[];this.taskAssignments=[];this.progressUpdates=[];
+      this.appSettings={setupComplete:true,dataVersion:1};
+      this.save();this.currentUserId=null;this.view='identity';
+      this.showToast('Sample data loaded! Pick a person to get started.');
+    },'Yes, Load Sample Data');
+  },
+}}
+</script>
+</body>
+</html>

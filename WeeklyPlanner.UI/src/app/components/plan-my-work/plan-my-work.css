@@ -1,9 +1,17 @@
 :host {
     display: block;
-    padding: 40px 20px 120px;
-    max-width: 900px;
+    padding: 20px 16px 120px;
+    max-width: 1000px;
     margin: 0 auto;
     font-family: Inter, sans-serif;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (min-width: 769px) {
+    :host {
+        padding: 40px 24px 120px;
+    }
 }
 
 .btn-back {
@@ -122,12 +130,121 @@
     margin: 0;
 }
 
-/* Category cards */
+/* Category cards grid */
 .cat-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
 }
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    .cat-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .cat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .action-btns {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .btn-add,
+    .btn-done,
+    .btn-undo {
+        width: 100%;
+        padding: 12px;
+    }
+
+    .work-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 16px;
+    }
+
+    .work-info {
+        width: 100%;
+    }
+
+    .work-hours {
+        align-self: flex-end;
+        font-size: 16px;
+    }
+
+    .top-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .btn-back-top {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* Modal / Picker Responsiveness */
+.modal-content {
+    width: 90%;
+    max-width: 500px;
+    margin: 20px;
+}
+
+@media (max-width: 768px) {
+    .pick-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        padding: 20px;
+    }
+
+    .btn-pick {
+        width: 100%;
+        padding: 12px;
+    }
+
+    .pick-item-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+}
+
+/* Premium Button Look */
+.btn-add {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.btn-done {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Light mode refinement */
+:host-context(body.light-mode) .pick-item {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+:host-context(body.light-mode) .pick-item:hover {
+    background: #f9fafb;
+    border-color: #3b82f6;
+}
+
 
 .cat-card {
     background: #1f2937;
@@ -248,6 +365,12 @@
     align-items: center;
     gap: 12px;
     border: 1px solid #374151;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.work-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .work-info {
@@ -476,6 +599,152 @@
 
 .btn-confirm-add:not(:disabled):hover {
     background: #047857;
+}
+
+/* Modal Commitment styles */
+.commitment-modal {
+    max-width: 500px;
+}
+
+.selected-item-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.modal-item-title {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.commitment-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.c-stat {
+    background: #1f2937;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #374151;
+}
+
+.c-label {
+    display: block;
+    font-size: 12px;
+    color: #9ca3af;
+    margin-bottom: 4px;
+}
+
+.c-val {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.c-val.error {
+    color: #ef4444;
+}
+
+.commitment-hint {
+    font-size: 14px;
+    color: #9ca3af;
+    margin-bottom: 20px;
+}
+
+.commitment-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.commitment-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #4b5563;
+    background: #111827;
+    color: #f3f4f6;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.budget-error-msg {
+    color: #f87171;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* Pick Item refinements */
+.pick-item {
+    transition: all 0.2s;
+}
+
+.pick-item.picked {
+    opacity: 0.5;
+    cursor: default;
+    background: #111827;
+}
+
+.pick-item.picked:hover {
+    border-color: #374151;
+}
+
+.pick-status {
+    font-size: 12px;
+    color: #f59e0b;
+    font-weight: 700;
+    margin-left: 8px;
+}
+
+.pick-item-desc {
+    margin: 8px 0 0;
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: 1px solid #374151;
+    color: #9ca3af;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-cancel:hover {
+    background: #374151;
+    color: #f3f4f6;
 }
 
 /* Light mode */
@@ -901,6 +1170,24 @@
     border-color: #e5e7eb;
 }
 
+:host-context(body.light-mode) .modal-item-title,
+:host-context(body.light-mode) .c-val,
+:host-context(body.light-mode) .commitment-input,
+:host-context(body.light-mode) .modal-header h3 {
+    color: #111827;
+}
+
+:host-context(body.light-mode) .c-stat,
+:host-context(body.light-mode) .selected-item-display {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+}
+
+:host-context(body.light-mode) .commitment-input {
+    background: #ffffff;
+    border-color: #d1d5db;
+}
+
 :host-context(body.light-mode) .btn-cancel {
     border-color: #d1d5db;
     color: #374151;
@@ -908,4 +1195,8 @@
 
 :host-context(body.light-mode) .btn-cancel:hover {
     background: #f3f4f6;
+}
+
+:host-context(body.light-mode) .pick-status {
+    color: #d97706;
 }

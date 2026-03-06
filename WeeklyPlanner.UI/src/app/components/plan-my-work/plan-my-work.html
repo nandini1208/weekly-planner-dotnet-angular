@@ -2,20 +2,23 @@
 
     <!-- ========================= PICK A BACKLOG ITEM VIEW ========================= -->
     <ng-container *ngIf="showBacklogPicker">
-        <button class="btn-back-top" (click)="showBacklogPicker = false">← Go Back</button>
-        <h1 class="title">Pick a Backlog Item</h1>
+        <div class="top-row">
+            <h1 class="title">Pick a Backlog Item</h1>
+            <button class="btn-back-top" (click)="showBacklogPicker = false">← Go Back</button>
+        </div>
         <p class="picker-subtitle">You have <strong>{{ hoursLeft }}</strong> hours left to plan.</p>
 
         <!-- Category pills with remaining hours -->
         <div class="cat-pills-row">
             <span *ngFor="let cat of categories" class="cat-pill-tag" [ngClass]="categoryClass(cat.name)">
-                {{ cat.name }} ({{ cat.budget - cat.claimed }}h left)
+                {{ cat.name }} ({{ getCategoryBudgetLeft(cat.name) }}h left)
             </span>
         </div>
 
         <!-- Backlog items list -->
         <div class="pick-list">
-            <div class="pick-item" *ngFor="let item of filteredBacklog">
+            <div class="pick-item" *ngFor="let item of filteredBacklog" [class.picked]="isItemPicked(item.id)"
+                (click)="!isItemPicked(item.id) && pickItem(item)">
                 <div class="pick-item-info">
                     <div class="pick-item-header">
                         <span class="pick-item-title">{{ item.title }}</span>
@@ -23,9 +26,11 @@
                             {{ categoryLabel(item.category) }}
                         </span>
                         <span class="pick-est">{{ item.estimatedHours || 0 }}h est.</span>
+                        <span class="pick-status" *ngIf="isItemPicked(item.id)">(Someone picked this)</span>
                     </div>
+                    <p class="pick-item-desc" *ngIf="item?.description">{{ item?.description }}</p>
                 </div>
-                <button class="btn-pick" (click)="pickItem(item)">Pick This Item</button>
+                <button class="btn-pick" *ngIf="!isItemPicked(item.id)">Pick This Item</button>
             </div>
 
             <div *ngIf="filteredBacklog.length === 0" class="empty-state">
@@ -36,42 +41,56 @@
 
     <!-- ========================= HOURS COMMIT MODAL ========================= -->
     <div class="modal-overlay" *ngIf="showHoursModal">
-        <div class="modal-content">
+        <div class="modal-content commitment-modal">
             <div class="modal-header">
                 <h3>How many hours will you work on this?</h3>
                 <button class="close-btn" (click)="showHoursModal = false">×</button>
             </div>
             <div class="modal-body">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
-                    <strong>{{ selectedItem?.title }}</strong>
+                <div class="selected-item-display">
+                    <span class="modal-item-title">{{ selectedItem?.title }}</span>
                     <span class="pick-cat-pill" *ngIf="selectedItem"
                         [ngClass]="categoryClass(categoryLabel(selectedItem.category))">
                         {{ categoryLabel(selectedItem.category) }}
                     </span>
                 </div>
-                <p style="margin: 8px 0;">Your hours left: <strong>{{ hoursLeft }}</strong></p>
-                <p style="margin: 8px 0;">{{ selectedItem ? categoryLabel(selectedItem.category) : '' }} budget left:
-                    <strong>{{ selectedCategoryBudgetLeft }}h</strong>
-                </p>
-                <p style="margin: 8px 0; opacity: 0.7; font-size: 14px;">Estimate for this item: {{
-                    selectedItem?.estimatedHours || 0 }}h. You can enter any amount.</p>
-                <div style="margin-top: 20px;">
-                    <label><strong>Hours to commit</strong></label>
-                    <div style="margin-top: 8px;">
-                        <input type="number" [(ngModel)]="selectedHours" min="0" [max]="hoursLeft"
-                            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #4b5563; background: var(--color-surface, #1f2937); color: var(--color-text, #f3f4f6); font-size: 16px;">
+
+                <div class="commitment-stats">
+                    <div class="c-stat">
+                        <span class="c-label">Your hours left:</span>
+                        <span class="c-val">{{ hoursLeft }}h</span>
+                    </div>
+                    <div class="c-stat">
+                        <span class="c-label">{{ selectedItem ? categoryLabel(selectedItem.category) : '' }} budget
+                            left:</span>
+                        <span class="c-val" [class.error]="selectedCategoryBudgetLeft < 0">{{ selectedCategoryBudgetLeft
+                            }}h</span>
+                    </div>
+                </div>
+
+                <p class="commitment-hint">Estimate for this item: <strong>{{ selectedItem?.estimatedHours || 0
+                        }}h</strong>. You can enter any amount.</p>
+
+                <div class="commitment-input-group">
+                    <label>Hours to commit</label>
+                    <input type="number" [(ngModel)]="selectedHours" min="1" class="commitment-input" autofocus>
+
+                    <div class="budget-error-msg" *ngIf="selectedHours && selectedHours > selectedCategoryBudgetLeft">
+                        ⚠️ The {{ selectedItem ? categoryLabel(selectedItem.category) : '' }} budget only has {{
+                        selectedCategoryBudgetLeft }} hours left.
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-confirm-add" (click)="confirmAdd()"
-                    [disabled]="!selectedHours || selectedHours <= 0 || selectedHours > hoursLeft">
+                    [disabled]="!selectedHours || selectedHours <= 0 || selectedHours > hoursLeft || (selectedHours > selectedCategoryBudgetLeft)">
                     Add to My Plan
                 </button>
-                <button class="btn-cancel" (click)="showHoursModal = false">Cancel</button>
+                <button class="btn-cancel" (click)="showHoursModal = false">No, Go Back</button>
             </div>
         </div>
     </div>
+
 
     <!-- ========================= MY PLAN VIEW ========================= -->
     <ng-container *ngIf="!showBacklogPicker">

@@ -82,10 +82,22 @@ export class ApiService {
      */
     getTeamMembers(): Observable<TeamMember[]> {
         this.http.get<TeamMember[]>(`${this.baseUrl}/Team`).subscribe({
-            next: (members) => this.membersSubject.next(members),
+            next: (members) => {
+                const sorted = this.sortMembers(members);
+                this.membersSubject.next(sorted);
+            },
             error: (err) => console.error('Error fetching members', err)
         });
         return this.members$;
+    }
+
+    private sortMembers(members: TeamMember[]): TeamMember[] {
+        if (!members) return [];
+        return [...members].sort((a, b) => {
+            if (a.isLead && !b.isLead) return -1;
+            if (!a.isLead && b.isLead) return 1;
+            return a.name.localeCompare(b.name);
+        });
     }
 
     /**
@@ -112,9 +124,9 @@ export class ApiService {
 
             this.http.post<TeamMember>(`${this.baseUrl}/Team`, member).subscribe({
                 next: (newMember) => {
-                    // Replace temp ID with real DB ID
+                    // Replace temp ID with real DB ID and sort
                     const updatedMembers = this.membersSubject.value.map(m => m.id === tempId ? newMember : m);
-                    this.membersSubject.next(updatedMembers);
+                    this.membersSubject.next(this.sortMembers(updatedMembers));
                     observer.next(newMember);
                     observer.complete();
                 },
@@ -222,7 +234,8 @@ export class ApiService {
             next: (plans) => {
                 if (plans && plans.length > 0) {
                     const sorted = [...plans].sort((a, b) => b.id - a.id);
-                    this.activePlanSubject.next(sorted[0]);
+                    const active = sorted.find(p => !p.isCompleted);
+                    this.activePlanSubject.next(active || null);
                 } else {
                     this.activePlanSubject.next(null);
                 }
@@ -273,6 +286,10 @@ export class ApiService {
         return this.http.get<any>(`${this.baseUrl}/Plan/${planId}/summary`);
     }
 
+    finishWeek(planId: number): Observable<WeeklyPlan> {
+        return this.http.post<WeeklyPlan>(`${this.baseUrl}/Plan/${planId}/finish`, {});
+    }
+
     // Export / Import
     exportAll(): Observable<any> {
         return this.http.get<any>(`${this.baseUrl}/Export/all`);
@@ -280,5 +297,9 @@ export class ApiService {
 
     importData(payload: any): Observable<any> {
         return this.http.post<any>(`${this.baseUrl}/Export/import`, payload);
+    }
+
+    seedData(): Observable<any> {
+        return this.http.post<any>(`${this.baseUrl}/Seed`, {});
     }
 }

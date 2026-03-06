@@ -122,5 +122,20 @@ namespace WeeklyPlanner.API.Controllers
                 return NotFound(ex.Message);
             }
         }
+
+        // POST: api/Plan/5/finish
+        [HttpPost("{id}/finish")]
+        public async Task<IActionResult> FinishWeek(int id)
+        {
+            try
+            {
+                var plan = await _planService.ClosePlanAsync(id);
+                return Ok(plan);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
     }
 }

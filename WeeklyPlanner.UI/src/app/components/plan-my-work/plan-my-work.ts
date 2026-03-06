@@ -45,6 +45,7 @@ export class PlanMyWorkComponent implements OnInit {
     isDone = false;
     saveError = '';
     showHoursModal = false;
+    allAssignments: TaskAssignment[] = [];
 
     get plannedHours(): number {
         return this.myWork.reduce((s, w) => s + w.hours, 0);
@@ -56,24 +57,47 @@ export class PlanMyWorkComponent implements OnInit {
 
     get selectedCategoryBudgetLeft(): number {
         if (!this.selectedItem) return 0;
-        const catName = this.categoryLabel(this.selectedItem.category);
+        return this.getCategoryBudgetLeft(this.categoryLabel(this.selectedItem.category));
+    }
+
+    getCategoryBudgetLeft(catName: string): number {
         const cat = this.categories.find(c => c.name === catName);
-        return cat ? (cat.budget - cat.claimed) : 0;
+        if (!cat) return 0;
+
+        // Overall Category Budget - (Total hours claimed by EVERYONE across ALL assignments in this plan)
+        const totalClaimedInCategory = this.allAssignments
+            .filter(a => {
+                const bi = this.backlogItems.find(b => b.id === a.backlogItemId);
+                return bi && this.categoryLabel(bi.category) === catName;
+            })
+            .reduce((s, a) => s + a.plannedHours, 0);
+
+        // Also subtract what's currently in my local (unsaved) myWork for this category, 
+        // but ONLY if it's not already accounted for in allAssignments (i.e. if it's new)
+        const myLocalNewClaimed = this.myWork
+            .filter(w => !w.savedAssignmentId && this.categoryLabel(w.backlogItem.category) === catName)
+            .reduce((s, w) => s + w.hours, 0);
+
+        return cat.budget - totalClaimedInCategory - myLocalNewClaimed;
+    }
+
+    isItemPicked(itemId: number): boolean {
+        // Return true if any member (including me) has picked this item in this plan
+        return this.allAssignments.some(a => a.backlogItemId === itemId) ||
+            this.myWork.some(w => w.backlogItem.id === itemId);
     }
 
     get filteredBacklog(): BacklogItem[] {
         return this.backlogItems.filter(item => {
-            const notAlreadyPicked = !this.myWork.find(w => w.backlogItem.id === item.id);
             const matchesSearch = item.title.toLowerCase().includes(this.searchQuery.toLowerCase());
-            return notAlreadyPicked && matchesSearch && (item.status || '').toLowerCase() !== 'archived';
+            return matchesSearch && (item.status || '').toLowerCase() !== 'archived';
         });
     }
 
     ngOnInit(): void {
         this.api.currentUser$.subscribe(user => {
             this.currentUser = user;
-            // Re-load assignments whenever user changes
-            if (this.plan && user) this.loadExistingAssignments();
+            this.checkAndLoad();
         });
 
         this.api.getWeeklyPlans().subscribe(plans => {
@@ -81,35 +105,42 @@ export class PlanMyWorkComponent implements OnInit {
                 const sorted = [...plans].sort((a, b) => b.id - a.id);
                 this.plan = sorted[0];
                 this.buildCategories();
+                this.checkAndLoad();
             }
             this.cdr.detectChanges();
         });
 
         this.api.getBacklogItems().subscribe(items => {
             this.backlogItems = items || [];
-            // Now that backlog is loaded, load assignments
-            if (this.plan && this.currentUser) this.loadExistingAssignments();
+            this.checkAndLoad();
             this.cdr.detectChanges();
         });
     }
 
+    private checkAndLoad(): void {
+        if (this.plan && this.currentUser && this.backlogItems.length > 0) {
+            this.loadExistingAssignments();
+        }
+    }
+
     // Load any previously saved assignments for this user in the current plan
     loadExistingAssignments(): void {
-        if (!this.plan || !this.currentUser) return;
+        if (!this.plan || !this.currentUser || this.backlogItems.length === 0) return;
 
         this.api.getAssignments(this.plan.id).subscribe(assignments => {
-            const mine = assignments.filter((a: TaskAssignment) => a.teamMemberId === this.currentUser!.id);
-            if (mine.length > 0) {
-                this.myWork = mine.map((a: TaskAssignment) => ({
-                    backlogItem: this.backlogItems.find(b => b.id === a.backlogItemId) ||
-                        { id: a.backlogItemId, title: 'Unknown', category: '', estimatedHours: 0, status: '' },
-                    hours: a.plannedHours,
-                    savedAssignmentId: a.id
-                }));
-                this.isDone = true; // Already submitted
-                this.updateCategoryClaims();
-                this.cdr.detectChanges();
-            }
+            this.allAssignments = assignments || [];
+            const mine = this.allAssignments.filter((a: TaskAssignment) => a.teamMemberId === this.currentUser!.id);
+
+            this.myWork = mine.map((a: TaskAssignment) => ({
+                backlogItem: this.backlogItems.find(b => b.id === a.backlogItemId) ||
+                    { id: a.backlogItemId, title: 'Unknown', category: '', estimatedHours: 0, status: '' },
+                hours: a.plannedHours,
+                savedAssignmentId: a.id
+            }));
+
+            this.isDone = mine.length > 0;
+            this.updateCategoryClaims();
+            this.cdr.detectChanges();
         });
     }
 

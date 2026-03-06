@@ -8,8 +8,15 @@
 
     <ng-container *ngIf="!isLoading">
         <div class="top-row">
-            <h1 class="title">📊 See Team Progress</h1>
-            <button class="btn-back-top" (click)="goBack()">← Back to Dashboard</button>
+            <h1 class="title">📋 Weekly Plan Tracker</h1>
+            <div class="header-actions">
+                <button class="header-btn" (click)="goBack()">🏠 Home</button>
+            </div>
+        </div>
+
+        <div class="user-info-bar" *ngIf="api.currentUser$ | async as user">
+            <span class="user-name">{{ user.name }}</span>
+            <span class="user-role-label">{{ user.isLead ? 'Lead' : 'Member' }}</span>
         </div>
 
         <!-- No Plan -->
@@ -20,77 +27,106 @@
         </div>
 
         <ng-container *ngIf="plan">
-            <!-- Plan meta -->
-            <div class="plan-meta">
-                Week of {{ plan.startDate | date:'yyyy-MM-dd' }}
-                &nbsp;·&nbsp;
-                {{ members.length }} members
-                &nbsp;·&nbsp;
-                {{ plan.isFrozen ? '❄️ Frozen' : '🟡 Planning Open' }}
-            </div>
+            <!-- MAIN OVERVIEW -->
+            <div *ngIf="!selectedDetail">
+                <h2 class="section-title">Team Progress — {{ plan.startDate | date:'yyyy-MM-dd' }}</h2>
+                <div class="frozen-badge">FROZEN</div>
 
-            <!-- Team overall bar -->
-            <div class="overall-card">
-                <div class="overall-label">
-                    <span class="overall-title">Team Overall</span>
-                    <span class="overall-pct">{{ totalTeamCompleted }}h done / {{ totalTeamPlanned }}h planned &nbsp;({{
-                        overallPercent }}%)</span>
-                </div>
-                <div class="overall-bar-wrap">
-                    <div class="overall-bar-fill" [style.width.%]="overallPercent" [class.full]="overallPercent >= 100">
+                <!-- Overall Progress -->
+                <div class="stat-card">
+                    <h3 class="stat-title">Overall Progress</h3>
+                    <div class="stat-main">
+                        <span class="stat-value">{{ totalTeamCompleted }}h / {{ totalTeamPlanned }}h</span>
+                        <span class="stat-pct">{{ overallPercent }}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" [style.width.%]="overallPercent"></div>
+                    </div>
+
+                    <div class="mini-stats">
+                        <div class="mini-stat">
+                            <span class="mini-label">Tasks Done</span>
+                            <span class="mini-value">{{ totalTasksDone }} / {{ totalTasksPlanned }}</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="mini-label">Blocked</span>
+                            <span class="mini-value">{{ totalTasksBlocked }}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Member cards -->
+                <p class="empty-progress-note" *ngIf="totalTeamCompleted === 0">No one has reported progress yet.</p>
 
-            <div class="members-list">
-                <div class="member-card" *ngFor="let m of members">
+                <!-- By Category -->
+                <div class="breakdown-section">
+                    <h3 class="breakdown-title">By Category</h3>
+                    <div class="breakdown-grid">
+                        <div class="breakdown-item" *ngFor="let cat of byCategory">
+                            <div class="breakdown-info">
+                                <span class="breakdown-label">{{ cat.label }}</span>
+                                <span class="breakdown-hours">Budget: {{ cat.budget }}h</span>
+                                <span class="breakdown-done">Done: {{ cat.done }}h ({{ getCategoryPercent(cat.done,
+                                    cat.budget) }}%)</span>
+                            </div>
+                            <button class="btn-details" (click)="viewCategoryDetails(cat)">See Details</button>
+                        </div>
+                    </div>
+                </div>
 
-                    <!-- Member header (always visible) -->
-                    <div class="member-header" (click)="toggleExpand(m)">
-                        <div class="member-left">
-                            <div class="member-avatar">{{ m.memberName[0].toUpperCase() }}</div>
+                <!-- By Member -->
+                <div class="breakdown-section">
+                    <h3 class="breakdown-title">By Member</h3>
+                    <div class="member-grid">
+                        <div class="member-progress-card" *ngFor="let m of members">
                             <div class="member-info">
-                                <div class="member-name">
-                                    {{ m.memberName }}
-                                    <span class="lead-tag" *ngIf="m.isLead">Lead</span>
+                                <div class="member-top">
+                                    <span class="member-name">{{ m.memberName }}</span>
+                                    <span class="member-status-tag">Working</span>
                                 </div>
-                                <div class="member-sub">
-                                    {{ m.totalCompleted }}h done / {{ m.totalPlanned }}h planned
-                                    <span *ngIf="m.tasks.length === 0" class="no-tasks-tag">No tasks yet</span>
+                                <div class="member-bottom">
+                                    <span class="member-hours">{{ m.totalCompleted }}h / {{ m.totalPlanned }}h ({{
+                                        memberPercent(m) }}%)</span>
                                 </div>
                             </div>
-                        </div>
-                        <div class="member-right">
-                            <div class="member-progress-wrap">
-                                <div class="member-bar-wrap">
-                                    <div class="member-bar-fill" [style.width.%]="memberPercent(m)"
-                                        [class.full]="memberPercent(m) >= 100"></div>
-                                </div>
-                                <span class="member-pct">{{ memberPercent(m) }}%</span>
-                            </div>
-                            <span class="expand-arrow">{{ m.expanded ? '▲' : '▼' }}</span>
+                            <button class="btn-details" (click)="viewMemberDetails(m)">See Details</button>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Task detail (expanded) -->
-                    <div class="task-list" *ngIf="m.expanded">
-                        <div class="no-tasks" *ngIf="m.tasks.length === 0">
-                            No tasks planned yet for this member.
-                        </div>
-                        <div class="task-row" *ngFor="let t of m.tasks" [ngClass]="statusClass(t.status)">
-                            <div class="task-left">
-                                <div class="task-title">{{ t.title }}</div>
-                                <span class="cat-pill" [ngClass]="categoryClass(t.category)">{{
-                                    categoryLabel(t.category) }}</span>
-                            </div>
-                            <div class="task-right">
-                                <div class="task-hours">{{ t.completedHours }}h / {{ t.plannedHours }}h</div>
-                                <span class="task-status-badge" [ngClass]="statusClass(t.status)">{{ t.status }}</span>
-                            </div>
-                        </div>
-                    </div>
+            <!-- DETAILS VIEW -->
+            <div class="details-view" *ngIf="selectedDetail">
+                <h2 class="section-title">{{ selectedDetail.title }}</h2>
+                <div class="details-subtitle">{{ selectedDetail.subtitle }}</div>
+
+                <div class="details-table-wrapper">
+                    <table class="details-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Member</th>
+                                <th>Committed</th>
+                                <th>Done</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let t of selectedDetail.tasks">
+                                <td>{{ t.itemTitle }}</td>
+                                <td>{{ t.memberName }}</td>
+                                <td>{{ t.committed }}h</td>
+                                <td>{{ t.done }}h</td>
+                                <td>
+                                    <span class="status-badge" [ngClass]="statusClass(t.status)">
+                                        {{ t.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr *ngIf="selectedDetail.tasks.length === 0">
+                                <td colspan="5" class="empty-table-msg">No tasks found.</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </ng-container>

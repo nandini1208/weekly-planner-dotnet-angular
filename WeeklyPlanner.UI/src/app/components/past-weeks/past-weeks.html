@@ -1,4 +1,4 @@
-<div class="pw-container">
+<div class="tp-container">
 
     <!-- Loading -->
     <div class="loading-state" *ngIf="isLoading">
@@ -8,14 +8,16 @@
 
     <ng-container *ngIf="!isLoading">
         <div class="top-row">
-            <h1 class="title">📅 Past Weeks</h1>
-            <button class="btn-back-top" (click)="goBack()">← Back to Dashboard</button>
+            <h1 class="title">📅 Past Weeks Overview</h1>
+            <div class="header-actions">
+                <button class="header-btn" (click)="goBack()">🏠 Home</button>
+            </div>
         </div>
 
         <!-- No frozen plans yet -->
         <div class="empty-state" *ngIf="frozenPlans.length === 0">
             <div class="empty-icon">🗓️</div>
-            <div class="empty-msg">No completed weeks yet. Once a plan is frozen, it will appear here.</div>
+            <div class="empty-msg">No completed weeks yet. Once a week is finished, it will appear here.</div>
         </div>
 
         <!-- Past plan cards -->
@@ -25,66 +27,76 @@
                 <!-- Plan header -->
                 <div class="plan-header" (click)="toggle(plan.id)">
                     <div class="plan-left">
-                        <div class="plan-week">Week of {{ plan.startDate | date:'dd MMM yyyy' }}</div>
-                        <div class="plan-range">{{ weekRange(plan.startDate) }}</div>
+                        <div class="plan-week">Week of {{ plan.startDate | date:'yyyy-MM-dd' }}</div>
+                        <div class="plan-status">{{ plan.isCompleted ? 'COMPLETED' : 'FROZEN' }}</div>
                     </div>
                     <div class="plan-right">
-                        <div class="plan-stats" *ngIf="summaries[i]">
-                            <span class="stat-badge client">
-                                Client {{ summaries[i]!.clientPercentage }}%
-                            </span>
-                            <span class="stat-badge tech">
-                                Tech {{ summaries[i]!.techDebtPercentage }}%
-                            </span>
-                            <span class="stat-badge rnd">
-                                R&D {{ summaries[i]!.rnDPercentage }}%
-                            </span>
-                            <span class="completion-badge" [class.done]="summaries[i]!.overallPercent >= 100">
-                                {{ summaries[i]!.overallPercent }}% done
-                            </span>
+                        <div class="plan-summary-mini" *ngIf="summaries[i]">
+                            <span>{{ summaries[i]!.overallPercent }}% Overall</span>
                         </div>
-                        <span class="frozen-tag">❄️ Frozen</span>
                         <span class="expand-arrow">{{ expandedId === plan.id ? '▲' : '▼' }}</span>
                     </div>
                 </div>
 
                 <!-- Expanded detail -->
                 <div class="plan-detail" *ngIf="expandedId === plan.id">
-                    <!-- Loading summary -->
                     <div class="summary-loading" *ngIf="!summaries[i]">
                         <div class="loading-spinner small"></div> Loading summary...
                     </div>
 
                     <ng-container *ngIf="summaries[i]">
-                        <!-- Overall bar -->
-                        <div class="summary-overall">
-                            <div class="overall-label">
-                                <span>Team Completion</span>
-                                <span class="overall-pct">{{ summaries[i]!.totalCompleted }}h / {{
-                                    summaries[i]!.totalPlanned }}h &nbsp;({{ summaries[i]!.overallPercent }}%)</span>
+                        <!-- Overall Tracker Style -->
+                        <div class="stat-card">
+                            <h3 class="stat-title">Final Progress</h3>
+                            <div class="stat-main">
+                                <span class="stat-value">{{ summaries[i]!.totalCompleted }}h / {{
+                                    summaries[i]!.totalPlanned }}h</span>
+                                <span class="stat-pct">{{ summaries[i]!.overallPercent }}%</span>
                             </div>
-                            <div class="overall-bar-wrap">
-                                <div class="overall-bar-fill" [style.width.%]="summaries[i]!.overallPercent"
-                                    [class.full]="summaries[i]!.overallPercent >= 100"></div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" [style.width.%]="summaries[i]!.overallPercent"></div>
                             </div>
                         </div>
 
-                        <!-- Member breakdown -->
-                        <div class="member-rows">
-                            <div class="member-row" *ngFor="let m of summaries[i]!.memberResults">
-                                <div class="mr-name">
-                                    <span class="mr-avatar">{{ m.memberName[0].toUpperCase() }}</span>
-                                    {{ m.memberName }}
-                                    <span class="lead-tag" *ngIf="m.isLead">Lead</span>
+                        <!-- By Category -->
+                        <div class="breakdown-section">
+                            <h3 class="breakdown-title">By Category</h3>
+                            <div class="breakdown-grid">
+                                <div class="breakdown-item">
+                                    <div class="breakdown-info">
+                                        <span class="breakdown-label">Client Focused</span>
+                                        <span class="breakdown-hours">Budget: {{ plan.clientPercentage }}%</span>
+                                    </div>
                                 </div>
-                                <div class="mr-bar-wrap">
-                                    <div class="mr-bar-fill" [style.width.%]="m.percent"
-                                        [class.full]="m.percent >= 100"></div>
+                                <div class="breakdown-item">
+                                    <div class="breakdown-info">
+                                        <span class="breakdown-label">Tech Debt</span>
+                                        <span class="breakdown-hours">Budget: {{ plan.techDebtPercentage }}%</span>
+                                    </div>
                                 </div>
-                                <div class="mr-pct">{{ m.completed }}h / {{ m.planned }}h &nbsp;({{ m.percent }}%)</div>
+                                <div class="breakdown-item">
+                                    <div class="breakdown-info">
+                                        <span class="breakdown-label">R&D</span>
+                                        <span class="breakdown-hours">Budget: {{ plan.rnDPercentage }}%</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="no-members" *ngIf="summaries[i]!.memberResults.length === 0">
-                                No task assignments recorded for this week.
+                        </div>
+
+                        <!-- By Member -->
+                        <div class="breakdown-section">
+                            <h3 class="breakdown-title">By Member</h3>
+                            <div class="member-grid">
+                                <div class="member-progress-card" *ngFor="let m of summaries[i]!.memberResults">
+                                    <div class="member-top">
+                                        <span class="member-name">{{ m.memberName }}</span>
+                                        <span class="member-status-tag" *ngIf="m.percent >= 100">Done</span>
+                                    </div>
+                                    <div class="member-bottom">
+                                        <span class="member-hours">{{ m.completed }}h / {{ m.planned }}h ({{ m.percent
+                                            }}%)</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </ng-container>

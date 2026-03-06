@@ -209,124 +209,147 @@
     }
 }
 
-/* Cancel Planning Modal */
-.cancel-overlay {
+/* Modal Base Styles */
+.modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.75);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 9000;
     backdrop-filter: blur(4px);
+    padding: 20px;
 }
 
-.cancel-modal {
+.update-modal {
     background: #1f2937;
-    border-radius: 16px;
-    padding: 40px 36px;
-    max-width: 440px;
-    width: 90%;
-    text-align: center;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
     border: 1px solid #374151;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
-    animation: modalSlide 0.25s ease;
-}
-
-@keyframes modalSlide {
-    from {
-        opacity: 0;
-        transform: translateY(-20px) scale(0.96);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-.cancel-modal-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-}
-
-.cancel-modal-title {
-    font-size: 22px;
-    font-weight: 800;
-    color: #f3f4f6;
-    margin: 0 0 12px;
-}
-
-.cancel-modal-body {
-    color: #9ca3af;
-    font-size: 15px;
-    line-height: 1.6;
-    margin: 0 0 28px;
-}
-
-.cancel-modal-body strong {
-    color: #f87171;
-}
-
-.cancel-modal-actions {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    animation: modalScale 0.2s ease-out;
 }
 
-.cancel-btn-confirm {
-    background: #dc2626;
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #374151;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #f3f4f6;
+}
+
+.btn-close-modal {
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.btn-close-modal:hover {
+    color: #f3f4f6;
+}
+
+.modal-content {
+    padding: 24px;
+}
+
+.modal-body {
+    color: #9ca3af;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #374151;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
+}
+
+.btn-modal-save {
+    background: #3b82f6;
     color: white;
     border: none;
-    padding: 14px;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-}
-
-.cancel-btn-confirm:hover:not(:disabled) {
-    background: #b91c1c;
-    transform: translateY(-1px);
-}
-
-.cancel-btn-confirm:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.cancel-btn-back {
-    background: transparent;
-    color: #9ca3af;
-    border: 1px solid #374151;
-    padding: 12px;
-    border-radius: 10px;
+    padding: 10px 20px;
+    border-radius: 6px;
     font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
 }
 
-.cancel-btn-back:hover:not(:disabled) {
-    background: #374151;
-    color: #f3f4f6;
+.btn-modal-save:hover:not(:disabled) {
+    background: #2563eb;
 }
 
-/* Light mode overrides */
-:host-context(body.light-mode) .cancel-modal {
+.btn-modal-cancel {
+    background: #374151;
+    color: #f3f4f6;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-modal-cancel:hover:not(:disabled) {
+    background: #4b5563;
+}
+
+/* Responsiveness */
+@media (max-width: 640px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .title {
+        font-size: 26px;
+    }
+}
+
+:host-context(body.light-mode) .update-modal {
     background: #ffffff;
     border-color: #e5e7eb;
 }
 
-:host-context(body.light-mode) .cancel-modal-title {
+:host-context(body.light-mode) .modal-header {
+    border-color: #e5e7eb;
+}
+
+:host-context(body.light-mode) .modal-header h3 {
     color: #111827;
 }
 
-:host-context(body.light-mode) .cancel-btn-back {
-    border-color: #d1d5db;
+:host-context(body.light-mode) .modal-footer {
+    border-color: #e5e7eb;
 }
 
-:host-context(body.light-mode) .cancel-btn-back:hover {
+:host-context(body.light-mode) .btn-modal-cancel {
     background: #f3f4f6;
-    color: #111827;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+:host-context(body.light-mode) .btn-modal-cancel:hover:not(:disabled) {
+    background: #e5e7eb;
 }

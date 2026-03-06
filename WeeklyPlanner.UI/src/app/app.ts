@@ -36,9 +36,10 @@ export class AppComponent implements OnInit {
     this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe((event: any) => {
-        this.showLayout = ['/dashboard', '/setup', '/backlog', '/team', '/review-freeze', '/plan-my-work', '/update-progress', '/team-progress', '/past-weeks'].some(
-          path => event.urlAfterRedirects === path || event.urlAfterRedirects.startsWith(path + '?')
-        );
+        const url = event.urlAfterRedirects || '';
+        this.showLayout = ['/dashboard', '/setup', '/backlog', '/review-freeze', '/plan-my-work', '/update-progress', '/team-progress', '/past-weeks'].some(
+          path => url === path || url.startsWith(path + '?')
+        ) || (url.startsWith('/team') && url.includes('mode=manage'));
       });
   }
 
@@ -207,53 +208,20 @@ export class AppComponent implements OnInit {
     if (this.isSeeding) return;
     this.isSeeding = true;
 
-    // Step 1: Reset all existing data first
-    this.api.resetAll().subscribe({
+    this.api.seedData().subscribe({
       next: () => {
-        // Step 2: Add the 4 original team members
-        const sampleMembers = [
-          { name: 'Alice Chen', isLead: true },
-          { name: 'Bob Martinez', isLead: false },
-          { name: 'Carol Singh', isLead: false },
-          { name: 'Dave Kim', isLead: false }
-        ];
-        const sampleBacklog = [
-          { title: 'Customer onboarding redesign', category: 'Client Focused', estimatedHours: 12, status: 'Available' },
-          { title: 'Fix billing invoice formatting', category: 'Client Focused', estimatedHours: 4, status: 'Available' },
-          { title: 'Customer feedback dashboard', category: 'Client Focused', estimatedHours: 16, status: 'Available' },
-          { title: 'Migrate database to PostgreSQL 16', category: 'Tech Debt', estimatedHours: 20, status: 'Available' },
-          { title: 'Remove deprecated API endpoints', category: 'Tech Debt', estimatedHours: 8, status: 'Available' },
-          { title: 'Add unit tests for payment module', category: 'Tech Debt', estimatedHours: 10, status: 'Available' },
-          { title: 'Experiment with LLM-based search', category: 'R&D', estimatedHours: 15, status: 'Available' },
-          { title: 'Evaluate new caching strategy', category: 'R&D', estimatedHours: 6, status: 'Available' },
-          { title: 'Build internal CLI tool', category: 'R&D', estimatedHours: 8, status: 'Available' },
-          { title: 'Client SSO integration', category: 'Client Focused', estimatedHours: 18, status: 'Available' }
-        ];
-
-        const allObs: any[] = [
-          ...sampleMembers.map(m => this.api.addTeamMember(m)),
-          ...sampleBacklog.map(b => this.api.addBacklogItem(b))
-        ];
-        let done = 0;
-        const total = allObs.length;
-        const tryFinish = () => {
-          done++;
-          if (done >= total) {
-            this.isSeeding = false;
-            this.api.setCurrentUser(null);
-            this.api.getTeamMembers().subscribe();
-            this.showFooterToast('Sample data loaded! Pick a person to get started.', false);
-            this.router.navigate(['/dashboard']);
-            this.cdr.detectChanges();
-          }
-        };
-        allObs.forEach((obs: any) => obs.subscribe({ next: tryFinish, error: () => tryFinish() }));
-        // Safety: force reset seeding state after 8s in case counter doesn't match
-        setTimeout(() => { this.isSeeding = false; this.cdr.detectChanges(); }, 8000);
+        this.isSeeding = false;
+        this.api.setCurrentUser(null);
+        this.api.getTeamMembers().subscribe();
+        this.api.getWeeklyPlans().subscribe();
+        this.showFooterToast('Sample data loaded! Pick a person to get started.', false);
+        this.router.navigate(['/dashboard']);
+        this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.isSeeding = false;
         this.showFooterToast('❌ Failed to seed data.', true);
+        console.error(err);
       }
     });
   }

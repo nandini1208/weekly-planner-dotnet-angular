@@ -100,15 +100,7 @@
             <button class="btn-add-new" (click)="showAddForm = true">+ Add a New Backlog Item</button>
         </div>
 
-        <!-- CATEGORY FILTER PILLS -->
-        <div class="cat-pills">
-            <button class="pill" [class.active-client]="activeCat === 'Client Focused'"
-                (click)="setCat('Client Focused')">Client Focused</button>
-            <button class="pill pill-tech" [class.active-tech]="activeCat === 'Tech Debt'"
-                (click)="setCat('Tech Debt')">Tech Debt</button>
-            <button class="pill pill-rnd" [class.active-rnd]="activeCat === 'R&D'"
-                (click)="setCat('R&D')">R&amp;D</button>
-        </div>
+
 
         <!-- FILTERS ROW -->
         <div class="filters-row">

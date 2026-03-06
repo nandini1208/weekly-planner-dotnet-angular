@@ -25,6 +25,19 @@ interface TaskItem {
     lastUpdated: string | null;
 }
 
+interface CategoryProgress {
+    label: string;
+    budget: number;
+    done: number;
+}
+
+export interface DetailView {
+    type: 'category' | 'member';
+    title: string;
+    subtitle: string;
+    tasks: { itemTitle: string; memberName: string; committed: number; done: number; status: string }[];
+}
+
 @Component({
     selector: 'app-team-progress',
     standalone: true,
@@ -41,6 +54,8 @@ export class TeamProgressComponent implements OnInit {
     members: MemberProgress[] = [];
     isLoading = true;
 
+    selectedDetail: DetailView | null = null;
+
     get totalTeamPlanned(): number {
         return this.members.reduce((s, m) => s + m.totalPlanned, 0);
     }
@@ -52,6 +67,55 @@ export class TeamProgressComponent implements OnInit {
     get overallPercent(): number {
         if (this.totalTeamPlanned === 0) return 0;
         return Math.min(100, Math.round((this.totalTeamCompleted / this.totalTeamPlanned) * 100));
+    }
+
+    get totalTasksDone(): number {
+        let count = 0;
+        this.members.forEach(m => {
+            count += m.tasks.filter(t => t.status === 'Done').length;
+        });
+        return count;
+    }
+
+    get totalTasksPlanned(): number {
+        let count = 0;
+        this.members.forEach(m => {
+            count += m.tasks.length;
+        });
+        return count;
+    }
+
+    get totalTasksBlocked(): number {
+        let count = 0;
+        this.members.forEach(m => {
+            count += m.tasks.filter(t => t.status === 'Blocked').length;
+        });
+        return count;
+    }
+
+    get byCategory(): CategoryProgress[] {
+        const cats: { [key: string]: CategoryProgress } = {
+            'Client Focused': { label: 'Client Focused', budget: 0, done: 0 },
+            'Tech Debt': { label: 'Tech Debt', budget: 0, done: 0 },
+            'R&D': { label: 'R&D', budget: 0, done: 0 }
+        };
+
+        this.members.forEach(m => {
+            m.tasks.forEach(t => {
+                const label = this.categoryLabel(t.category);
+                if (cats[label]) {
+                    cats[label].budget += t.plannedHours;
+                    cats[label].done += t.completedHours;
+                }
+            });
+        });
+
+        return Object.values(cats);
+    }
+
+    getCategoryPercent(done: number, budget: number): number {
+        if (budget === 0) return 0;
+        return Math.min(100, Math.round((done / budget) * 100));
     }
 
     ngOnInit(): void {
@@ -117,7 +181,55 @@ export class TeamProgressComponent implements OnInit {
         m.expanded = !m.expanded;
     }
 
+    viewCategoryDetails(cat: CategoryProgress): void {
+        const matchingTasks: { itemTitle: string; memberName: string; committed: number; done: number; status: string }[] = [];
+        const percent = this.getCategoryPercent(cat.done, cat.budget);
+
+        this.members.forEach(m => {
+            m.tasks.forEach(t => {
+                if (this.categoryLabel(t.category) === cat.label) {
+                    matchingTasks.push({
+                        itemTitle: t.title,
+                        memberName: m.memberName,
+                        committed: t.plannedHours,
+                        done: t.completedHours,
+                        status: t.status
+                    });
+                }
+            });
+        });
+
+        this.selectedDetail = {
+            type: 'category',
+            title: `${cat.label} — Details`,
+            subtitle: `Budget: ${cat.budget}h. Completed: ${cat.done}h (${percent}%)`,
+            tasks: matchingTasks
+        };
+    }
+
+    viewMemberDetails(m: MemberProgress): void {
+        const percent = this.memberPercent(m);
+        const matchingTasks = m.tasks.map(t => ({
+            itemTitle: t.title,
+            memberName: 'Team Member',
+            committed: t.plannedHours,
+            done: t.completedHours,
+            status: t.status
+        }));
+
+        this.selectedDetail = {
+            type: 'member',
+            title: `${m.memberName} — Details`,
+            subtitle: `Assigned: ${m.totalPlanned}h. Completed: ${m.totalCompleted}h (${percent}%)`,
+            tasks: matchingTasks
+        };
+    }
+
     goBack(): void {
-        this.router.navigate(['/dashboard']);
+        if (this.selectedDetail) {
+            this.selectedDetail = null;
+        } else {
+            this.router.navigate(['/dashboard']);
+        }
     }
 }

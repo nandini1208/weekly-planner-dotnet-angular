@@ -123,15 +123,18 @@ export class ReviewFreezeComponent implements OnInit {
             ms.status = ms.plannedHours >= ms.capacity ? '✅ Ready' : 'Not yet';
             if (ms.plannedHours < ms.capacity) {
                 reasons.push(
-                    `${ms.member.name} has ${ms.plannedHours}h planned (needs ${ms.capacity - ms.plannedHours} more).`
+                    `${ms.member.name} has ${ms.plannedHours}h planned (needs ${ms.capacity - ms.plannedHours}h more).`
                 );
             }
         }
 
+        // Strict validation: no tolerance allowed, must match budget exactly
         for (const cat of this.categorySummaries) {
             if (cat.planned !== cat.budget) {
+                const diff = cat.planned - cat.budget;
+                const type = diff > 0 ? 'exceeds' : 'is below';
                 reasons.push(
-                    `${cat.name} has ${cat.planned}h planned but budget is ${cat.budget}h.`
+                    `${cat.name} ${type} budget by ${Math.abs(diff)}h (Target: ${cat.budget}h, Actual: ${cat.planned}h).`
                 );
             }
         }

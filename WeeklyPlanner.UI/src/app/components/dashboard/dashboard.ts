@@ -49,6 +49,9 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  // 🏁 TRACK FINISHED WEEK
+  justFinishedWeek = false;
+
   ngOnInit(): void {
     this.api.currentUser$.subscribe(user => {
       this.currentUser = user;
@@ -157,5 +160,41 @@ export class DashboardComponent implements OnInit {
   // 👤 SELECT USER → Updates global state
   selectUser(member: TeamMember) {
     this.api.setCurrentUser(member);
+  }
+
+  // 🏁 FINISH WEEK MODAL
+  showFinishModal = false;
+  isFinishing = false;
+
+  confirmFinishWeek() {
+    this.showFinishModal = true;
+  }
+
+  closeFinishModal() {
+    this.showFinishModal = false;
+  }
+
+  executeFinishWeek() {
+    if (!this.activePlan || this.isFinishing) return;
+    this.isFinishing = true;
+
+    this.api.finishWeek(this.activePlan.id).subscribe({
+      next: () => {
+        this.activePlan = null;
+        this.showFinishModal = false;
+        this.isFinishing = false;
+        this.justFinishedWeek = true; // Show "This week is done!" state
+
+        // Hide progress toast if any
+        this.showPlanBanner = false;
+
+        this.api.getWeeklyPlans().subscribe();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isFinishing = false;
+        console.error('Error finishing week', err);
+      }
+    });
   }
 }

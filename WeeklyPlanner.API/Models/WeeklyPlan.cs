@@ -28,5 +28,8 @@ namespace WeeklyPlanner.API.Models
 
         /// <summary>True once the lead freezes the plan. Members can only update progress after this point.</summary>
         public bool IsFrozen { get; set; }
+
+        /// <summary>True once the lead closes the week. This archives the plan and resets unfinished items.</summary>
+        public bool IsCompleted { get; set; }
     }
 }

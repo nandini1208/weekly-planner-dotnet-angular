@@ -33,15 +33,26 @@
 
     <!-- LEADS SEE FULL DASHBOARD -->
     <ng-container *ngIf="currentUser.isLead">
+        <!-- NO PLAN YET OR JUST FINISHED -->
         <ng-container *ngIf="!activePlan">
-            <div class="info-banner">
+
+            <div *ngIf="justFinishedWeek" class="import-success-banner" style="margin-bottom: 20px;">
+                This week is done! You can start planning a new week.
+            </div>
+
+            <div *ngIf="!justFinishedWeek" class="info-banner">
+                No planning weeks yet. Click "Start a New Week" to begin!
+            </div>
+
+            <div *ngIf="justFinishedWeek"
+                style="font-size: 14px; color: #9ca3af; margin-bottom: 12px; font-weight: 500;">
                 No planning weeks yet. Click "Start a New Week" to begin!
             </div>
 
             <div class="grid">
                 <div class="card" (click)="startNewWeek()">
-                    <div class="card-title">⚙️ Set Up This Week's Plan</div>
-                    <div class="card-sub">Pick members and set category percentages.</div>
+                    <div class="card-title">🚀 Start a New Week</div>
+                    <div class="card-sub">Set up a new planning cycle.</div>
                 </div>
 
                 <div class="card" (click)="manageBacklog()">
@@ -61,8 +72,8 @@
             </div>
         </ng-container>
 
-        <ng-container *ngIf="activePlan">
-            <!-- Planning open info banner -->
+        <!-- PLAN IS OPEN (NOT FROZEN) -->
+        <ng-container *ngIf="activePlan && !activePlan.isFrozen">
             <div class="info-banner" style="background-color: #065f46; color: #a7f3d0; border: 1px solid #10b981;">
                 Planning is open! Team members can now plan their work.
             </div>
@@ -72,7 +83,6 @@
                     <div class="card-title">❄️ Review and Freeze the Plan</div>
                     <div class="card-sub">Check everyone's hours and lock the plan.</div>
                 </div>
-
 
                 <div class="card" (click)="planMyWork()">
                     <div class="card-title">📝 Plan My Work</div>
@@ -100,10 +110,50 @@
                 </div>
             </div>
         </ng-container>
+
+        <!-- PLAN IS FROZEN -->
+        <ng-container *ngIf="activePlan && activePlan.isFrozen">
+            <div class="info-banner" style="background-color: #1e3a8a; color: #9ca3af; border: 1px solid #3b82f6;">
+                The plan is frozen. Team members are now working on their tasks.
+            </div>
+
+            <div class="grid">
+                <div class="card" (click)="teamProgress()">
+                    <div class="card-title">📊 See Team Progress</div>
+                    <div class="card-sub">Check how the team is doing.</div>
+                </div>
+
+                <div class="card" (click)="updateProgress()">
+                    <div class="card-title">✏️ Update My Progress</div>
+                    <div class="card-sub">Report hours and status on your tasks.</div>
+                </div>
+
+                <div class="card" (click)="confirmFinishWeek()">
+                    <div class="card-title">✅ Finish This Week</div>
+                    <div class="card-sub">Close out this cycle.</div>
+                </div>
+
+                <div class="card" (click)="manageBacklog()">
+                    <div class="card-title">📋 Manage Backlog</div>
+                    <div class="card-sub">Add, edit, or browse work items.</div>
+                </div>
+
+                <div class="card" (click)="manageTeam()">
+                    <div class="card-title">👥 Manage Team Members</div>
+                    <div class="card-sub">Add or remove team members.</div>
+                </div>
+
+                <div class="card" (click)="viewPastWeeks()">
+                    <div class="card-title">📅 View Past Weeks</div>
+                    <div class="card-sub">Look at completed planning cycles.</div>
+                </div>
+            </div>
+        </ng-container>
     </ng-container>
 
     <!-- MEMBERS SEE RESTRICTED DASHBOARD -->
     <ng-container *ngIf="!currentUser.isLead">
+        <!-- NO PLAN YET -->
         <ng-container *ngIf="!activePlan">
             <div class="info-banner" style="background-color: #1e3a8a; color: #9ca3af; border: 1px solid #3b82f6;">
                 There's no active plan for you right now. Check back on Tuesday or ask your Team Lead.
@@ -122,7 +172,8 @@
             </div>
         </ng-container>
 
-        <ng-container *ngIf="activePlan">
+        <!-- PLAN IS OPEN (NOT FROZEN) -->
+        <ng-container *ngIf="activePlan && !activePlan.isFrozen">
             <div class="info-banner" style="background-color: #065f46; color: #a7f3d0; border: 1px solid #10b981;">
                 Planning is open! You can now plan your work for the week.
             </div>
@@ -133,9 +184,33 @@
                     <div class="card-sub">Pick backlog items and commit hours.</div>
                 </div>
 
+                <div class="card" (click)="manageBacklog()">
+                    <div class="card-title">📋 Manage Backlog</div>
+                    <div class="card-sub">Add, edit, or browse work items.</div>
+                </div>
+
+                <div class="card" (click)="viewPastWeeks()">
+                    <div class="card-title">📅 View Past Weeks</div>
+                    <div class="card-sub">Look at completed planning cycles.</div>
+                </div>
+            </div>
+        </ng-container>
+
+        <!-- PLAN IS FROZEN -->
+        <ng-container *ngIf="activePlan && activePlan.isFrozen">
+            <div class="info-banner" style="background-color: #1e3a8a; color: #9ca3af; border: 1px solid #3b82f6;">
+                The plan is frozen. You are now working on your tasks.
+            </div>
+
+            <div class="grid">
+                <div class="card" (click)="teamProgress()">
+                    <div class="card-title">📊 See Team Progress</div>
+                    <div class="card-sub">Check how the team is doing.</div>
+                </div>
+
                 <div class="card" (click)="updateProgress()">
                     <div class="card-title">✏️ Update My Progress</div>
-                    <div class="card-sub">Report hours done and status on your tasks.</div>
+                    <div class="card-sub">Report hours and status on your tasks.</div>
                 </div>
 
                 <div class="card" (click)="manageBacklog()">
@@ -164,6 +239,26 @@
                 {{ isCancelling ? 'Cancelling...' : 'Yes, Cancel Planning' }}
             </button>
             <button class="cancel-btn-back" (click)="closeCancelModal()" [disabled]="isCancelling">No, Go Back</button>
+        </div>
+    </div>
+</div>
+
+<!-- Finish Week Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showFinishModal" (click)="closeFinishModal()">
+    <div class="update-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Finish This Week?</h3>
+            <button class="btn-close-modal" (click)="closeFinishModal()">✖</button>
+        </div>
+        <div class="modal-content">
+            <p class="modal-body" style="text-align: left; margin: 0;">Some tasks are not finished yet. Those backlog
+                items will go back to the backlog. Are you sure?</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-modal-save" (click)="executeFinishWeek()" [disabled]="isFinishing">
+                {{ isFinishing ? 'Finishing...' : 'Yes, Finish This Week' }}
+            </button>
+            <button class="btn-modal-cancel" (click)="closeFinishModal()" [disabled]="isFinishing">No, Go Back</button>
         </div>
     </div>
 </div>

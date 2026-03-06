@@ -47,5 +47,8 @@ namespace WeeklyPlanner.API.Services
 
         /// <summary>Returns a rich completion summary for a frozen plan, including total/per-member hours and percentages.</summary>
         Task<object> GetPlanSummaryAsync(int planId);
+
+        /// <summary>Closes a planar session. Resets unfinished backlog items to 'Available'.</summary>
+        Task<WeeklyPlan> ClosePlanAsync(int planId);
     }
 }

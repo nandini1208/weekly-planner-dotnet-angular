@@ -42,6 +42,7 @@ namespace WeeklyPlanner.API.Controllers
             if (existing == null) return NotFound();
 
             existing.Title = item.Title;
+            existing.Description = item.Description;
             existing.Category = item.Category;
             existing.EstimatedHours = item.EstimatedHours;
             existing.Status = item.Status;

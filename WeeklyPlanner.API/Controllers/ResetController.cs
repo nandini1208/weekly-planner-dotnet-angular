@@ -15,27 +15,17 @@ namespace WeeklyPlanner.API.Controllers
             _context = context;
         }
 
-        // DELETE: api/Reset  — wipes every table
+        // DELETE: api/Reset — wipes every table
         [HttpDelete]
         public async Task<IActionResult> ResetAll()
         {
-            // Order matters: delete children before parents (FK constraints)
-            var updates = await _context.ProgressUpdates.ToListAsync();
-            _context.ProgressUpdates.RemoveRange(updates);
-
-            var assignments = await _context.TaskAssignments.ToListAsync();
-            _context.TaskAssignments.RemoveRange(assignments);
-
-            var plans = await _context.WeeklyPlans.ToListAsync();
-            _context.WeeklyPlans.RemoveRange(plans);
-
-            var backlog = await _context.BacklogItems.ToListAsync();
-            _context.BacklogItems.RemoveRange(backlog);
-
-            var members = await _context.TeamMembers.ToListAsync();
-            _context.TeamMembers.RemoveRange(members);
-
-            await _context.SaveChangesAsync();
+            // Faster wipe using raw SQL (order handles FKs)
+            await _context.Database.ExecuteSqlRawAsync("DELETE FROM ProgressUpdates");
+            await _context.Database.ExecuteSqlRawAsync("DELETE FROM TaskAssignments");
+            await _context.Database.ExecuteSqlRawAsync("DELETE FROM WeeklyPlans");
+            await _context.Database.ExecuteSqlRawAsync("DELETE FROM BacklogItems");
+            await _context.Database.ExecuteSqlRawAsync("DELETE FROM TeamMembers");
+            
             return NoContent();
         }
     }
