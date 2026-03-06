@@ -6,7 +6,7 @@ A professional full-stack application designed for agile teams to manage backlog
 **🚀 Live Demo**
 ```bash
 Experience the application live on Azure:
-- 🌐 [Live Deployment](https://weeklyplanner-api-3b6d2a4c.azurewebsites.net)
+- 🌐 [Live Deployment](https://weeklyplanner-ui-7d2a1b5e.azurewebsites.net)
 
 Note: The application allows you to manage teams, setup plans, and track weekly progress in a streamlined interface.
 ```
