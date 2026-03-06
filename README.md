@@ -1,31 +1,31 @@
-**🗓️ WeeklyPlannerApp**
+**WeeklyPlannerApp**
 ```bash
 A professional full-stack application designed for agile teams to manage backlogs, plan weekly tasks, and track real-time progress. Built with a modern Angular frontend and a robust .NET 8 backend.
 ```
 
-**🚀 Live Demo**
+**Live Demo**
 
 Experience the application live on Azure:
-- 🌐 [Live Deployment](https://weeklyplanner-ui-7d2a1b5e.azurewebsites.net)
+- [Live Deployment](https://weeklyplanner-ui-7d2a1b5e.azurewebsites.net)
 
 Note: The application allows you to manage teams, setup plans, and track weekly progress in a streamlined interface.
 
-**✨ Key Features**
+**Key Features**
 ```bash
-👥 Team Management: Add/remove members, assign roles (Team Lead), and manage your roster.
-📋 Backlog Management: Centralized repository for all tasks, ready to be pulled into weekly plans.
-📅 Weekly Planning: Structured 2-step process (Setup → Review & Freeze) to commit to weekly goals.
-📈 Progress Tracking:
+Team Management: Add/remove members, assign roles (Team Lead), and manage your roster.
+Backlog Management: Centralized repository for all tasks, ready to be pulled into weekly plans.
+Weekly Planning: Structured 2-step process (Setup -> Review & Freeze) to commit to weekly goals.
+Progress Tracking:
 Member View: Individual progress updates on assigned tasks.
 Team Dashboard: High-level overview of total completion percentages and status.
-📁 Data Portability: Full Export/Import functionality for JSON-based data persistence.
-⚙️ Reset & Seed: Quickly clear data or populate the app with demo content for testing.
-📱 Responsive UI: Modern design with interactive elements and real-time state updates using RxJS.
-📸 Screenshots
+Data Portability: Full Export/Import functionality for JSON-based data persistence.
+Reset & Seed: Quickly clear data or populate the app with demo content for testing.
+Responsive UI: Modern design with interactive elements and real-time state updates using RxJS.
+Screenshots
 (Placeholders - Add your screenshots here)
 ```
 
-**🛠️ Tech Stack**
+**Tech Stack**
 ```bash
 Frontend: 
 
@@ -47,7 +47,7 @@ CI/CD: GitHub Actions
 Testing: xUnit / .NET Tests, Jasmine/Karma for UI
 ```
 
-**🏗️ System Architecture**
+**System Architecture**
 ```bash
 Angular SPA: Acts as the client layer, managing UI state and interacting with the REST API.
 ASP.NET Core API: Handles business logic, task assignments, and progress calculations.
@@ -57,7 +57,7 @@ UI -> API: User actions (e.g., adding a task) trigger HTTP calls.
 API -> UI: Real-time state updates via BehaviorSubjects ensure the UI stay in sync without refreshing.
 ```
 
-**📁 Project Folder Structure**
+**Project Folder Structure**
 ```bash
 WeeklyPlannerApp/
 ├── .github/workflows/          # CI/CD pipeline (Build & Deploy to Azure)
@@ -77,7 +77,7 @@ WeeklyPlannerApp/
 └── WeeklyPlanner.Tests/        # xUnit Test Suite for API Logic
 ```
 
-**⚙️ Installation & Setup**
+**Installation & Setup**
 ```bash
 Prerequisites
 .NET 8 SDK
@@ -97,7 +97,7 @@ npm install
 npm start
 ```
 
-**🔐 Environment Variables**
+**Environment Variables**
 ```bash
 Backend (appsettings.json)
 ConnectionStrings:DefaultConnection: SQL Server connection string.
@@ -107,7 +107,7 @@ Frontend
 The baseUrl is dynamically assigned in api.service.ts based on the environment (localhost vs. Azure production URL).
 ```
 
-**🔌 API Endpoints Overview**
+**API Endpoints Overview**
 ```bash
 Category	Endpoint	Method	Description
 Team	/api/Team	GET/POST	Manage team members
@@ -119,7 +119,7 @@ Progress	/api/Progress/update	POST	Log task completion
 System	/api/Seed	POST	Populate demo data
 ```
 
-**🧪 Testing**
+**Testing**
 ```
 Backend Tests
 Run the xUnit tests to verify business logic:
@@ -134,7 +134,7 @@ cd WeeklyPlanner.UI
 npm test
 ```
 
-**🚢 CI/CD & Deployment**
+**CI/CD & Deployment**
 ```bash
 The project uses GitHub Actions (main.yml) for automated pipeline:
 
@@ -144,7 +144,7 @@ Publish Phase: Generates build artifacts.
 Deploy Phase: Automatically pushes to Azure Web Apps when changes are merged into main.
 ```
 
-**🔮 Future Improvements**
+**Future Improvements**
 ```bash
  Authentication: Implement MSAL/Azure AD for secure login.
  Notifications: Real-time reminders when plans are frozen or tasks completed.
@@ -152,7 +152,7 @@ Deploy Phase: Automatically pushes to Azure Web Apps when changes are merged int
  Mobile App: PWA conversion for on-the-go progress updates.
  ```
 
-**🤝 Contributing**
+**Contributing**
 ```bash
 Fork the project.
 Create your Feature Branch (git checkout -b feature/AmazingFeature).
@@ -161,7 +161,7 @@ Push to the branch (git checkout origin feature/AmazingFeature).
 Open a Pull Request.
 ```
 
-**📄 License**
+**License**
 Distributed under the MIT License. See LICENSE for more information.
 
-Developed with ❤️ by the WeeklyPlanner Team.
+Developed by the WeeklyPlanner Team.
