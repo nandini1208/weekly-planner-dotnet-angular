@@ -10,7 +10,9 @@
         <div class="top-row">
             <h1 class="title">📋 Weekly Plan Tracker</h1>
             <div class="header-actions">
-                <button class="header-btn" (click)="goBack()">🏠 Home</button>
+                <button class="header-btn" (click)="goBack()">
+                    {{ selectedDetail ? '← Back' : '🏠 Home' }}
+                </button>
             </div>
         </div>
 
