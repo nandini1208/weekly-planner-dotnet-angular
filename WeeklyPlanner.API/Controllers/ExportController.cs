@@ -29,11 +29,11 @@ namespace WeeklyPlanner.API.Controllers
             var data = new
             {
                 exportedAt = DateTime.UtcNow,
-                teamMembers = await _context.TeamMembers.ToListAsync(),
-                backlogItems = await _context.BacklogItems.ToListAsync(),
-                weeklyPlans = await _context.WeeklyPlans.ToListAsync(),
-                taskAssignments = await _context.TaskAssignments.ToListAsync(),
-                progressUpdates = await _context.ProgressUpdates.ToListAsync()
+                teamMembers = await _context.TeamMembers.AsNoTracking().ToListAsync(),
+                backlogItems = await _context.BacklogItems.AsNoTracking().ToListAsync(),
+                weeklyPlans = await _context.WeeklyPlans.AsNoTracking().ToListAsync(),
+                taskAssignments = await _context.TaskAssignments.AsNoTracking().ToListAsync(),
+                progressUpdates = await _context.ProgressUpdates.AsNoTracking().ToListAsync()
             };
 
             return Ok(data);
@@ -108,6 +108,9 @@ namespace WeeklyPlanner.API.Controllers
                         if (memberMap.TryGetValue(a.TeamMemberId,   out var mId)) a.TeamMemberId  = mId;
                         if (backlogMap.TryGetValue(a.BacklogItemId, out var bId)) a.BacklogItemId = bId;
                         if (planMap.TryGetValue(a.WeeklyPlanId,     out var pId)) a.WeeklyPlanId  = pId;
+                        
+                        a.BacklogItem = null;
+
                         _context.TaskAssignments.Add(a);
                         await _context.SaveChangesAsync();
                         assignMap[oldId] = a.Id;
@@ -130,7 +133,7 @@ namespace WeeklyPlanner.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest($"Import failed: {ex.Message}");
+                return BadRequest(new { message = $"Import failed: {ex.Message}" });
             }
         }
     }

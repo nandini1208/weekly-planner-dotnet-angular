@@ -80,7 +80,7 @@ export class ApiService {
      * Returns the members$ observable so components can reactively receive updates.
      */
     getTeamMembers(): Observable<TeamMember[]> {
-        this.http.get<TeamMember[]>(`${this.baseUrl}/Team`).subscribe({
+        this.http.get<TeamMember[]>(`${this.baseUrl}/Team?t=${new Date().getTime()}`).subscribe({
             next: (members) => {
                 const sorted = this.sortMembers(members);
                 this.membersSubject.next(sorted);
@@ -104,7 +104,7 @@ export class ApiService {
      * Use this inside forkJoin to avoid reactive side-effects.
      */
     getTeamMembersDirect(): Observable<TeamMember[]> {
-        return this.http.get<TeamMember[]>(`${this.baseUrl}/Team`);
+        return this.http.get<TeamMember[]>(`${this.baseUrl}/Team?t=${new Date().getTime()}`);
     }
 
     /**
@@ -215,7 +215,7 @@ export class ApiService {
 
     // Backlog
     getBacklogItems(): Observable<BacklogItem[]> {
-        return this.http.get<BacklogItem[]>(`${this.baseUrl}/Backlog`);
+        return this.http.get<BacklogItem[]>(`${this.baseUrl}/Backlog?t=${new Date().getTime()}`);
     }
 
     addBacklogItem(item: Partial<BacklogItem>): Observable<BacklogItem> {
@@ -261,7 +261,7 @@ export class ApiService {
     }
 
     getAssignments(planId: number): Observable<TaskAssignment[]> {
-        return this.http.get<TaskAssignment[]>(`${this.baseUrl}/Plan/${planId}/assignments`);
+        return this.http.get<TaskAssignment[]>(`${this.baseUrl}/Plan/${planId}/assignments?t=${new Date().getTime()}`);
     }
 
     deleteMemberAssignments(planId: number, memberId: number): Observable<any> {
@@ -274,15 +274,15 @@ export class ApiService {
     }
 
     getMemberProgress(memberId: number, planId: number): Observable<any[]> {
-        return this.http.get<any[]>(`${this.baseUrl}/Progress/member/${memberId}/plan/${planId}`);
+        return this.http.get<any[]>(`${this.baseUrl}/Progress/member/${memberId}/plan/${planId}?t=${new Date().getTime()}`);
     }
 
     getTeamProgress(planId: number): Observable<any[]> {
-        return this.http.get<any[]>(`${this.baseUrl}/Progress/plan/${planId}/team`);
+        return this.http.get<any[]>(`${this.baseUrl}/Progress/plan/${planId}/team?t=${new Date().getTime()}`);
     }
 
     getPlanSummary(planId: number): Observable<any> {
-        return this.http.get<any>(`${this.baseUrl}/Plan/${planId}/summary`);
+        return this.http.get<any>(`${this.baseUrl}/Plan/${planId}/summary?t=${new Date().getTime()}`);
     }
 
     finishWeek(planId: number): Observable<WeeklyPlan> {
@@ -291,7 +291,7 @@ export class ApiService {
 
     // Export / Import
     exportAll(): Observable<any> {
-        return this.http.get<any>(`${this.baseUrl}/Export/all`);
+        return this.http.get<any>(`${this.baseUrl}/Export/all?t=${new Date().getTime()}`);
     }
 
     importData(payload: any): Observable<any> {
