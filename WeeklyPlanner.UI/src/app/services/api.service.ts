@@ -13,7 +13,7 @@ import { TeamMember, BacklogItem, WeeklyPlan, TaskAssignment, ProgressUpdate, Pr
 export class ApiService {
     /** API base URL — defaults to Azure in production, localhost in development. */
     private readonly baseUrl = (typeof window !== 'undefined' && window.location.hostname !== 'localhost')
-        ? 'https://weeklyplanner-api-3b6d2a4c.azurewebsites.net/api'
+        ? 'https://weeklyplanner-api-nandini.azurewebsites.net/api'
         : 'http://localhost:5119/api';
     private http = inject(HttpClient);
 
