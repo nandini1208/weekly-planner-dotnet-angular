@@ -36,11 +36,12 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Always enable Swagger for easier verification during this deployment phase
+app.UseSwagger();
+app.UseSwaggerUI();
+
+// Redirect root to swagger
+app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.UseCors("AllowAngular");
 app.UseHttpsRedirection();
