@@ -3,7 +3,6 @@
 A professional full-stack application designed for agile teams to manage backlogs, plan weekly tasks, and track real-time progress. Built with a modern Angular frontend and a robust .NET 8 backend.
 ```
 
-**Live Links (New Azure Account)**
 
 Experience the application live:
 - **Frontend App**: [https://weeklyplanner-ui-nandini.azurewebsites.net](https://weeklyplanner-ui-nandini.azurewebsites.net)
