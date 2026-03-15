@@ -3,10 +3,11 @@
 A professional full-stack application designed for agile teams to manage backlogs, plan weekly tasks, and track real-time progress. Built with a modern Angular frontend and a robust .NET 8 backend.
 ```
 
-**Live Demo**
+**Live Links (New Azure Account)**
 
-Experience the application live on Azure:
-- Live Deployment: [https://weeklyplanner-ui-7d2a1b5e.azurewebsites.net](https://weeklyplanner-ui-7d2a1b5e.azurewebsites.net)
+Experience the application live:
+- **Frontend App**: [https://weeklyplanner-ui-nandini.azurewebsites.net](https://weeklyplanner-ui-nandini.azurewebsites.net)
+- **Backend API (Swagger)**: [https://weeklyplanner-api-nandini.azurewebsites.net](https://weeklyplanner-api-nandini.azurewebsites.net)
 
 Note: The application allows you to manage teams, setup plans, and track weekly progress in a streamlined interface.
 
@@ -21,9 +22,7 @@ Team Dashboard: High-level overview of total completion percentages and status.
 Data Portability: Full Export/Import functionality for JSON-based data persistence.
 Reset & Seed: Quickly clear data or populate the app with demo content for testing.
 Responsive UI: Modern design with interactive elements and real-time state updates using RxJS.
-Screenshots
-(Placeholders - Add your screenshots here)
-```
+
 
 **Tech Stack**
 ```bash
